@@ -1,0 +1,278 @@
+Ant
+    p  projects 
+    t  targets 
+Asm
+    d  defines
+    l  labels
+    m  macros
+    t  types (structs and records)
+Asp
+    d  constants
+    c  classes
+    f  functions
+    s  subroutines
+    v  variables
+Awk
+    f  functions
+Basic
+    c  constants
+    f  functions
+    l  labels
+    t  types
+    v  variables
+    g  enumerations
+BETA
+    f  fragment definitions
+    p  all patterns [off]
+    s  slots (fragment uses)
+    v  patterns (virtual or rebound)
+C
+    c  classes
+    d  macro definitions
+    e  enumerators (values inside an enumeration)
+    f  function definitions
+    g  enumeration names
+    l  local variables [off]
+    m  class, struct, and union members
+    n  namespaces
+    p  function prototypes [off]
+    s  structure names
+    t  typedefs
+    u  union names
+    v  variable definitions
+    x  external and forward variable declarations [off]
+C++
+    c  classes
+    d  macro definitions
+    e  enumerators (values inside an enumeration)
+    f  function definitions
+    g  enumeration names
+    l  local variables [off]
+    m  class, struct, and union members
+    n  namespaces
+    p  function prototypes [off]
+    s  structure names
+    t  typedefs
+    u  union names
+    v  variable definitions
+    x  external and forward variable declarations [off]
+C#
+    c  classes
+    d  macro definitions
+    e  enumerators (values inside an enumeration)
+    E  events
+    f  fields
+    g  enumeration names
+    i  interfaces
+    l  local variables [off]
+    m  methods
+    n  namespaces
+    p  properties
+    s  structure names
+    t  typedefs
+Cobol
+    d  data items 
+    f  file descriptions (FD, SD, RD) 
+    g  group items 
+    p  paragraphs 
+    P  program ids 
+    s  sections 
+DosBatch
+    l  labels 
+    v  variables 
+Eiffel
+    c  classes
+    f  features
+    l  local entities [off]
+Erlang
+    d  macro definitions
+    f  functions
+    m  modules
+    r  record definitions
+Flex
+    f  functions
+    c  classes
+    m  methods
+    p  properties
+    v  global variables
+    x  mxtags
+Fortran
+    b  block data
+    c  common blocks
+    e  entry points
+    f  functions
+    i  interface contents, generic names, and operators [off]
+    k  type and structure components
+    l  labels
+    L  local, common block, and namelist variables [off]
+    m  modules
+    n  namelists
+    p  programs
+    s  subroutines
+    t  derived types and structures
+    v  program (global) and module variables
+HTML
+    a  named anchors 
+    f  JavaScript functions 
+Java
+    c  classes
+    e  enum constants
+    f  fields
+    g  enum types
+    i  interfaces
+    l  local variables [off]
+    m  methods
+    p  packages
+JavaScript
+    f  functions
+    c  classes
+    m  methods
+    p  properties
+    v  global variables
+Lisp
+    f  functions
+Lua
+    f  functions
+Make
+    m  macros
+MatLab
+    f  function 
+    f  function 
+    f  function 
+OCaml
+    c  classes
+    m  Object's method
+    M  Module or functor
+    v  Global variable
+    t  Type name
+    f  A function
+    C  A constructor
+    r  A 'structure' field
+    e  An exception
+Pascal
+    f  functions
+    p  procedures
+Perl
+    c  constants
+    f  formats
+    l  labels
+    p  packages
+    s  subroutines
+    d  subroutine declarations [off]
+PHP
+    c  classes 
+    i  interfaces 
+    d  constant definitions 
+    f  functions 
+    v  variables 
+    v  variables 
+    j  javascript functions 
+    j  javascript functions 
+    j  javascript functions 
+Python
+    c  classes
+    f  functions
+    m  class members
+    v  variables
+    i  imports
+REXX
+    s  subroutines 
+Ruby
+    c  classes
+    f  methods
+    m  modules
+    F  singleton methods
+Scheme
+    f  functions
+    s  sets
+Sh
+    f  functions
+SLang
+    f  functions 
+    n  namespaces 
+SML
+    e  exception declarations
+    f  function definitions
+    c  functor definitions
+    s  signature declarations
+    r  structure declarations
+    t  type definitions
+    v  value bindings
+SQL
+    c  cursors
+    d  prototypes [off]
+    f  functions
+    F  record fields
+    l  local variables [off]
+    L  block label
+    P  packages
+    p  procedures
+    r  records [off]
+    s  subtypes
+    t  tables
+    T  triggers
+    v  variables
+    i  indexes
+    e  events
+    U  publications
+    R  services
+    D  domains
+    V  views
+    n  synonyms
+    x  MobiLink Table Scripts
+    y  MobiLink Conn Scripts
+Tcl
+    c  classes
+    m  methods
+    p  procedures
+Tex
+    c  chapters
+    s  sections
+    u  subsections
+    b  subsubsections
+    p  parts
+    P  paragraphs
+    G  subparagraphs
+Vera
+    c  classes
+    d  macro definitions
+    e  enumerators (values inside an enumeration)
+    f  function definitions
+    g  enumeration names
+    l  local variables [off]
+    m  class, struct, and union members
+    p  programs
+    P  function prototypes [off]
+    t  tasks
+    T  typedefs
+    v  variable definitions
+    x  external variable declarations [off]
+Verilog
+    c  constants (define, parameter, specparam)
+    e  events
+    f  functions
+    m  modules
+    n  net data types
+    p  ports
+    r  register data types
+    t  tasks
+VHDL
+    c  constant declarations
+    t  type definitions
+    T  subtype definitions
+    r  record names
+    e  entity declarations
+    C  component declarations [off]
+    d  prototypes [off]
+    f  function prototypes and declarations
+    p  procedure prototypes and declarations
+    P  package definitions
+    l  local definitions [off]
+Vim
+    a  autocommand groups
+    c  user-defined commands
+    f  function definitions
+    m  maps
+    v  variable definitions
+YACC
+    l  labels 
