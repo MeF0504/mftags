@@ -93,7 +93,7 @@ def make_tag_syntax_file(file_path, filetype):
                 syntax_str = "syntax keyword MF%s%s %s\n" % (filetype, tag_name[kind][0], i)
                 f.write(syntax_str)
         for kind in tag_name:
-            highlight_str = "highlight default link %s %s\n" % (tag_name[kind][0], tag_name[kind][1])
+            highlight_str = "highlight default link MF%s%s %s\n" % (filetype, tag_name[kind][0], tag_name[kind][1])
             f.write(highlight_str)
 
     return
