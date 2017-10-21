@@ -4,6 +4,7 @@ import os.path as op
 import glob
 
 g_tag_path = []
+debug = False
 
 def search_tag(tags, file_path):
     ##ref: http://vim-jp.org/vim-users-jp/2010/06/13/Hack-154.html
@@ -15,7 +16,8 @@ def search_tag(tags, file_path):
 
     for tag in tags:
         bottomup = False
-        print "\ninput tag:: ",tag
+        if debug:
+            print "\ninput tag:: ",tag
         if "**" in tag:
             print 'Now this function does not support "**"'
             continue
@@ -25,7 +27,8 @@ def search_tag(tags, file_path):
                 top_dir = top_dir[:-1]
             tag = tag[:tag.find(';')]
             bottomup = True
-            print "top: ",top_dir
+            if debug:
+                print "top: ",top_dir
 
         if tag.startswith('./'):
             tag = tag[2:]
@@ -46,13 +49,19 @@ def search_tag(tags, file_path):
                 if cdir.endswith(':'):
                     #for windows
                     break
-                print "cdir:: ",cdir
+                if debug:
+                    print "cdir:: ",cdir
 
-        print files
+        if debug:
+            print files
         g_tag_path += files
+
+    g_tag_path = list(set(g_tag_path))
+    for g_tag in g_tag_path:
+        print 'read tag file at ',g_tag
     return
 
-def make_tag_syntax_file(file_path, filetype):
+def make_tag_syntax_file(file_path, filetype, vimdir, overwrite):
     """ This function makes syntax setting file at the same directory of tag file.
         file_path: path to tag file.
         file type: current opening file type. ex) c, c++, python ...
@@ -76,8 +85,10 @@ def make_tag_syntax_file(file_path, filetype):
             try:
                 tag_list[kind].append(name)
             except KeyError:
-                print "\nThis is not a correct kind."
-                print "language : ",filetype, "kind : ",kind
+                if debug:
+                    print "\nThis is not a correct kind."
+                    print "language : ",filetype, "kind : ",kind
+                continue
     
     """
     for k in tag_list:
@@ -85,27 +96,30 @@ def make_tag_syntax_file(file_path, filetype):
         print tag_list[k]
     """
 
-    tag_dir = op.dirname(file_path)
-    with open(op.join(tag_dir,'tag_syntax.vim'), 'w') as f:
+    if overwrite=='1':
+        aw = 'w'
+    else:
+        aw = 'a'
+    syntax_file = op.join(vimdir, 'src', '%s_tag_syntax.vim' % filetype)
+    with open(syntax_file, aw) as f:
         for kind in tag_list:
             for i in tag_list[kind]:
                 syntax_str = "syntax keyword MF%s%s %s\n" % (filetype, tag_name[kind][0], i)
                 f.write(syntax_str)
         for kind in tag_name:
+            if tag_name[kind][1] == '':
+                continue
             highlight_str = "highlight default link MF%s%s %s\n" % (filetype, tag_name[kind][0], tag_name[kind][1])
             f.write(highlight_str)
 
     return
 
-def make_tag_syntax_files(filetype):
-    print g_tag_path
-    """
+def make_tag_syntax_files(filetype, vimdir, overwrite):
     for tagfile in g_tag_path:
-        make_tag_syntax_file(tagfile, filetype)
-    """
+        make_tag_syntax_file(tagfile, filetype, vimdir, overwrite)
 
 if __name__ == "__main__":
     #make_tag_syntax_file("../../tags","vim") 
-    #search_tag('tags;,./tags;,./tags;/Users/fujino/workspace/work/test/,/Users/fujino/workspace/work/tags,./../*/tags;','path/to/file')
+    #search_tag('tags;,./tags;,./tags;/Users/fujino/workspace/work/test/,/Users/fujino/workspace/work/tags,./../*/tags;','path/to/file', ~/.vim, True)
     print 'read mftag_src.py'
 
