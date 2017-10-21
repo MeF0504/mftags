@@ -1,6 +1,14 @@
 
-"指定したdirectoryでctagsを実行
-function! Exe_ctags(dir)
+"execute ctags command at specified directory
+"specify directory name by setting valiabe 'g:ctag_dir'
+"ex) g:ctag_dir = ['work','top','hoge']
+"   I'm opening file @ /home/to/work/dir/src
+"   => make tags file @ /home/to/work
+"   I'm opening file @ /from/top/dir/to/hoge/project/src
+"   => make tags file @ /from/top/
+"   I'm opening file @ /home/to/work/dir/work/dir/src
+"   => make tags file @ /from/to/work/dir/work
+function! MFexe_ctags(dir)
 
     let l:end = 0
     let l:curdir = expand('%:p:h') . "/"
@@ -26,9 +34,5 @@ function! Exe_ctags(dir)
     endif
     execute "cd " . l:pwd
 endfunction
-"tag fileを作りたいdirectory名一覧を変数として作っておいて、
-"call Exe_ctags(g:dir)するとhitしたdirectoryでctagsを実行
-"commandかmapすると楽。
-"~~sample~~
-"let g:ctag_dir = ["work","top_dir"]
-"command! Ctags call Exe_ctags(g:ctag_dir)
+
+
