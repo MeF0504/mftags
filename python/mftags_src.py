@@ -1,67 +1,67 @@
 
 import os
 import os.path as op
+import glob
 
-def search_tag(tags):
-    return file_path
+def search_tag(tags, file_path):
+    ##ref: http://vim-jp.org/vim-users-jp/2010/06/13/Hack-154.html
+    # ./tags ... search from opening file
+    # tags ... search from current directory
+    tags = tags.replace(os.sep,'/')
+    tags = tags.split(',')
+
+
+    tag_path = []
+
+    for tag in tags:
+        bottomup = False
+        print "\ninput tag:: ",tag
+        if "**" in tag:
+            print 'Now this function does not support "**"'
+            continue
+        if ';' in tag:
+            top_dir = tag[tag.find(';')+1:]
+            if top_dir.endswith(os.sep):
+                top_dir = top_dir[:-1]
+            tag = tag[:tag.find(';')]
+            bottomup = True
+            print "top: ",top_dir
+
+        if tag.startswith('./'):
+            tag = tag[2:]
+            cwd = op.dirname(file_path)
+        else:
+            cwd = os.getcwd()
+        files = glob.glob(op.join(cwd,tag))
+        if bottomup:
+            tag_file_name = op.basename(tag)
+            if '*' in tag:
+                tag = tag[:tag.find('*')]
+            cdir = op.join(cwd, tag)
+            while cdir != '':
+                tf = op.join(cdir,tag_file_name)
+                if op.isfile(tf):
+                    files.append(tf)
+                cdir = cdir[:cdir.rfind(os.sep)]
+                if cdir.endswith(':'):
+                    #for windows
+                    break
+                print "cdir:: ",cdir
+
+        print files
+        tag_path += files
+    return tag_path
+    #return tag_path
 
 def make_tag_syntax_file(file_path, filetype):
     """ This function makes syntax setting file at the same directory of tag file.
         file_path: path to tag file.
         file type: current opening file type. ex) c, c++, python ...
     """
+    from mftags_lang_list import lang_list
     file_path = file_path.replace('/',os.sep)   #adjust os path problem.
-    if (filetype == 'c') or (filetype == 'C++'):
-        tag_list = {'c':[],\
-                    'd':[],\
-                    'e':[],\
-                    'f':[],\
-                    'g':[],\
-                    'l':[],\
-                    'm':[],\
-                    'n':[],\
-                    'p':[],\
-                    's':[],\
-                    't':[],\
-                    'u':[],\
-                    'v':[],\
-                    'x':[]}
-        tag_name = {'c':['Class', 'MFclass'],\
-                    'd':['Definitions', ''],\
-                    'e':['Enumerators', 'MFenum'],\
-                    'f':['Function_definitions', 'MFfunction'],\
-                    'g':['Enumeration_names', 'MFtypedef'],\
-                    'l':['Local_variables', 'MFvariable'],\
-                    'm':['Members', 'MFmember'],\
-                    'n':['Namespaces', 'MFnamespace'],\
-                    'p':['Prototypes', 'MFfunction'],\
-                    's':['Structure', 'MFstructure'],\
-                    't':['Typedefs', 'MFtypedef'],\
-                    'u':['Union', 'MFtypedef'],\
-                    'v':['Variables', 'MFvariable'],\
-                    'x':['External_and_forward_variable_declarations', 'MFdeclaration'] }
-    elif filetype == 'python':
-        tag_list = {'c':[],\
-                    'f':[],\
-                    'm':[],\
-                    'v':[],\
-                    'i':[]}
-        tag_name = {'c':['Classes' ,'MFclass'],\
-                    'f':['Functions' ,'MFfunction'],\
-                    'm':['Members' ,'MFmember'],\
-                    'v':['Variables' ,'MFvariable'],\
-                    'i':['Imports' ,'MFimport']}
-    elif filetype == 'vim':
-        tag_list = {'a':[],\
-                    'c':[],\
-                    'f':[],\
-                    'm':[],\
-                    'v':[]}
-        tag_name = {'a':['Autocommand_groups', 'MFautocmd'],\
-                    'c':['User_defined_commands' ,'MFcommand'],\
-                    'f':['Function_definitions' ,'MFfunction'],\
-                    'm':['Maps', 'MFmap'],\
-                    'v':['Variables', 'MFvariable']}
+    if lang_list.has_key(filetype):
+        tag_list,tag_name = lang_list[filetype]
     else:
         print "not supported file type"
         exit
@@ -71,13 +71,13 @@ def make_tag_syntax_file(file_path, filetype):
             if line.startswith('!'):
                 continue
             line = line.replace("\n","")
-            kind = line[line.find(';')+3]
+            kind = line[line.rfind('"')+2]
             line = line.split("\t")
             name = line[0]
             try:
                 tag_list[kind].append(name)
             except KeyError:
-                print "This is not a correct kind."
+                print "\nThis is not a correct kind."
                 print "language : ",filetype, "kind : ",kind
     
     """
@@ -99,5 +99,6 @@ def make_tag_syntax_file(file_path, filetype):
     return
 
 if __name__ == "__main__":
-    make_tag_syntax_file("../../tags","vim") 
+    #make_tag_syntax_file("../../tags","vim") 
+    #search_tag('tags;,./tags;,./tags;/Users/fujino/workspace/work/test/,/Users/fujino/workspace/work/tags,./../*/tags;','path/to/file')
 
