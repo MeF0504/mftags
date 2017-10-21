@@ -12,5 +12,6 @@ python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
 
 function! mftags#make_tag_syntax_file()
     python make_tag_syntax_files(vim.eval("&filetype"), vim.eval("g:mftag_vimdir"), vim.eval("g:mftag_syntax_overwrite"))
+    execute "source " . g:mftag_vimdir . "/src/" . &filetype . "_tag_syntax.vim"
 endfunction
 

@@ -61,7 +61,7 @@ def search_tag(tags, file_path):
         print 'read tag file at ',g_tag
     return
 
-def make_tag_syntax_file(file_path, filetype, vimdir, overwrite):
+def make_tag_syntax_file(file_path, filetype, vimdir):
     """ This function makes syntax setting file at the same directory of tag file.
         file_path: path to tag file.
         file type: current opening file type. ex) c, c++, python ...
@@ -74,7 +74,7 @@ def make_tag_syntax_file(file_path, filetype, vimdir, overwrite):
         print "not supported file type"
         exit
 
-    with open(file_path) as f:
+    with open(file_path, 'r') as f:
         for line in f:
             if line.startswith('!'):
                 continue
@@ -96,12 +96,8 @@ def make_tag_syntax_file(file_path, filetype, vimdir, overwrite):
         print tag_list[k]
     """
 
-    if overwrite=='1':
-        aw = 'w'
-    else:
-        aw = 'a'
     syntax_file = op.join(vimdir, 'src', '%s_tag_syntax.vim' % filetype)
-    with open(syntax_file, aw) as f:
+    with open(syntax_file, 'a') as f:
         for kind in tag_list:
             for i in tag_list[kind]:
                 syntax_str = "syntax keyword MF%s%s %s\n" % (filetype, tag_name[kind][0], i)
@@ -115,8 +111,13 @@ def make_tag_syntax_file(file_path, filetype, vimdir, overwrite):
     return
 
 def make_tag_syntax_files(filetype, vimdir, overwrite):
+    if overwrite == '1':
+        syntax_file = op.join(vimdir, 'src', '%s_tag_syntax.vim' % filetype)
+        with open(syntax_file, 'w') as f:
+            'remove tag syntax file'
+
     for tagfile in g_tag_path:
-        make_tag_syntax_file(tagfile, filetype, vimdir, overwrite)
+        make_tag_syntax_file(tagfile, filetype, vimdir)
 
 if __name__ == "__main__":
     #make_tag_syntax_file("../../tags","vim") 

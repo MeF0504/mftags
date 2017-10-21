@@ -1,4 +1,5 @@
 
+"########## tags syntax setting
 if has('win32')
     let g:mftag_vimdir = expand('~/vimfiles/')
 else
@@ -9,6 +10,7 @@ highlight default MFdef ctermfg=213
 
 autocmd FileType python execute "source " . g:mftag_vimdir . "src/" . &filetype . "_tag_syntax.vim"
 
+"########## execute ctag setting
 "execute ctags command at specified directory
 "specify directory name by setting valiabe 'g:ctag_dir'
 "ex) g:ctag_dir = ['work','top','hoge']
