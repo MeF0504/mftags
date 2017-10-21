@@ -3,15 +3,15 @@ import os
 import os.path as op
 import glob
 
+g_tag_path = []
+
 def search_tag(tags, file_path):
     ##ref: http://vim-jp.org/vim-users-jp/2010/06/13/Hack-154.html
     # ./tags ... search from opening file
     # tags ... search from current directory
     tags = tags.replace(os.sep,'/')
     tags = tags.split(',')
-
-
-    tag_path = []
+    global g_tag_path
 
     for tag in tags:
         bottomup = False
@@ -49,9 +49,8 @@ def search_tag(tags, file_path):
                 print "cdir:: ",cdir
 
         print files
-        tag_path += files
-    return tag_path
-    #return tag_path
+        g_tag_path += files
+    return
 
 def make_tag_syntax_file(file_path, filetype):
     """ This function makes syntax setting file at the same directory of tag file.
@@ -98,7 +97,15 @@ def make_tag_syntax_file(file_path, filetype):
 
     return
 
+def make_tag_syntax_files(filetype):
+    print g_tag_path
+    """
+    for tagfile in g_tag_path:
+        make_tag_syntax_file(tagfile, filetype)
+    """
+
 if __name__ == "__main__":
     #make_tag_syntax_file("../../tags","vim") 
     #search_tag('tags;,./tags;,./tags;/Users/fujino/workspace/work/test/,/Users/fujino/workspace/work/tags,./../*/tags;','path/to/file')
+    print 'read mftag_src.py'
 
