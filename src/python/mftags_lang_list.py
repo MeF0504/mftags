@@ -29,7 +29,7 @@ lang_list = {\
            'v':['Variables', ''],\
            'x':['External_and_forward_variable_declarations', ''] }\
           ],\
-        'c++':\
+        'cpp':\
         [ {'c':[],\
            'd':[],\
            'e':[],\

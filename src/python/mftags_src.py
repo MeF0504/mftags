@@ -72,7 +72,7 @@ def make_tag_syntax_file(file_path, filetype, out_dir):
         tag_list,tag_name = lang_list[filetype]
     else:
         print "not supported file type"
-        exit
+        exit()
 
     with open(file_path, 'r') as f:
         for line in f:
