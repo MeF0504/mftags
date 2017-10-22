@@ -61,7 +61,7 @@ def search_tag(tags, file_path):
         print 'read tag file at ',g_tag
     return
 
-def make_tag_syntax_file(file_path, filetype, vimdir):
+def make_tag_syntax_file(file_path, filetype, out_dir):
     """ This function makes syntax setting file at the same directory of tag file.
         file_path: path to tag file.
         file type: current opening file type. ex) c, c++, python ...
@@ -96,7 +96,7 @@ def make_tag_syntax_file(file_path, filetype, vimdir):
         print tag_list[k]
     """
 
-    syntax_file = op.join(vimdir, 'src', '%s_tag_syntax.vim' % filetype)
+    syntax_file = op.join(out_dir, '%s_tag_syntax.vim' % filetype)
     with open(syntax_file, 'a') as f:
         for kind in tag_list:
             for i in tag_list[kind]:
@@ -108,19 +108,16 @@ def make_tag_syntax_file(file_path, filetype, vimdir):
             highlight_str = "highlight default link MF%s%s %s\n" % (filetype, tag_name[kind][0], tag_name[kind][1])
             f.write(highlight_str)
 
+        f.write('highlight default MFdef ctermfg=213 guifg=Orchid1\n\n')
+
     return
 
-def make_tag_syntax_files(filetype, vimdir, overwrite):
+def make_tag_syntax_files(filetype, out_dir, overwrite):
     if overwrite == '1':
-        syntax_file = op.join(vimdir, 'src', '%s_tag_syntax.vim' % filetype)
+        syntax_file = op.join(out_dir, '%s_tag_syntax.vim' % filetype)
         with open(syntax_file, 'w') as f:
             'remove tag syntax file'
 
     for tagfile in g_tag_path:
-        make_tag_syntax_file(tagfile, filetype, vimdir)
-
-if __name__ == "__main__":
-    #make_tag_syntax_file("../../tags","vim") 
-    #search_tag('tags;,./tags;,./tags;/Users/fujino/workspace/work/test/,/Users/fujino/workspace/work/tags,./../*/tags;','path/to/file', ~/.vim, True)
-    print 'read mftag_src.py'
+        make_tag_syntax_file(tagfile, filetype, out_dir)
 

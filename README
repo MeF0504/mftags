@@ -1,0 +1,36 @@
+
+vimでctagsを使用する際に、自分のやりたかった関数群。
+g:mftag_loadedが存在すると読み込みません。
+
+実証環境:
+vim : VIM - Vi IMproved 8.0 (need +python)
+ctags : Exuberant Ctags 5.8
+
+できるコマンドは3つ:
+* MFctag
+    > ctagsをvimから実行します。
+    設定用の変数は
+    * g:mftag_no_need_MFctag : この変数があるとMFctag関連の設定を読み込みません。
+    * g:mftag_dir : ctagsの実行位置を決定する変数。型はlist。
+      ex) g:mftag_dir = ['work','top','hoge']
+         I'm opening file @ /home/to/work/dir/src
+         => make tags file @ /home/to/work
+         I'm opening file @ /from/top/dir/to/hoge/project/src
+         => make tags file @ /from/top/
+         I'm opening file @ /home/to/work/dir/work/dir/src
+         => make tags file @ /from/to/work/dir/work
+         こんな感じで、配列の最初から順に一致するディレクトリ名を探してヒットしたら実行する。
+    * g:mftag_exe_option : ctagsのオプションです。型はstring 。
+      デフォルトはg:mftag_exe_option = '-R'
+
+* MFsyntax
+    > tagsファイルを探し出して情報を読み取り、見つけた文字列に基づいたsyntaxを追加します。
+    設定用の変数は
+    * g:mftag_no_need_MFsyntax : この変数があるとMFsyntax関連の設定を読み込みません。
+    * g:mftag_save_dir : 作成したsyntaxファイルの保存場所を指定します。型はstring。
+      自分でg:mftag_save_dirを指定しておらず、g:mftag_dirが存在する場合はMFctagで作成したtagファイルと同じ場所になります。
+      何も指定していない場合はカレントディレクトリです。
+
+*MFfunclist
+    > tagファイルを探し出して情報を読み取り、関数などの一覧を表示します(未実装)
+
