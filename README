@@ -6,6 +6,8 @@ g:mftag_loadedが存在すると読み込みません。
 vim : VIM - Vi IMproved 8.0 (need +python)
 ctags : Exuberant Ctags 5.8
 
+対応言語：python, c, cpp, vim
+
 できるコマンドは3つ:
 * MFctag
     > ctagsをvimから実行します。

@@ -45,6 +45,9 @@ if !exists('g:mftag_no_need_MFsyntax')
     endfunction
     
     autocmd FileType python call s:check_and_read_file(&filetype)
+    autocmd FileType c call s:check_and_read_file(&filetype)
+    autocmd FileType cpp call s:check_and_read_file(&filetype)
+    autocmd FileType vim call s:check_and_read_file(&filetype)
 
     command! MFsyntax :call mftags#make_tag_syntax_file()
 
