@@ -23,7 +23,7 @@ Basic
     g  enumerations
 BETA
     f  fragment definitions
-    p  all patterns [off]
+    p  all patterns
     s  slots (fragment uses)
     v  patterns (virtual or rebound)
 C
@@ -32,30 +32,30 @@ C
     e  enumerators (values inside an enumeration)
     f  function definitions
     g  enumeration names
-    l  local variables [off]
+    l  local variables
     m  class, struct, and union members
     n  namespaces
-    p  function prototypes [off]
+    p  function prototypes
     s  structure names
     t  typedefs
     u  union names
     v  variable definitions
-    x  external and forward variable declarations [off]
+    x  external and forward variable declarations
 C++
     c  classes
     d  macro definitions
     e  enumerators (values inside an enumeration)
     f  function definitions
     g  enumeration names
-    l  local variables [off]
+    l  local variables
     m  class, struct, and union members
     n  namespaces
-    p  function prototypes [off]
+    p  function prototypes
     s  structure names
     t  typedefs
     u  union names
     v  variable definitions
-    x  external and forward variable declarations [off]
+    x  external and forward variable declarations
 C#
     c  classes
     d  macro definitions
@@ -64,7 +64,7 @@ C#
     f  fields
     g  enumeration names
     i  interfaces
-    l  local variables [off]
+    l  local variables
     m  methods
     n  namespaces
     p  properties
@@ -83,7 +83,7 @@ DosBatch
 Eiffel
     c  classes
     f  features
-    l  local entities [off]
+    l  local entities
 Erlang
     d  macro definitions
     f  functions
@@ -101,10 +101,10 @@ Fortran
     c  common blocks
     e  entry points
     f  functions
-    i  interface contents, generic names, and operators [off]
+    i  interface contents, generic names, and operators
     k  type and structure components
     l  labels
-    L  local, common block, and namelist variables [off]
+    L  local, common block, and namelist variables
     m  modules
     n  namelists
     p  programs
@@ -120,7 +120,7 @@ Java
     f  fields
     g  enum types
     i  interfaces
-    l  local variables [off]
+    l  local variables
     m  methods
     p  packages
 JavaScript
@@ -158,7 +158,7 @@ Perl
     l  labels
     p  packages
     s  subroutines
-    d  subroutine declarations [off]
+    d  subroutine declarations
 PHP
     c  classes 
     i  interfaces 
@@ -200,14 +200,14 @@ SML
     v  value bindings
 SQL
     c  cursors
-    d  prototypes [off]
+    d  prototypes
     f  functions
     F  record fields
-    l  local variables [off]
+    l  local variables
     L  block label
     P  packages
     p  procedures
-    r  records [off]
+    r  records
     s  subtypes
     t  tables
     T  triggers
@@ -239,14 +239,14 @@ Vera
     e  enumerators (values inside an enumeration)
     f  function definitions
     g  enumeration names
-    l  local variables [off]
+    l  local variables
     m  class, struct, and union members
     p  programs
-    P  function prototypes [off]
+    P  function prototypes
     t  tasks
     T  typedefs
     v  variable definitions
-    x  external variable declarations [off]
+    x  external variable declarations
 Verilog
     c  constants (define, parameter, specparam)
     e  events
@@ -262,12 +262,12 @@ VHDL
     T  subtype definitions
     r  record names
     e  entity declarations
-    C  component declarations [off]
-    d  prototypes [off]
+    C  component declarations
+    d  prototypes
     f  function prototypes and declarations
     p  procedure prototypes and declarations
     P  package definitions
-    l  local definitions [off]
+    l  local definitions
 Vim
     a  autocommand groups
     c  user-defined commands

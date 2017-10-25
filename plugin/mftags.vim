@@ -3,6 +3,7 @@ if exists('g:mftag_loaded')
     finish
 endif
 let g:mftag_loaded = 1
+let s:mftag_start_up = 1
 
 "########## global settings
 function! MFsearch_dir(dir)
@@ -16,7 +17,9 @@ function! MFsearch_dir(dir)
             return l:curdir[:l:n]
         endif
     endfor
-    echo "no match directory"
+    if !exists("s:mftag_start_up")
+        echo "no match directory"
+    endif
     return ''
 endfunction
 
@@ -34,6 +37,8 @@ endif
 if g:mftag_save_dir[strlen(g:mftag_save_dir)-1] != s:sep
     let g:mftag_save_dir = g:mftag_save_dir . s:sep
 endif
+
+unlet s:mftag_start_up
 
 "########## tags syntax setting
 if !exists('g:mftag_no_need_MFsyntax')

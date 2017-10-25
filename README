@@ -32,6 +32,15 @@ ctags : Exuberant Ctags 5.8
     * g:mftag_save_dir : 作成したsyntaxファイルの保存場所を指定します。型はstring。
       自分でg:mftag_save_dirを指定しておらず、g:mftag_dirが存在する場合はMFctagで作成したtagファイルと同じ場所になります。
       何も指定していない場合はカレントディレクトリです。
+    * g:mftag_syntax_overwrite : 1ならばsyntax fileを作る際に新しく作り直します。0ならばsyntax fileがある場合には追記します。デフォルトは1。
+    * g:mftag_python_enable_kinds 
+    * g:mftag_c_enable_kinds 
+    * g:mftag_vim_enable_kinds 
+                 .
+                 .
+                 .
+      それぞれ言語ごとにsyntaxを作るctagsのkindを示しています。let g:mftag_c_enable_kinds = "dst"とすれば、c言語ではmacro definitionsとstructure namesとtypedefsのみに色がつきます。デフォルトは全指定。
+      参考 : test/ctags_list_kinds.txt
 
 *MFfunclist
     > tagファイルを探し出して情報を読み取り、関数などの一覧を表示します(未実装)
