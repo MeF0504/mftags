@@ -5,6 +5,10 @@ endif
 let g:mftag_loaded = 1
 let s:mftag_start_up = 1
 
+augroup MFtags
+    autocmd!
+augroup END
+
 "########## global settings
 function! MFsearch_dir(dir)
     let l:curdir = expand('%:p:h') . "/"
@@ -49,10 +53,10 @@ if !exists('g:mftag_no_need_MFsyntax')
         endif
     endfunction
     
-    autocmd FileType python call s:check_and_read_file(&filetype)
-    autocmd FileType c call s:check_and_read_file(&filetype)
-    autocmd FileType cpp call s:check_and_read_file(&filetype)
-    autocmd FileType vim call s:check_and_read_file(&filetype)
+    autocmd MFtags FileType python call s:check_and_read_file(&filetype)
+    autocmd MFtags FileType c call s:check_and_read_file(&filetype)
+    autocmd MFtags FileType cpp call s:check_and_read_file(&filetype)
+    autocmd MFtags FileType vim call s:check_and_read_file(&filetype)
 
     command! MFsyntax :call mftags#make_tag_syntax_file()
 
