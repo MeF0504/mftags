@@ -61,20 +61,45 @@ def search_tag(tags, file_path):
         print 'read tag file at ',g_tag
     return
 
-def make_tag_syntax_file(file_path, filetype, out_dir, enable_kinds):
+def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_kinds):
     """ This function makes syntax setting file at the same directory of tag file.
-        file_path: path to tag file.
+        tag_file_path: path to tag file.
         file type: current opening file type. ex) c, c++, python ...
     """
-    from mftags_lang_list import lang_list
-    file_path = file_path.replace('/',os.sep)   #adjust os path problem.
+    lang_list = {}
+    with open(op.join(src_dir_path,'src/txt/mftags_lang_list'),'r') as f:
+        for line in f:
+            line = line.replace('\n','')
+            if line.startswith('#') or (len(line) <= 2):
+                continue
+            if line.startswith('lang:'):
+                lang = line[5:]
+                if debug:
+                    print lang
+                lang_list[lang] = [{},{}]
+            else:
+                line = line[2:].split(' ')
+                if debug:
+                    print line
+                kc, K, sl = line
+                if sl == 'blank':
+                    sl = ''
+                lang_list[lang][0][kc] = []
+                lang_list[lang][1][kc] = [K,sl]
+    if debug:
+        for k in lang_list:
+            print k
+            print lang_list[k][0]
+            print lang_list[k][1]
     if lang_list.has_key(filetype):
         tag_list,tag_name = lang_list[filetype]
     else:
         print "not supported file type"
-        exit()
+        return
 
-    with open(file_path, 'r') as f:
+    #return
+    tag_file_path = tag_file_path.replace('/',os.sep)   #adjust os path problem.
+    with open(tag_file_path, 'r') as f:
         for line in f:
             if line.startswith('!'):
                 continue
@@ -98,6 +123,7 @@ def make_tag_syntax_file(file_path, filetype, out_dir, enable_kinds):
 
     syntax_file = op.join(out_dir, '%s_tag_syntax.vim' % filetype)
     with open(syntax_file, 'a') as f:
+        f.write('" from '+tag_file_path+'\n')
         for kind in tag_list:
             if not (kind in enable_kinds):
                 continue
@@ -114,12 +140,12 @@ def make_tag_syntax_file(file_path, filetype, out_dir, enable_kinds):
 
     return
 
-def make_tag_syntax_files(filetype, out_dir, overwrite, enable_kinds):
+def make_tag_syntax_files(src_dir_path, filetype, out_dir, overwrite, enable_kinds):
     if overwrite == '1':
         syntax_file = op.join(out_dir, '%s_tag_syntax.vim' % filetype)
         with open(syntax_file, 'w') as f:
             'remove tag syntax file'
 
     for tagfile in g_tag_path:
-        make_tag_syntax_file(tagfile, filetype, out_dir, enable_kinds)
+        make_tag_syntax_file(tagfile, src_dir_path, filetype, out_dir, enable_kinds)
 

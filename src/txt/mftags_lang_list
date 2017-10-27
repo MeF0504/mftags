@@ -1,0 +1,48 @@
+#lang:(filetype)
+#  kind_character kind syntax_link
+lang:c
+  c Class MFdef
+  d Definitions PreProc
+  e Enumerators Type
+  f Function_definitions Identifier
+  g Enumeration_names MFdef
+  l Local_variables blank
+  m Members blank
+  n Namespaces blank
+  p Prototypes Identifier
+  s Structure Identifier
+  t Typedefs Type
+  u Union MFdef
+  v Variables blank
+  x External_and_forward_variable_declarations blank
+
+lang:cpp
+  c Class MFdef
+  d Definitions PreProc
+  e Enumerators Type
+  f Function_definitions Identifier
+  g Enumeration_names MFdef
+  l Local_variables blank
+  m Members blank
+  n Namespaces blank
+  p Prototypes Identifier
+  s Structure Identifier
+  t Typedefs Type
+  u Union MFdef
+  v Variables blank
+  x External_and_forward_variable_declarations blank
+
+lang:python
+  c Classes MFdef
+  f Functions Identifier
+  m Members blank
+  v Variables blank
+  i Imports MFdef
+
+lang:vim
+  a Autocommand_groups blank
+  c User_defined_commands Identifier
+  f Function_definitions MFdef
+  m Maps blank
+  v Variables blank
+
