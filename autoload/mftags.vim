@@ -26,7 +26,7 @@ python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
 function! mftags#make_tag_syntax_file()
 
     "check file type
-    if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'c') && (&filetype != 'c')
+    if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'python') && (&filetype != 'vim')
         echo "not suppourted file type!"
         return
     endif
