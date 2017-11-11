@@ -13,6 +13,8 @@ def search_tag(tags, file_path):
     tags = tags.replace(os.sep,'/')
     tags = tags.split(',')
     global g_tag_path
+    if debug:
+        print g_tag_path
 
     for tag in tags:
         bottomup = False
@@ -110,7 +112,7 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
             try:
                 tag_list[kind].append(name)
             except KeyError:
-                if debug:
+                #if debug:
                     print "\nThis is not a correct kind."
                     print "language : ",filetype, "kind : ",kind
                 continue
@@ -148,4 +150,11 @@ def make_tag_syntax_files(src_dir_path, filetype, out_dir, overwrite, enable_kin
 
     for tagfile in g_tag_path:
         make_tag_syntax_file(tagfile, src_dir_path, filetype, out_dir, enable_kinds)
+
+def clean_tag():
+    global g_tag_path
+    g_tag_path = []
+    if debug:
+        print "clean tag path file"
+        print g_tag_path
 
