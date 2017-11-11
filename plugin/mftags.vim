@@ -4,12 +4,22 @@ if exists('g:mftag_loaded')
 endif
 let g:mftag_loaded = 1
 let s:mftag_start_up = 1
+let s:mftag_debug = 0
 
 augroup MFtags
     autocmd!
 augroup END
 
 "########## global settings
+
+let s:file = expand("<sfile>")
+function! s:MFdebug()
+    echo "###debug###"
+    "echo "@ " . s:file . " " . expand("<sfile>") . " line " . expand("<slnum>")
+    echo "@ " . s:file . " " . expand("<sfile>")
+endfunction
+
+
 function! MFsearch_dir(dir)
     let l:curdir = expand('%:p:h') . "/"
 
@@ -17,7 +27,10 @@ function! MFsearch_dir(dir)
         let d = '\<' . d . '\>'
         let l:n = matchend(l:curdir,d)
         if l:n != -1
-            "echo l:curdir[:l:n]
+            if s:mftag_debug == 1
+                call s:MFdebug()
+                echo l:curdir[:l:n]
+            endif
             return l:curdir[:l:n]
         endif
     endfor
@@ -27,27 +40,46 @@ function! MFsearch_dir(dir)
     return ''
 endfunction
 
-if exists('g:mftag_dir') && !exists('g:mftag_save_dir')
-    let g:mftag_save_dir = MFsearch_dir(g:mftag_dir)
-elseif !exists('g:mftag_save_dir')
-    let g:mftag_save_dir = getcwd()
-endif
+function! s:set_mftag_save_dir()
+    if exists('g:mftag_dir') && !exists('g:mftag_save_dir')
+        let b:mftag_save_dir = MFsearch_dir(g:mftag_dir)
+        if s:mftag_debug == 1
+            call s:MFdebug()
+            echo "s:set_mftag_save_dir 1"
+        endif
+    elseif !exists('g:mftag_save_dir')
+        let b:mftag_save_dir = getcwd()
+        if s:mftag_debug == 1
+            call s:MFdebug()
+            echo "s:set_mftag_save_dir 2"
+        endif
+    else
+        let b:mftag_save_dir = g:mftag_save_dir
+        if s:mftag_debug == 1
+            call s:MFdebug()
+            echo "s:set_mftag_save_dir 3"
+        endif
+    endif
 
-if has('win32')
-    let s:sep = '\'
-else
-    let s:sep = '/'
-endif
-if g:mftag_save_dir[strlen(g:mftag_save_dir)-1] != s:sep
-    let g:mftag_save_dir = g:mftag_save_dir . s:sep
-endif
+    if has('win32')
+        let s:sep = '\'
+    else
+        let s:sep = '/'
+    endif
+    if b:mftag_save_dir[strlen(b:mftag_save_dir)-1] != s:sep
+        let b:mftag_save_dir = b:mftag_save_dir . s:sep
+    endif
+endfunction
+
+call s:set_mftag_save_dir()
 
 unlet s:mftag_start_up
 
 "########## tags syntax setting
 if !exists('g:mftag_no_need_MFsyntax')
     function! s:check_and_read_file(ft)
-        let l:filename = g:mftag_save_dir . a:ft . "_tag_syntax.vim"
+        call s:set_mftag_save_dir()
+        let l:filename = b:mftag_save_dir . a:ft . "_tag_syntax.vim"
         if filereadable(l:filename)
             execute "source " . l:filename
         endif

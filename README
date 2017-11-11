@@ -32,6 +32,7 @@ ctags : Exuberant Ctags 5.8
     * g:mftag_save_dir : 作成したsyntaxファイルの保存場所を指定します。型はstring。
       自分でg:mftag_save_dirを指定しておらず、g:mftag_dirが存在する場合はMFctagで作成したtagファイルと同じ場所になります。
       何も指定していない場合はカレントディレクトリです。
+      実際に使われる値はb:mftag_save_dirを参照。
     * g:mftag_syntax_overwrite : 1ならばsyntax fileを作る際に新しく作り直します。0ならばsyntax fileがある場合には追記します。デフォルトは1。
     * g:mftag_python_enable_kinds 
     * g:mftag_c_enable_kinds 
