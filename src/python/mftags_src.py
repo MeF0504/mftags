@@ -112,7 +112,7 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
             try:
                 tag_list[kind].append(name)
             except KeyError:
-                #if debug:
+                if debug:
                     print "\nThis is not a correct kind."
                     print "language : ",filetype, "kind : ",kind
                 continue
