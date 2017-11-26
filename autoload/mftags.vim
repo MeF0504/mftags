@@ -12,17 +12,17 @@ if !exists('g:mftag_syntax_overwrite')
     let g:mftag_syntax_overwrite = 1
 endif
 
-if !exists('g:mftag_python_enable_kinds')
-    let g:mftag_python_enable_kinds = "cfmvi"
+if !exists('g:mftag_syntax_python_enable_kinds')
+    let g:mftag_syntax_python_enable_kinds = "cfmvi"
 endif
-if !exists('g:mftag_c_enable_kinds')
-    let g:mftag_c_enable_kinds = "cdefglmnpstuvx"
+if !exists('g:mftag_syntax_c_enable_kinds')
+    let g:mftag_syntax_c_enable_kinds = "cdefglmnpstuvx"
 endif
-if !exists('g:mftag_cpp_enable_kinds')
-    let g:mftag_cpp_enable_kinds = "cdefglmnpstuvx"
+if !exists('g:mftag_syntax_cpp_enable_kinds')
+    let g:mftag_syntax_cpp_enable_kinds = "cdefglmnpstuvx"
 endif
-if !exists('g:mftag_vim_enable_kinds')
-    let g:mftag_vim_enable_kinds = "acfmv"
+if !exists('g:mftag_syntax_vim_enable_kinds')
+    let g:mftag_syntax_vim_enable_kinds = "acfmv"
 endif
 
 "let $PYTHONPATH = $PYTHONPATH . expand("<sfile>:h:h") . "/src/python"
@@ -42,7 +42,7 @@ function! mftags#make_tag_syntax_file()
         return
     endif
 
-    execute "let l:mftag_enable_kinds = g:mftag_".&filetype."_enable_kinds"
+    execute "let l:mftag_enable_kinds = g:mftag_syntax_".&filetype."_enable_kinds"
     "call python function
     if s:mftag_debug == 1
         call s:MFdebug()
@@ -52,4 +52,19 @@ function! mftags#make_tag_syntax_file()
     "clean tag parh list
     python clean_tag()
 endfunction
+
+function! mftags#show_kind_list(file_type, kind_char)
+
+    "make tag path list
+    python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
+
+    " put list on current buffer
+    python show_list_on_buf(vim.eval('s:src_dir'), vim.eval('a:file_type'), vim.eval('a:kind_char'))
+
+    "clean tag path list and buffer
+    python clean_tag()
+
+    "return l:list_from_tag
+endfunction
+
 

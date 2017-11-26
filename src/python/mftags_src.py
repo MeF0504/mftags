@@ -66,7 +66,10 @@ def search_tag(tags, file_path):
 def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_kinds):
     """ This function makes syntax setting file at the same directory of tag file.
         tag_file_path: path to tag file.
+        src_dir_path: directory where the vim plugins exists.
         file type: current opening file type. ex) c, c++, python ...
+        out_dir: directory where syntax file put.
+        enable_kinds: ctags kinds which this func. make syntax of.
     """
     lang_list = {}
     with open(op.join(src_dir_path,'src/txt/mftags_lang_list'),'r') as f:
@@ -151,6 +154,94 @@ def make_tag_syntax_files(src_dir_path, filetype, out_dir, overwrite, enable_kin
     for tagfile in g_tag_path:
         make_tag_syntax_file(tagfile, src_dir_path, filetype, out_dir, enable_kinds)
 
+def return_list_from_tag(src_dir_path, filetype, return_kind):
+    """ This function makes a list of functions, variables, etc..
+        src_dir_path: directory where the vim plugins exists.
+        file type: current opening file type. ex) c, c++, python ...
+        return_kind: a character of the kind which this function returns.
+    """
+    lang_list = {}
+    with open(op.join(src_dir_path,'src/txt/mftags_lang_list'),'r') as f:
+        for line in f:
+            line = line.replace('\n','')
+            if line.startswith('#') or (len(line) <= 2):
+                continue
+            if line.startswith('lang:'):
+                lang = line[5:]
+                if debug:
+                    print lang
+                lang_list[lang] = [{},{}]
+            else:
+                line = line[2:].split(' ')
+                if debug:
+                    print line
+                kc, K, sl = line
+                lang_list[lang][0][kc] = []
+                lang_list[lang][1][kc] = K
+    if debug:
+        for k in lang_list:
+            print k
+            print lang_list[k][0]
+            print lang_list[k][1]
+    if lang_list.has_key(filetype):
+        if lang_list[filetype][0].has_key(return_kind):
+            tag_list = lang_list[filetype][0][return_kind]
+            tag_name = lang_list[filetype][1][return_kind]
+        else:
+            print "not supported kind '%s' for file type '%s'"  % (return_kind, filetype)
+            return
+    else:
+        print "not supported file type '%s' " % filetype
+        return
+
+    for tag_path in g_tag_path:
+        tag_path = tag_path.replace('/',os.sep)   #adjust os path problem.
+        with open(tag_path, 'r') as f:
+            for line in f:
+                if line.startswith('!'):
+                    continue
+                line = line.replace("\n","")
+                kind = line[line.rfind('"')+2]
+                line = line.split("\t")
+                name = line[0]
+                if kind == return_kind:
+                    try:
+                        tag_list.append("\t\t"+name)
+                    except KeyError:
+                        if debug:
+                            print "\nThis is not a correct kind."
+                            print "language : ",filetype, "kind : ",kind
+                        continue
+    tag_list = list(set(tag_list))
+    tag_list.sort()
+    tag_list.insert(0, "\t"+tag_name)
+    if debug:
+        print tag_list
+    
+    return tag_list
+
+def show_list_on_buf(src_dir_path, filetype, return_kinds):
+    """ this function add lines about kind to current buffer
+        src_dir_path: directory where the vim plugins exists.
+        file type: current opening file type. ex) c, c++, python ...
+        return_kinds: character(s) of the kind which this function returns.
+    """
+
+    #import vim
+    cur_buf = vim.current.buffer
+    clean_buf()
+
+    #print text in buffer
+    for k in return_kinds:
+        kind_list = return_list_from_tag(src_dir_path, filetype, k)
+        if kind_list == None:
+            return
+        cur_buf.append(kind_list[0])
+        for index, kl in enumerate(kind_list[1:]):
+            cur_buf.append(kl)
+
+        cur_buf.append("")
+
 def clean_tag():
     global g_tag_path
     g_tag_path = []
@@ -158,3 +249,12 @@ def clean_tag():
         print "clean tag path file"
         print g_tag_path
 
+def clean_buf():
+    #import vim
+    cur_buf = vim.current.buffer
+
+    # buffer clear
+    cur_buf[:] = None
+
+#g_tag_path = ["/Users/fujino/workspace/work/test/sample_code/python/tags"]
+#return_list_from_tag("/Users/fujino/workspace/git_work/mftags/", "python", "v")

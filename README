@@ -34,9 +34,9 @@ ctags : Exuberant Ctags 5.8
       何も指定していない場合はカレントディレクトリです。
       実際に使われる値はb:mftag_save_dirを参照。
     * g:mftag_syntax_overwrite : 1ならばsyntax fileを作る際に新しく作り直します。0ならばsyntax fileがある場合には追記します。デフォルトは1。
-    * g:mftag_python_enable_kinds 
-    * g:mftag_c_enable_kinds 
-    * g:mftag_vim_enable_kinds 
+    * g:mftag_syntax_python_enable_kinds 
+    * g:mftag_syntax_c_enable_kinds 
+    * g:mftag_syntax_vim_enable_kinds 
                  .
                  .
                  .
@@ -44,5 +44,16 @@ ctags : Exuberant Ctags 5.8
       参考 : test/ctags_list_kinds.txt
 
 *MFfunclist
-    > tagファイルを探し出して情報を読み取り、関数などの一覧を表示します(未実装)
+    > tagファイルを探し出して情報を読み取り、関数などの一覧を表示します
+    設定用の変数は
+    * g:mftag_no_need_MFfunclist：この変数があるとMFfunclist関連の設定を読み込みません。
+    * g:mftag_func_list_name：function listのwindowの名前を設定しています。デフォルトは"MF_func_list"。
+    * g:mftag_func_list_width：function listのwindowの幅を設定します。デフォルトは40。
+    　機能としては、:MFfunclist <arg>で見つけたすべてのtagsファイルの関数一覧を表示します。
+    <args>には言語に対応したkindの文字(c言語でclass, typedefを表示したかったら:MFfunclist ct)が入ります。
+    <args>に何もない場合はすべてを表示します。
+    key mapは
+    t：カーソル下の文字の定義元を新しいタブで開きます。
+    w：カーソル下の文字の定義元を隣のウィンドウで開きます。
+    q：ウィンドウを閉じます。
 
