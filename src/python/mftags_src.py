@@ -256,5 +256,3 @@ def clean_buf():
     # buffer clear
     cur_buf[:] = None
 
-#g_tag_path = ["/Users/fujino/workspace/work/test/sample_code/python/tags"]
-#return_list_from_tag("/Users/fujino/workspace/git_work/mftags/", "python", "v")
