@@ -265,7 +265,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     command! -nargs=? MFfunclist :call s:MFtag_list_usage(<f-args>)
 
     if !exists('g:mftag_auto_close')
-        let g:mftag_auto_close = 1
+        let g:mftag_auto_close = 0
     endif
     function! s:funclist_ayuto_close()
         " check other windows

@@ -49,7 +49,7 @@ ctags : Exuberant Ctags 5.8
     * g:mftag_no_need_MFfunclist：この変数があるとMFfunclist関連の設定を読み込みません。
     * g:mftag_func_list_name：function listのwindowの名前を設定しています。デフォルトは"MF_func_list"。
     * g:mftag_func_list_width：function listのwindowの幅を設定します。デフォルトは40。
-    * g:mftag_auto_close：この変数が1だと、function list以外のwindowが閉じた場合に自動でfunction listのwindowを閉じます。
+    * g:mftag_auto_close：この変数が1だと、function list以外のwindowが閉じた場合に自動でfunction listのwindowを閉じます。デフォルトはoff。
     　機能としては、:MFfunclist <arg>で見つけたすべてのtagsファイルの関数一覧を表示します。
     <args>には言語に対応したkindの文字(c言語でclass, typedefを表示したかったら:MFfunclist ct)が入ります。
     <args>に何もない場合はすべてを表示します。
