@@ -264,5 +264,26 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     command! -nargs=? MFfunclist :call s:MFtag_list_usage(<f-args>)
 
+    if !exists('g:mftag_auto_close')
+        let g:mftag_auto_close = 1
+    endif
+    function! s:funclist_ayuto_close()
+        " check other windows
+        if winbufnr(2) == -1
+            " check other tab page
+            if tabpagenr('$') == 1
+                bdelete
+                quit
+            else
+                close
+            endif
+        endif
+    endfunction
+
+    if g:mftag_auto_close == 1
+        autocmd MFtags BufEnter MF_func_list nested
+                    \ call s:funclist_ayuto_close()
+    endif
+
 endif
 
