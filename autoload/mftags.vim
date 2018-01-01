@@ -53,10 +53,10 @@ function! mftags#make_tag_syntax_file()
     python clean_tag()
 endfunction
 
-function! mftags#show_kind_list(file_type, kind_char)
+function! mftags#show_kind_list(file_type, file_path, kind_char)
 
     "make tag path list
-    python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
+    python search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
 
     " put list on current buffer
     python show_list_on_buf(vim.eval('s:src_dir'), vim.eval('a:file_type'), vim.eval('a:kind_char'))
