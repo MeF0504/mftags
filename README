@@ -13,7 +13,8 @@ ctags : Exuberant Ctags 5.8
     > ctagsをvimから実行します。
     設定用の変数は
     * g:mftag_no_need_MFctag : この変数があるとMFctag関連の設定を読み込みません。
-    * g:mftag_dir : ctagsの実行位置を決定する変数。型はlist。
+    * g:mftag_dir_auto_set : この変数が1だと、カレントディレクトリの上に.git, .svnを見つけた場合、その位置でctagsを実行してくれる。
+    * g:mftag_dir : ctagsの実行位置を決定する変数。型はlist。g:mftag_dir_auto_setが1の場合、この変数は無視されます。
       ex) g:mftag_dir = ['work','top','hoge']
          I'm opening file @ /home/to/work/dir/src
          => make tags file @ /home/to/work
@@ -30,6 +31,7 @@ ctags : Exuberant Ctags 5.8
     設定用の変数は
     * g:mftag_no_need_MFsyntax : この変数があるとMFsyntax関連の設定を読み込みません。
     * g:mftag_save_dir : 作成したsyntaxファイルの保存場所を指定します。型はstring。
+      自分でg:mftag_save_dirを指定しておらず、g:mftag_dir_auto_set==1の場合はMFctagで作成したtagファイルと同じ場所になります。
       自分でg:mftag_save_dirを指定しておらず、g:mftag_dirが存在する場合はMFctagで作成したtagファイルと同じ場所になります。
       何も指定していない場合はカレントディレクトリです。
       実際に使われる値はb:mftag_save_dirを参照。

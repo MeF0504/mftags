@@ -13,14 +13,58 @@ augroup END
 "########## global settings
 
 let s:file = expand("<sfile>")
+
+if has('win32')
+    let s:sep = '\'
+else
+    let s:sep = '/'
+endif
+
 function! s:MFdebug()
     echo "###debug###"
     "echo "@ " . s:file . " " . expand("<sfile>") . " line " . expand("<slnum>")
     echo "@ " . s:file . " " . expand("<sfile>")
 endfunction
 
+function! MFset_dir_auto()
+    let l:base_name = [".svn",".git"]
+
+    let l:search_dir = expand('%:p:h')
+    while 1
+        let l:while_end = 0
+        for bn in l:base_name
+            let l:base_dir = l:search_dir . s:sep . bn
+            if s:mftag_debug == 1
+                call s:MFdebug()
+                echomsg l:base_dir
+            endif
+            if isdirectory(l:base_dir)
+                if s:mftag_debug == 1
+                    echomsg "break"
+                endif
+                return l:search_dir
+            endif
+        endfor
+        let l:last_sep = strridx(l:search_dir,s:sep)
+        if l:last_sep <= 0
+            if s:mftag_debug == 1
+                call s:MFdebug()
+            endif
+            return -1
+        endif
+        let l:search_dir = l:search_dir[:l:last_sep-1]
+    endwhile
+
+endfunction
 
 function! MFsearch_dir(dir)
+    if exists("g:mftag_dir_auto_set") && (g:mftag_dir_auto_set == 1)
+        let ret = MFset_dir_auto()
+        if ret != -1
+            return ret
+        endif
+    endif
+
     let l:curdir = expand('%:p:h') . "/"
 
     for d in a:dir
@@ -41,7 +85,7 @@ function! MFsearch_dir(dir)
 endfunction
 
 function! s:set_mftag_save_dir()
-    if exists('g:mftag_dir') && !exists('g:mftag_save_dir')
+    if ((exists('g:mftag_dir_auto_set') && g:mftag_dir_auto_set==1) || exists('g:mftag_dir')) && !exists('g:mftag_save_dir')
         let b:mftag_save_dir = MFsearch_dir(g:mftag_dir)
         if s:mftag_debug == 1
             call s:MFdebug()
@@ -61,11 +105,6 @@ function! s:set_mftag_save_dir()
         endif
     endif
 
-    if has('win32')
-        let s:sep = '\'
-    else
-        let s:sep = '/'
-    endif
     if b:mftag_save_dir[strlen(b:mftag_save_dir)-1] != s:sep
         let b:mftag_save_dir = b:mftag_save_dir . s:sep
     endif
