@@ -10,6 +10,35 @@ augroup MFtags
     autocmd!
 augroup END
 
+"########## variables initializing
+if !exists('g:mftag_dir_auto_set')
+    let g:mftag_dir_auto_set = 0
+endif
+
+if !exists('g:mftag_dir')
+    let g:mftag_dir = []
+endif
+
+if !exists('g:mftag_save_dir')
+    let g:mftag_save_dir = ''
+endif
+
+if !exists('g:mftag_exe_option')
+    let g:mftag_exe_option = '-R'
+endif
+
+if !exists('g:mftag_func_list_name')
+    let g:mftag_func_list_name = 'MF_func_list'
+endif
+
+if !exists('g:mftag_func_list_width')
+    let g:mftag_func_list_width = 40
+endif
+
+if !exists('g:mftag_auto_close')
+    let g:mftag_auto_close = 0
+endif
+
 "########## global settings
 
 let s:file = expand("<sfile>")
@@ -27,6 +56,9 @@ function! s:MFdebug()
 endfunction
 
 function! MFset_dir_auto()
+    if s:mftag_debug == 1
+        call s:MFdebug()
+    endif
     let l:base_name = [".svn",".git"]
 
     let l:search_dir = expand('%:p:h')
@@ -58,7 +90,10 @@ function! MFset_dir_auto()
 endfunction
 
 function! MFsearch_dir(dir)
-    if exists("g:mftag_dir_auto_set") && (g:mftag_dir_auto_set == 1)
+    if s:mftag_debug == 1
+        call s:MFdebug()
+    endif
+    if g:mftag_dir_auto_set == 1
         let ret = MFset_dir_auto()
         if ret != -1
             return ret
@@ -85,20 +120,23 @@ function! MFsearch_dir(dir)
 endfunction
 
 function! s:set_mftag_save_dir()
-    if ((exists('g:mftag_dir_auto_set') && g:mftag_dir_auto_set==1) || exists('g:mftag_dir')) && !exists('g:mftag_save_dir')
-        let b:mftag_save_dir = MFsearch_dir(g:mftag_dir)
+    if s:mftag_debug == 1
+        call s:MFdebug()
+    endif
+    if g:mftag_save_dir != ''
+        let b:mftag_save_dir = g:mftag_save_dir
         if s:mftag_debug == 1
             call s:MFdebug()
             echo "s:set_mftag_save_dir 1"
         endif
-    elseif !exists('g:mftag_save_dir')
-        let b:mftag_save_dir = getcwd()
+    elseif (g:mftag_dir_auto_set==1 || g:mftag_dir!=[])
+        let b:mftag_save_dir = MFsearch_dir(g:mftag_dir)
         if s:mftag_debug == 1
             call s:MFdebug()
             echo "s:set_mftag_save_dir 2"
         endif
     else
-        let b:mftag_save_dir = g:mftag_save_dir
+        let b:mftag_save_dir = getcwd()
         if s:mftag_debug == 1
             call s:MFdebug()
             echo "s:set_mftag_save_dir 3"
@@ -116,6 +154,9 @@ unlet s:mftag_start_up
 
 "########## tags syntax setting
 if !exists('g:mftag_no_need_MFsyntax')
+    if s:mftag_debug == 1
+        call s:MFdebug()
+    endif
     function! s:check_and_read_file(ft)
         call s:set_mftag_save_dir()
         let l:filename = b:mftag_save_dir . a:ft . "_tag_syntax.vim"
@@ -135,13 +176,6 @@ endif
 "########## execute ctag setting
 if !exists('g:mftag_no_need_MFctag')
 
-    if !exists('g:mftag_dir')
-        let g:mftag_dir = ['']
-    endif
-    if !exists('g:mftag_exe_option')
-        let g:mftag_exe_option = '-R'
-    endif
-    
     "execute ctags command at specified directory
     "specify directory name by setting valiabe 'g:mftag_dir'
     "ex) g:mftag_dir = ['work','top','hoge']
@@ -152,6 +186,9 @@ if !exists('g:mftag_no_need_MFctag')
     "   I'm opening file @ /home/to/work/dir/work/dir/src
     "   => make tags file @ /from/to/work/dir/work
     function! MFexe_ctags(dir)
+        if s:mftag_debug == 1
+            call s:MFdebug()
+        endif
     
         let l:pwd = getcwd()
         let l:exe_dir = MFsearch_dir(a:dir)
@@ -173,14 +210,10 @@ endif
 "########## show all functions, variables, etc.. settings
 if !exists('g:mftag_no_need_MFfunclist')
 
-    if !exists('g:mftag_func_list_name')
-        let g:mftag_func_list_name = 'MF_func_list'
-    endif
-    if !exists('g:mftag_func_list_width')
-        let g:mftag_func_list_width = 40
-    endif
-
     function! MFshow_func_list(kind_char)
+        if s:mftag_debug == 1
+            call s:MFdebug()
+        endif
         let l:file_type = &filetype
         let l:file_path = expand('%:p')
         execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
@@ -189,6 +222,9 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! s:set_func_list_win()
+        if s:mftag_debug == 1
+            call s:MFdebug()
+        endif
         " set up function list window
         setlocal modifiable
         setlocal noreadonly
@@ -221,6 +257,9 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! s:MF_tag_jump(type)
+        if s:mftag_debug == 1
+            call s:MFdebug()
+        endif
         let l:cword = getline('.')
         if len(l:cword) < 2
             if s:mftag_debug == 1
@@ -249,6 +288,9 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! s:MFtag_list_usage(...)
+        if s:mftag_debug == 1
+            call s:MFdebug()
+        endif
         " close if  FuncList is already open.
         let l:winnr = bufwinnr(g:mftag_func_list_name)
         if l:winnr != -1
@@ -304,10 +346,10 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     command! -nargs=? MFfunclist :call s:MFtag_list_usage(<f-args>)
 
-    if !exists('g:mftag_auto_close')
-        let g:mftag_auto_close = 0
-    endif
     function! s:funclist_ayuto_close()
+        if s:mftag_debug == 1
+            call s:MFdebug()
+        endif
         " check other windows
         if winbufnr(2) == -1
             " check other tab page

@@ -103,6 +103,7 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
         return
 
     #return
+    #vim_special_strs = ["\\",".","*","+","?","{","}","^","$","(",")","|","[","]"]
     tag_file_path = tag_file_path.replace('/',os.sep)   #adjust os path problem.
     with open(tag_file_path, 'r') as f:
         for line in f:
@@ -112,6 +113,10 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
             kind = line[line.rfind('"')+2]
             line = line.split("\t")
             name = line[0]
+#            for vss in vim_special_strs:
+#                if vss in name:
+#                    name = name.replace(vss,"\\"+vss)
+
             try:
                 tag_list[kind].append(name)
             except KeyError:
@@ -126,6 +131,7 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
         print tag_list[k]
     """
 
+    vim_ignore_strs = ["[","]"]
     syntax_file = op.join(out_dir, '%s_tag_syntax.vim' % filetype)
     with open(syntax_file, 'a') as f:
         f.write('" from '+tag_file_path+'\n')
@@ -134,6 +140,10 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
                 continue
             for i in tag_list[kind]:
                 syntax_str = "syntax keyword MF%s%s %s\n" % (filetype, tag_name[kind][0], i)
+                for vis in vim_ignore_strs:
+                    if vis in i:
+                        syntax_str = '"'+syntax_str
+                        break
                 f.write(syntax_str)
         for kind in tag_name:
             if tag_name[kind][1] == '':
