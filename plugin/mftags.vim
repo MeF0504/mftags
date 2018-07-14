@@ -332,6 +332,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         else
             if a:1 == 'list'
                 echo "selectable arguments are [" . enable_kinds . "]"
+                return
             else
                 let l:args = a:1
             endif
