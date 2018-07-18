@@ -243,14 +243,16 @@ if !exists('g:mftag_no_need_MFfunclist')
         setlocal foldmethod=indent
         setlocal foldcolumn=3
 
-        nnoremap <buffer> <CR> zO
         nnoremap <buffer> + zR
         nnoremap <buffer> - zC
         nnoremap <buffer> = zM
         command! MFjumpTab :call s:MF_tag_jump('tab')
         nnoremap <silent> <buffer> t :MFjumpTab<CR>
+        nnoremap <silent> <buffer> <c-t> :MFjumpTab<CR>
         command! MFjumpWin :call s:MF_tag_jump('win')
         nnoremap <silent> <buffer> w :MFjumpWin<CR>
+        nnoremap <silent> <buffer> <expr> <CR> foldclosed(line('.')) != -1 ? 'zO' : ':MFjumpWin<CR>'
+        nnoremap <silent> <buffer> <expr> <space><space> foldclosed(line('.')) != -1 ? '' : ":echo expand('<cword>')<CR>"
 
         nnoremap <silent> <buffer> q :q<CR>
 
