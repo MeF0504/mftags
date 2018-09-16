@@ -11,7 +11,9 @@ ctags : Exuberant Ctags 5.8
 できるコマンドは3つ:
 * MFctag
     > ctagsをvimから実行します。
+    作成する場所は、 g:mftag_ankで指定する名前のファイルがある場合はその場所に、ない場合はg:mftag_dir_auto_set、g:mftag_dirに従って作成されます。
     設定用の変数は
+    * g:mftag_ank : この変数が指定する名前の場所にtagを作成します。初期値は".mfank"
     * g:mftag_no_need_MFctag : この変数があるとMFctag関連の設定を読み込みません。
     * g:mftag_dir_auto_set : この変数が1だと、カレントディレクトリの上に.git, .svnを見つけた場合、その位置でctagsを実行してくれる。
     * g:mftag_dir : ctagsの実行位置を決定する変数。型はlist。g:mftag_dir_auto_setが1の場合、この変数は無視されます。
@@ -31,8 +33,7 @@ ctags : Exuberant Ctags 5.8
     設定用の変数は
     * g:mftag_no_need_MFsyntax : この変数があるとMFsyntax関連の設定を読み込みません。
     * g:mftag_save_dir : 作成したsyntaxファイルの保存場所を指定します。型はstring。
-      自分でg:mftag_save_dirを指定しておらず、g:mftag_dir_auto_set==1の場合はMFctagで作成したtagファイルと同じ場所になります。
-      自分でg:mftag_save_dirを指定しておらず、g:mftag_dirが存在する場合はMFctagで作成したtagファイルと同じ場所になります。
+      自分でg:mftag_save_dirを指定していない場合、.mfank ファイル、g:mftag_dir_auto_set、g:mftag_dirで指定される場所の順で指定されます。
       何も指定していない場合はカレントディレクトリです。
       実際に使われる値はb:mftag_save_dirを参照。
     * g:mftag_syntax_overwrite : 1ならばsyntax fileを作る際に新しく作り直します。0ならばsyntax fileがある場合には追記します。デフォルトは1。

@@ -11,6 +11,10 @@ augroup MFtags
 augroup END
 
 "########## variables initializing
+if !exists('g:mftag_ank')
+    let g:mftag_ank = ".mfank"
+endif
+
 if !exists('g:mftag_dir_auto_set')
     let g:mftag_dir_auto_set = 0
 endif
@@ -55,7 +59,34 @@ function! s:MFdebug()
     echo "@ " . s:file . " " . expand("<sfile>")
 endfunction
 
-function! MFset_dir_auto()
+function! s:MFset_dir_ank()
+    if s:mftag_debug == 1
+        call s:MFdebug()
+    endif
+    let l:search_dir = expand('%:p:h')
+
+    while 1
+        let l:base_file = l:search_dir . s:sep . g:mftag_ank
+        if s:mftag_debug == 1
+            call s:MFdebug()
+            echo l:base_file
+        endif
+        if filereadable(l:base_file)
+            return l:search_dir
+        endif
+        let l:last_sep = strridx(l:search_dir, s:sep)
+        if l:last_sep <= 0
+            if s:mftag_debug == 1
+                call s:MFdebug()
+            endif
+            return -1
+        endif
+        let l:search_dir = l:search_dir[:l:last_sep-1]
+    endwhile
+endfunction
+
+
+function! s:MFset_dir_auto()
     if s:mftag_debug == 1
         call s:MFdebug()
     endif
@@ -63,16 +94,15 @@ function! MFset_dir_auto()
 
     let l:search_dir = expand('%:p:h')
     while 1
-        let l:while_end = 0
         for bn in l:base_name
             let l:base_dir = l:search_dir . s:sep . bn
             if s:mftag_debug == 1
                 call s:MFdebug()
-                echomsg l:base_dir
+                echo l:base_dir
             endif
             if isdirectory(l:base_dir)
                 if s:mftag_debug == 1
-                    echomsg "break"
+                    echo "break"
                 endif
                 return l:search_dir
             endif
@@ -89,17 +119,10 @@ function! MFset_dir_auto()
 
 endfunction
 
-function! MFsearch_dir(dir)
+function! s:MFset_dir_list(dir)
     if s:mftag_debug == 1
         call s:MFdebug()
     endif
-    if g:mftag_dir_auto_set == 1
-        let ret = MFset_dir_auto()
-        if ret != -1
-            return ret
-        endif
-    endif
-
     let l:curdir = expand('%:p:h') . "/"
 
     for d in a:dir
@@ -117,6 +140,29 @@ function! MFsearch_dir(dir)
         echo "no match directory"
     endif
     return expand('%:p:h')
+
+endfunction
+
+
+function! MFsearch_dir(dir)
+    if s:mftag_debug == 1
+        call s:MFdebug()
+    endif
+    let ret = s:MFset_dir_ank()
+    if ret != -1
+        return ret
+    endif
+
+    if g:mftag_dir_auto_set == 1
+        let ret = s:MFset_dir_auto()
+        if ret != -1
+            return ret
+        endif
+    endif
+
+    let ret = s:MFset_dir_list(a:dir)
+    return ret
+
 endfunction
 
 function! s:set_mftag_save_dir()
