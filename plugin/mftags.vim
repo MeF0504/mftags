@@ -68,7 +68,6 @@ function! s:MFset_dir_ank()
     while 1
         let l:base_file = l:search_dir . s:sep . g:mftag_ank
         if s:mftag_debug == 1
-            call s:MFdebug()
             echo l:base_file
         endif
         if filereadable(l:base_file)
@@ -77,7 +76,7 @@ function! s:MFset_dir_ank()
         let l:last_sep = strridx(l:search_dir, s:sep)
         if l:last_sep <= 0
             if s:mftag_debug == 1
-                call s:MFdebug()
+                echo "last_sep : " . l:last_sep
             endif
             return -1
         endif
@@ -97,7 +96,6 @@ function! s:MFset_dir_auto()
         for bn in l:base_name
             let l:base_dir = l:search_dir . s:sep . bn
             if s:mftag_debug == 1
-                call s:MFdebug()
                 echo l:base_dir
             endif
             if isdirectory(l:base_dir)
@@ -110,7 +108,7 @@ function! s:MFset_dir_auto()
         let l:last_sep = strridx(l:search_dir,s:sep)
         if l:last_sep <= 0
             if s:mftag_debug == 1
-                call s:MFdebug()
+                echo "last_sep : " . l:last_sep
             endif
             return -1
         endif
@@ -130,7 +128,6 @@ function! s:MFset_dir_list(dir)
         let l:n = matchend(l:curdir,d)
         if l:n != -1
             if s:mftag_debug == 1
-                call s:MFdebug()
                 echo l:curdir[:l:n]
             endif
             return l:curdir[:l:n]
@@ -172,19 +169,16 @@ function! s:set_mftag_save_dir()
     if g:mftag_save_dir != ''
         let b:mftag_save_dir = g:mftag_save_dir
         if s:mftag_debug == 1
-            call s:MFdebug()
             echo "s:set_mftag_save_dir 1"
         endif
     elseif (g:mftag_dir_auto_set==1 || g:mftag_dir!=[])
         let b:mftag_save_dir = MFsearch_dir(g:mftag_dir)
         if s:mftag_debug == 1
-            call s:MFdebug()
             echo "s:set_mftag_save_dir 2"
         endif
     else
         let b:mftag_save_dir = getcwd()
         if s:mftag_debug == 1
-            call s:MFdebug()
             echo "s:set_mftag_save_dir 3"
         endif
     endif
@@ -289,19 +283,50 @@ if !exists('g:mftag_no_need_MFfunclist')
         setlocal foldmethod=indent
         setlocal foldcolumn=3
 
-        nnoremap <buffer> + zR
-        nnoremap <buffer> - zC
-        nnoremap <buffer> = zM
-        command! MFjumpTab :call s:MF_tag_jump('tab')
-        nnoremap <silent> <buffer> t :MFjumpTab<CR>
+        """ mapping
+        command! MFjumpTab call s:MF_tag_jump('tab')
+        command! MFjumpWin call s:MF_tag_jump('win')
+        command! MFjumpPlu call s:MF_tag_map("+")
+        command! MFjumpMin call s:MF_tag_map("-")
+        command! MFjumpEq  call s:MF_tag_map("=")
+        command! MFjumpEn  call s:MF_tag_map("enter")
+        command! MFjumpSp2 call s:MF_tag_map("space2")
+        command! MFjumpQ   call s:MF_tag_map("q")
+        nnoremap <silent> <buffer> +     :MFjumpPlu<CR>
+        nnoremap <silent> <buffer> -     :MFjumpMin<CR>
+        nnoremap <silent> <buffer> =     :MFjumpEq<CR>
+        nnoremap <silent> <buffer> t     :MFjumpTab<CR>
         nnoremap <silent> <buffer> <c-t> :MFjumpTab<CR>
-        command! MFjumpWin :call s:MF_tag_jump('win')
-        nnoremap <silent> <buffer> w :MFjumpWin<CR>
-        nnoremap <silent> <buffer> <expr> <CR> foldclosed(line('.')) != -1 ? 'zO' : ':MFjumpWin<CR>'
-        nnoremap <silent> <buffer> <expr> <space><space> foldclosed(line('.')) != -1 ? '' : ":echo expand('<cword>')<CR>"
+        nnoremap <silent> <buffer> w     :MFjumpWin<CR>
+        nnoremap <silent> <buffer> <CR>  :MFjumpEn<CR>
+        nnoremap <silent> <buffer> <space><space> :MFjumpSp2<CR>
 
-        nnoremap <silent> <buffer> q :q<CR>
+        nnoremap <silent> <buffer> q     :MFjumpQ<CR>
 
+    endfunction
+
+    function! s:MF_tag_map(args)
+        if a:args == "+"
+            normal! zR
+        elseif a:args == "-"
+            if expand("<cword>") != ""
+                normal! zC
+            endif
+        elseif a:args == "="
+            normal! zM
+        elseif a:args == "enter"
+            if foldclosed(line('.')) != -1
+                normal! zO
+            else
+                MFjumpWin
+            endif
+        elseif a:args == "space2"
+            if !foldclosed(line('.')) == -1
+                echo expand('<cword>')
+            endif
+        elseif a:args == "q"
+            quit
+        endif
     endfunction
 
     function! s:MF_tag_jump(type)
@@ -311,7 +336,6 @@ if !exists('g:mftag_no_need_MFfunclist')
         let l:cword = getline('.')
         if len(l:cword) < 2
             if s:mftag_debug == 1
-                call s:MFdebug()
                 echo "[" . l:cword . "]"
                 echo "tag jump word is too short!"
             endif
@@ -319,7 +343,6 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
         if l:cword[1] != '	'
             if s:mftag_debug == 1
-                call s:MFdebug()
                 echo "[" . l:cword . "]"
                 echo "not tag jump word!"
             endif
@@ -354,19 +377,61 @@ if !exists('g:mftag_no_need_MFfunclist')
             return
         endif
 
-        let enable_kinds = 'list, all, '
+        let l:echo_list = ''
+        let l:echo_list .= "help or list \t: show enable characters and close.\n"
+        let l:echo_list .= "all\t\t: open MF func list w/ all kinds.\n"
         if &filetype == 'python'
-            let enable_kinds .= 'c, f, m, v, i'
+            let l:echo_list .= "c \t\t: classes\n"
+            let l:echo_list .= "f \t\t: functions\n"
+            let l:echo_list .= "m \t\t: class members\n"
+            let l:echo_list .= "v \t\t: variables\n"
+            let l:echo_list .= "i \t\t: imports\n"
         elseif &filetype == 'c'
-            let enable_kinds .= 'c, d, e, f, g, l, m, n, p, s, t, u, v, x'
+            let l:echo_list .= "c \t\t: classes\n"
+            let l:echo_list .= "d \t\t: macro definitions\n"
+            let l:echo_list .= "e \t\t: enumerators (values inside an enumeration)\n"
+            let l:echo_list .= "f \t\t: function definitions\n"
+            let l:echo_list .= "g \t\t: enumeration names\n"
+            let l:echo_list .= "l \t\t: local variables\n"
+            let l:echo_list .= "m \t\t: class, struct, and union members\n"
+            let l:echo_list .= "n \t\t: namespaces\n"
+            let l:echo_list .= "p \t\t: function prototypes\n"
+            let l:echo_list .= "s \t\t: structure names\n"
+            let l:echo_list .= "t \t\t: typedefs\n"
+            let l:echo_list .= "u \t\t: union names\n"
+            let l:echo_list .= "v \t\t: variable definitions\n"
+            let l:echo_list .= "x \t\t: external and forward variable declarations\n"
         elseif &filetype == 'cpp'
-            let enable_kinds .= 'c, d, e, f, g, l, m, n, p, s, t, u, v, x'
+            let l:echo_list .= "c \t\t: classes\n"
+            let l:echo_list .= "d \t\t: macro definitions\n"
+            let l:echo_list .= "e \t\t: enumerators (values inside an enumeration)\n"
+            let l:echo_list .= "f \t\t: function definitions\n"
+            let l:echo_list .= "g \t\t: enumeration names\n"
+            let l:echo_list .= "l \t\t: local variables\n"
+            let l:echo_list .= "m \t\t: class, struct, and union members\n"
+            let l:echo_list .= "n \t\t: namespaces\n"
+            let l:echo_list .= "p \t\t: function prototypes\n"
+            let l:echo_list .= "s \t\t: structure names\n"
+            let l:echo_list .= "t \t\t: typedefs\n"
+            let l:echo_list .= "u \t\t: union names\n"
+            let l:echo_list .= "v \t\t: variable definitions\n"
+            let l:echo_list .= "x \t\t: external and forward variable declarations\n"
         elseif &filetype == 'vim'
-            let enable_kinds .= 'a, c, f, m, v'
+            let l:echo_list .= "a \t\t: autocommand groups\n"
+            let l:echo_list .= "c \t\t: user-defined commands\n"
+            let l:echo_list .= "f \t\t: function definitions\n"
+            let l:echo_list .= "m \t\t: maps\n"
+            let l:echo_list .= "v \t\t: variable definitions\n"
         endif
+        let l:echo_list .= "characters except 'help', 'list' and 'all' are able to use at once"
 
         if a:0 == 0
-            if &filetype == 'python'
+            if exists("g:mftag_" . &filetype . "_default")
+                if s:mftag_debug == 1
+                    execute 'echo "read default:: " . g:mftag_' . &filetype . '_default'
+                endif
+                execute "let l:args = g:mftag_" . &filetype . "_default"
+            elseif &filetype == 'python'
                 let l:args = 'cfmvi'
             elseif &filetype == 'c'
                 let l:args = 'cdefglmnpstuvx'
@@ -378,9 +443,21 @@ if !exists('g:mftag_no_need_MFfunclist')
                 let l:args = ''
             endif
         else
-            if a:1 == 'list'
-                echo "selectable arguments are [" . enable_kinds . "]"
+            if (a:1 == 'list') || (a:1 == 'help')
+                echo l:echo_list
                 return
+            elseif a:1 == 'all'
+                if &filetype == 'python'
+                    let l:args = 'cfmvi'
+                elseif &filetype == 'c'
+                    let l:args = 'cdefglmnpstuvx'
+                elseif &filetype == 'cpp'
+                    let l:args = 'cdefglmnpstuvx'
+                elseif &filetype == 'vim'
+                    let l:args = 'acfmv'
+                else
+                    let l:args = ''
+                endif
             else
                 let l:args = a:1
             endif

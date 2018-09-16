@@ -49,15 +49,25 @@ ctags : Exuberant Ctags 5.8
 *MFfunclist
     > tagファイルを探し出して情報を読み取り、関数などの一覧を表示します
     設定用の変数は
-    * g:mftag_no_need_MFfunclist：この変数があるとMFfunclist関連の設定を読み込みません。
-    * g:mftag_func_list_name：function listのwindowの名前を設定しています。デフォルトは"MF_func_list"。
-    * g:mftag_func_list_width：function listのwindowの幅を設定します。デフォルトは40。
-    * g:mftag_auto_close：この変数が1だと、function list以外のwindowが閉じた場合に自動でfunction listのwindowを閉じます。デフォルトはoff。
-    　機能としては、:MFfunclist <arg>で見つけたすべてのtagsファイルの関数一覧を表示します。
+    * g:mftag_no_need_MFfunclist : この変数があるとMFfunclist関連の設定を読み込みません。
+    * g:mftag_func_list_name : function listのwindowの名前を設定しています。デフォルトは"MF_func_list"。
+    * g:mftag_func_list_width : function listのwindowの幅を設定します。デフォルトは40。
+    * g:mftag_auto_close : この変数が1だと、function list以外のwindowが閉じた場合に自動でfunction listのwindowを閉じます。デフォルトはoff。
+    * g:mftag_c_default
+    * g: mftag_vim_detault
+                .
+                .
+                .
+      それぞれの言語で、MFfunclistを引数なしで実行した際に表示されるkindを設定できます。ない場合はすべて表示されます。
+    機能としては、:MFfunclist <arg>で見つけたすべてのtagsファイルの関数一覧を表示します。
     <args>には言語に対応したkindの文字(c言語でclass, typedefを表示したかったら:MFfunclist ct)が入ります。
-    <args>に何もない場合はすべてを表示します。
+    <args>に何もない場合はg:mftag_**_defaultで指定されたものを表示します。
     key mapは
-    t：カーソル下の文字の定義元を新しいタブで開きます。
-    w：カーソル下の文字の定義元を隣のウィンドウで開きます。
-    q：ウィンドウを閉じます。
+    +       : すべてのfoldを開きます。
+    -       : カーソルのある行のfoldを閉じます。
+    =       : すべてのfoldを閉じます。
+    <enetr> : foldがあれば開き、それ以外ではカーソル下の文字の定義元を新しいタブで開きます。
+    t,<c-t> : カーソル下の文字の定義元を新しいタブで開きます。
+    w       : カーソル下の文字の定義元を隣のウィンドウで開きます。
+    q       : ウィンドウを閉じます。
 
