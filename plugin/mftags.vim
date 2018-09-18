@@ -321,7 +321,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                 MFjumpWin
             endif
         elseif a:args == "space2"
-            if !foldclosed(line('.')) == -1
+            if foldclosed(line('.')) == -1
                 echo expand('<cword>')
             endif
         elseif a:args == "q"
