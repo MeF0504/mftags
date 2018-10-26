@@ -25,9 +25,8 @@ if !exists('g:mftag_syntax_vim_enable_kinds')
     let g:mftag_syntax_vim_enable_kinds = "acfmv"
 endif
 
-"let $PYTHONPATH = $PYTHONPATH . expand("<sfile>:h:h") . "/src/python"
-pyfile <sfile>:h:h/src/python/mftags_src.py
-let s:src_dir = expand('<sfile>:h:h')
+pyfile <sfile>:h/mftags/src/python/mftags_src.py
+let s:src_dir = expand('<sfile>:h') . "/mftags"
 
 python import vim
 

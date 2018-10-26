@@ -232,13 +232,15 @@ if !exists('g:mftag_no_need_MFctag')
     
         let l:pwd = getcwd()
         let l:exe_dir = MFsearch_dir(a:dir)
-        echo l:exe_dir
         if l:exe_dir == ''
             return
         endif
-        sleep 2
         execute "cd " . l:exe_dir
-        execute "! ctags " . g:mftag_exe_option
+        echo "execute ctags " . g:mftag_exe_option . " @ " . l:exe_dir
+        sleep 2
+        execute "silent !ctags " . g:mftag_exe_option
+        " redraw
+        execute "normal! \<c-l>"
     
         execute "cd " . l:pwd
     endfunction
@@ -284,24 +286,24 @@ if !exists('g:mftag_no_need_MFfunclist')
         setlocal foldcolumn=3
 
         """ mapping
-        command! MFjumpTab call s:MF_tag_jump('tab')
-        command! MFjumpWin call s:MF_tag_jump('win')
-        command! MFjumpPlu call s:MF_tag_map("+")
-        command! MFjumpMin call s:MF_tag_map("-")
-        command! MFjumpEq  call s:MF_tag_map("=")
-        command! MFjumpEn  call s:MF_tag_map("enter")
-        command! MFjumpSp2 call s:MF_tag_map("space2")
-        command! MFjumpQ   call s:MF_tag_map("q")
-        nnoremap <silent> <buffer> +     :MFjumpPlu<CR>
-        nnoremap <silent> <buffer> -     :MFjumpMin<CR>
-        nnoremap <silent> <buffer> =     :MFjumpEq<CR>
-        nnoremap <silent> <buffer> t     :MFjumpTab<CR>
-        nnoremap <silent> <buffer> <c-t> :MFjumpTab<CR>
-        nnoremap <silent> <buffer> w     :MFjumpWin<CR>
-        nnoremap <silent> <buffer> <CR>  :MFjumpEn<CR>
-        nnoremap <silent> <buffer> <space><space> :MFjumpSp2<CR>
+        command! MFJumpTab  call s:MF_tag_jump('tab')
+        command! MFJumpWin  call s:MF_tag_jump('win')
+        command! MFOpenAll  call s:MF_tag_map("+")
+        command! MFClose    call s:MF_tag_map("-")
+        command! MFCloseAll call s:MF_tag_map("=")
+        command! MFOpen     call s:MF_tag_map("enter")
+        command! MFInfo     call s:MF_tag_map("space2")
+        command! MFQuit     call s:MF_tag_map("q")
+        nnoremap <silent> <buffer> +     :MFOpenAll<CR>
+        nnoremap <silent> <buffer> -     :MFClose<CR>
+        nnoremap <silent> <buffer> =     :MFCloseAll<CR>
+        nnoremap <silent> <buffer> t     :MFJumpTab<CR>
+        nnoremap <silent> <buffer> <c-t> :MFJumpTab<CR>
+        nnoremap <silent> <buffer> w     :MFJumpWin<CR>
+        nnoremap <silent> <buffer> <CR>  :MFOpen<CR>
+        nnoremap <silent> <buffer> <space><space> :MFInfo<CR>
 
-        nnoremap <silent> <buffer> q     :MFjumpQ<CR>
+        nnoremap <silent> <buffer> q     :MFQuit<CR>
 
     endfunction
 
@@ -318,7 +320,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             if foldclosed(line('.')) != -1
                 normal! zO
             else
-                MFjumpWin
+                MFJumpWin
             endif
         elseif a:args == "space2"
             if foldclosed(line('.')) == -1

@@ -5,6 +5,7 @@ import glob
 
 g_tag_path = []
 debug = False
+dic_ext_filetype = {'c':'c', 'h':'c', 'cpp':'cpp', 'py':'python', 'vim':'vim'}
 
 def search_tag(tags, file_path):
     ##ref: http://vim-jp.org/vim-users-jp/2010/06/13/Hack-154.html
@@ -116,6 +117,12 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
 #            for vss in vim_special_strs:
 #                if vss in name:
 #                    name = name.replace(vss,"\\"+vss)
+            fname = line[1]
+            ftype = fname[fname.rfind(".")+1:]
+            # excepting incorrect filetype
+            if ftype in dic_ext_filetype.keys():
+                if dic_ext_filetype[ftype] != filetype:
+                    continue
 
             try:
                 tag_list[kind].append(name)
@@ -214,6 +221,12 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                 kind = line[line.rfind('"')+2]
                 line = line.split("\t")
                 name = line[0]
+                fname = line[1]
+                ftype = fname[fname.rfind(".")+1:]
+                # excepting incorrect filetype
+                if ftype in dic_ext_filetype.keys():
+                    if dic_ext_filetype[ftype] != filetype:
+                        continue
                 if kind == return_kind:
                     try:
                         tag_list.append("\t\t"+name)
