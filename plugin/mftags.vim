@@ -236,9 +236,15 @@ if !exists('g:mftag_no_need_MFctag')
             return
         endif
         execute "cd " . l:exe_dir
-        echo "execute ctags " . g:mftag_exe_option . " @ " . l:exe_dir
-        sleep 2
-        execute "silent !ctags " . g:mftag_exe_option
+        if has("gui_running")
+            echo "execute ctags " . g:mftag_exe_option . " @ " . l:exe_dir
+            sleep 2
+            execute "silent !ctags " . g:mftag_exe_option
+        else
+            let l:echo_str = "'execute ctags " . g:mftag_exe_option . " @ " . l:exe_dir . "'"
+            let l:cmd_str = "ctags " . g:mftag_exe_option
+            execute "!echo " . l:echo_str . " && " . l:cmd_str
+        endif
         " redraw
         execute "normal! \<c-l>"
     
