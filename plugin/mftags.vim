@@ -285,6 +285,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         setlocal nobuflisted
         setlocal nowrap
         setlocal report=9999
+        setlocal winfixwidth
 
         setlocal foldminlines=0
         "setlocal foldlevel=9999
@@ -480,7 +481,7 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     command! -nargs=? MFfunclist :call s:MFtag_list_usage(<f-args>)
 
-    function! s:funclist_ayuto_close()
+    function! s:funclist_auto_close()
         if s:mftag_debug == 1
             call s:MFdebug()
         endif
@@ -498,7 +499,7 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     if g:mftag_auto_close == 1
         autocmd MFtags BufEnter MF_func_list nested
-                    \ call s:funclist_ayuto_close()
+                    \ call s:funclist_auto_close()
     endif
 
 endif
