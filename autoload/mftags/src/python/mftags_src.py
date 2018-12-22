@@ -7,6 +7,7 @@ g_tag_path = []
 debug = False
 dic_ext_filetype = {'c':'c', 'h':'c', 'cpp':'cpp', 'py':'python', 'vim':'vim'}
 
+""" # search function
 def search_tag(tags, file_path):
     ##ref: http://vim-jp.org/vim-users-jp/2010/06/13/Hack-154.html
     # ./tags ... search from opening file
@@ -62,6 +63,13 @@ def search_tag(tags, file_path):
     g_tag_path = list(set(g_tag_path))
     for g_tag in g_tag_path:
         print 'read tag file at ',g_tag
+    return
+""" # just return 
+def search_tag(tag_files):
+    tmp_tag_files = tag_files
+    for tf in tag_files:
+        g_tag_path.append(op.join(os.getcwd(), tf))
+
     return
 
 def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_kinds):

@@ -32,8 +32,10 @@ python import vim
 
 function! mftags#make_tag_syntax_file()
 
-    "make tag path list
-    python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
+    ""make tag path list
+    "python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
+    " just set tagfiles
+    python search_tag(vim.eval("tagfiles()"))
 
     "check file type
     if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'python') && (&filetype != 'vim')
@@ -54,8 +56,10 @@ endfunction
 
 function! mftags#show_kind_list(file_type, file_path, kind_char)
 
-    "make tag path list
-    python search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
+    ""make tag path list
+    "python search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
+    " just set tagfiles
+    python search_tag(vim.eval("tagfiles()"))
 
     " put list on current buffer
     python show_list_on_buf(vim.eval('s:src_dir'), vim.eval('a:file_type'), vim.eval('a:kind_char'))

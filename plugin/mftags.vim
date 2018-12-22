@@ -293,28 +293,21 @@ if !exists('g:mftag_no_need_MFfunclist')
         setlocal foldcolumn=3
 
         """ mapping
-        command! MFJumpTab  call s:MF_tag_jump('tab')
-        command! MFJumpWin  call s:MF_tag_jump('win')
-        command! MFOpenAll  call s:MF_tag_map("+")
-        command! MFClose    call s:MF_tag_map("-")
-        command! MFCloseAll call s:MF_tag_map("=")
-        command! MFOpen     call s:MF_tag_map("enter")
-        command! MFInfo     call s:MF_tag_map("space2")
-        command! MFQuit     call s:MF_tag_map("q")
-        nnoremap <silent> <buffer> +     :MFOpenAll<CR>
-        nnoremap <silent> <buffer> -     :MFClose<CR>
-        nnoremap <silent> <buffer> =     :MFCloseAll<CR>
-        nnoremap <silent> <buffer> t     :MFJumpTab<CR>
-        nnoremap <silent> <buffer> <c-t> :MFJumpTab<CR>
-        nnoremap <silent> <buffer> w     :MFJumpWin<CR>
-        nnoremap <silent> <buffer> <CR>  :MFOpen<CR>
-        nnoremap <silent> <buffer> <space><space> :MFInfo<CR>
+        nnoremap <silent> <buffer> +              :call <SID>MF_tag_map("+")<CR>
+        nnoremap <silent> <buffer> -              :call <SID>MF_tag_map("-")<CR>
+        nnoremap <silent> <buffer> =              :call <SID>MF_tag_map("=")<CR>
+        nnoremap <silent> <buffer> t              :call <SID>MF_tag_jump('tab')<CR>
+        nnoremap <silent> <buffer> <c-t>          :call <SID>MF_tag_jump('tab')<CR>
+        nnoremap <silent> <buffer> w              :call <SID>MF_tag_jump('win')<CR>
+        nnoremap <silent> <buffer> <c-p>          :call <SID>MF_tag_jump('preview')<CR>
+        nnoremap <silent> <buffer> <CR>           :call <SID>MF_tag_map("enter")<CR>
+        nnoremap <silent> <buffer> <space><space> :<SID>MF_tag_map("space2")<CR>
 
-        nnoremap <silent> <buffer> q     :MFQuit<CR>
+        nnoremap <silent> <buffer> q              :<SID>MF_tag_map("q")<CR>
 
     endfunction
 
-    function! s:MF_tag_map(args)
+    function! <SID>MF_tag_map(args)
         if a:args == "+"
             normal! zR
         elseif a:args == "-"
@@ -327,7 +320,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             if foldclosed(line('.')) != -1
                 normal! zO
             else
-                MFJumpWin
+                call <SID>MF_tag_jump('win')
             endif
         elseif a:args == "space2"
             if foldclosed(line('.')) == -1
@@ -338,7 +331,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
     endfunction
 
-    function! s:MF_tag_jump(type)
+    function! <SID>MF_tag_jump(type)
         if s:mftag_debug == 1
             call s:MFdebug()
         endif
@@ -361,10 +354,14 @@ if !exists('g:mftag_no_need_MFfunclist')
         echo l:cword
         if a:type == "tab"
             tabnew
+            execute "tjump " . l:cword
         elseif a:type == "win"
             wincmd p
+            execute "tjump " . l:cword
+        elseif a:type == "preview"
+            wincmd p
+            execute "ptjump " . l:cword
         endif
-        execute "tjump " . l:cword
     endfunction
 
     function! s:MFtag_list_usage(...)
