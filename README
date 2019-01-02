@@ -1,6 +1,6 @@
 
 vimでctagsを使用する際に、自分のやりたかった関数群。
-g:mftag_loadedが存在すると読み込みません。
+g:loaded_mftagsが存在すると読み込みません。
 
 実証環境:
 vim : VIM - Vi IMproved 8.0 (need +python)

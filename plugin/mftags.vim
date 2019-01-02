@@ -1,8 +1,8 @@
 
-if exists('g:mftag_loaded')
+if exists('g:loaded_mftags')
     finish
 endif
-let g:mftag_loaded = 1
+let g:loaded_mftags = 1
 let s:mftag_start_up = 1
 let s:mftag_debug = 0
 
