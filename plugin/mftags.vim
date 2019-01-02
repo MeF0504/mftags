@@ -301,9 +301,9 @@ if !exists('g:mftag_no_need_MFfunclist')
         nnoremap <silent> <buffer> w              :call <SID>MF_tag_jump('win')<CR>
         nnoremap <silent> <buffer> <c-p>          :call <SID>MF_tag_jump('preview')<CR>
         nnoremap <silent> <buffer> <CR>           :call <SID>MF_tag_map("enter")<CR>
-        nnoremap <silent> <buffer> <space><space> :<SID>MF_tag_map("space2")<CR>
+        nnoremap <silent> <buffer> <space><space> :call <SID>MF_tag_map("space2")<CR>
 
-        nnoremap <silent> <buffer> q              :<SID>MF_tag_map("q")<CR>
+        nnoremap <silent> <buffer> q              :call <SID>MF_tag_map("q")<CR>
 
     endfunction
 
