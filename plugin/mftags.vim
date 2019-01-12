@@ -351,6 +351,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         let l:echo_list = ''
         let l:echo_list .= "help or list \t: show enable characters and close.\n"
         let l:echo_list .= "all\t\t: open MF func list w/ all kinds.\n"
+        let l:echo_list .= "del\t\t: delete buffer.\n"
         if &filetype == 'python'
             let l:echo_list .= "c \t\t: classes\n"
             let l:echo_list .= "f \t\t: functions\n"
@@ -394,7 +395,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             let l:echo_list .= "m \t\t: maps\n"
             let l:echo_list .= "v \t\t: variable definitions\n"
         endif
-        let l:echo_list .= "characters except 'help', 'list' and 'all' are able to use at once"
+        let l:echo_list .= "characters except 'help', 'list', 'all' and 'del' are able to use at once"
 
         if a:0 == 0
             if exists("g:mftag_" . &filetype . "_default")
@@ -427,6 +428,8 @@ if !exists('g:mftag_no_need_MFfunclist')
                 else
                     let l:args = ''
                 endif
+            elseif a:1 == 'del'
+                call mftags#delete_buffer()
             else
                 let l:args = a:1
             endif

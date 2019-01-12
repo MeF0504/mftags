@@ -6,65 +6,9 @@ import glob
 g_tag_path = []
 debug = False
 dic_ext_filetype = {'c':'c', 'h':'c', 'cpp':'cpp', 'py':'python', 'vim':'vim'}
+g_func_list_dict = {}
 
-""" # search function
-def search_tag(tags, file_path):
-    ##ref: http://vim-jp.org/vim-users-jp/2010/06/13/Hack-154.html
-    # ./tags ... search from opening file
-    # tags ... search from current directory
-    tags = tags.replace(os.sep,'/')
-    tags = tags.split(',')
-    global g_tag_path
-    if debug:
-        print g_tag_path
-
-    for tag in tags:
-        bottomup = False
-        if debug:
-            print "\ninput tag:: ",tag
-        if "**" in tag:
-            print 'Now this function does not support "**"'
-            continue
-        if ';' in tag:
-            top_dir = tag[tag.find(';')+1:]
-            if top_dir.endswith(os.sep):
-                top_dir = top_dir[:-1]
-            tag = tag[:tag.find(';')]
-            bottomup = True
-            if debug:
-                print "top: ",top_dir
-
-        if tag.startswith('./'):
-            tag = tag[2:]
-            cwd = op.dirname(file_path)
-        else:
-            cwd = os.getcwd()
-        files = glob.glob(op.join(cwd,tag))
-        if bottomup:
-            tag_file_name = op.basename(tag)
-            if '*' in tag:
-                tag = tag[:tag.find('*')]
-            cdir = op.join(cwd, tag)
-            while cdir != '':
-                tf = op.join(cdir,tag_file_name)
-                if op.isfile(tf):
-                    files.append(tf)
-                cdir = cdir[:cdir.rfind(os.sep)]
-                if cdir.endswith(':'):
-                    #for windows
-                    break
-                if debug:
-                    print "cdir:: ",cdir
-
-        if debug:
-            print files
-        g_tag_path += files
-
-    g_tag_path = list(set(g_tag_path))
-    for g_tag in g_tag_path:
-        print 'read tag file at ',g_tag
-    return
-""" # just return 
+#just return 
 def search_tag(tag_files):
     tmp_tag_files = tag_files
     for tf in tag_files:
@@ -184,6 +128,12 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
         file type: current opening file type. ex) c, c++, python ...
         return_kind: a character of the kind which this function returns.
     """
+    if g_func_list_dict.has_key(filetype):
+        if g_func_list_dict[filetype].has_key(return_kind):
+            if debug:
+                print "already exists buffer. %s %s", filetype, return_kind
+            return g_func_list_dict[filetype][return_kind]
+
     lang_list = {}
     with open(op.join(src_dir_path,'src/txt/mftags_lang_list'),'r') as f:
         for line in f:
@@ -248,6 +198,10 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
     if debug:
         print tag_list
     
+    if not g_func_list_dict.has_key(filetype):
+        g_func_list_dict[filetype] = {}
+
+    g_func_list_dict[filetype][return_kind] = tag_list
     return tag_list
 
 def show_list_on_buf(src_dir_path, filetype, return_kinds):
@@ -285,4 +239,67 @@ def clean_buf():
 
     # buffer clear
     cur_buf[:] = None
+
+def delete_buffer():
+    g_func_list_dict = {}
+
+# search function {{{
+""" 
+def search_tag(tags, file_path):
+    ##ref: http://vim-jp.org/vim-users-jp/2010/06/13/Hack-154.html
+    # ./tags ... search from opening file
+    # tags ... search from current directory
+    tags = tags.replace(os.sep,'/')
+    tags = tags.split(',')
+    global g_tag_path
+    if debug:
+        print g_tag_path
+
+    for tag in tags:
+        bottomup = False
+        if debug:
+            print "\ninput tag:: ",tag
+        if "**" in tag:
+            print 'Now this function does not support "**"'
+            continue
+        if ';' in tag:
+            top_dir = tag[tag.find(';')+1:]
+            if top_dir.endswith(os.sep):
+                top_dir = top_dir[:-1]
+            tag = tag[:tag.find(';')]
+            bottomup = True
+            if debug:
+                print "top: ",top_dir
+
+        if tag.startswith('./'):
+            tag = tag[2:]
+            cwd = op.dirname(file_path)
+        else:
+            cwd = os.getcwd()
+        files = glob.glob(op.join(cwd,tag))
+        if bottomup:
+            tag_file_name = op.basename(tag)
+            if '*' in tag:
+                tag = tag[:tag.find('*')]
+            cdir = op.join(cwd, tag)
+            while cdir != '':
+                tf = op.join(cdir,tag_file_name)
+                if op.isfile(tf):
+                    files.append(tf)
+                cdir = cdir[:cdir.rfind(os.sep)]
+                if cdir.endswith(':'):
+                    #for windows
+                    break
+                if debug:
+                    print "cdir:: ",cdir
+
+        if debug:
+            print files
+        g_tag_path += files
+
+    g_tag_path = list(set(g_tag_path))
+    for g_tag in g_tag_path:
+        print 'read tag file at ',g_tag
+    return
+""" # }}}
 

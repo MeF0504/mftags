@@ -79,4 +79,7 @@ function! mftags#show_kind_list(file_type, file_path, kind_char)
     "return l:list_from_tag
 endfunction
 
+function! mftags#delete_buffer()
+    python delete_buffer()
+endfunction
 
