@@ -11,9 +11,10 @@ ctags : Exuberant Ctags 5.8
 できるコマンドは3つ:
 * MFctag
     > ctagsをvimから実行します。
-    作成する場所は、 g:mftag_ankで指定する名前のファイルがある場合はその場所に、ない場合はg:mftag_dir_auto_set、g:mftag_dirに従って作成されます。
+    作成する場所は、 g:mftag_ankで指定する名前のファイルがある場合はそのファイルと同じ場所に、ない場合はg:mftag_dir_auto_set、g:mftag_dirに従って作成されます。
     設定用の変数は
-    * g:mftag_ank : この変数が指定する名前の場所にtagを作成します。初期値は".mfank"
+    * g:mftag_ank : この変数が指定するファイルと同じ場所にtagを作成します。初期値は".mfank"
+      ex) /path/to/ank/.mfank -> make tags @ /psth/to/ank/
     * g:mftag_no_need_MFctag : この変数があるとMFctag関連の設定を読み込みません。
     * g:mftag_dir_auto_set : この変数が1だと、カレントディレクトリの上に.git, .svnを見つけた場合、その位置でctagsを実行してくれる。
     * g:mftag_dir : ctagsの実行位置を決定する変数。型はlist。g:mftag_dir_auto_setが1の場合、この変数は無視されます。
