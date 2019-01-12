@@ -5,6 +5,11 @@ endif
 let g:loaded_mftags = 1
 let s:mftag_start_up = 1
 let s:mftag_debug = 0
+" 0 ... no debug print.
+" 1 ... low level debug print (mainly print function name).
+" 2 ... normal level debug print.
+" 3 ... high level debug print.
+
 
 augroup MFtags
     autocmd!
@@ -53,31 +58,31 @@ else
     let s:sep = '/'
 endif
 
-function! s:MFdebug()
-    echo "###debug###"
-    "echo "@ " . s:file . " " . expand("<sfile>") . " line " . expand("<slnum>")
-    echo "@ " . s:file . " " . expand("<sfile>")
+function! s:MFdebug( level, str )
+    if a:level > s:mftag_debug
+        return
+    endif
+    if a:str == ""
+        let db_print = "###debug### " . "@ " . s:file . " " . expand("<sfile>")
+    else
+        let l:db_print =  "###debug### " . a:str
+    endif
+    echo l:db_print
 endfunction
 
 function! s:MFset_dir_ank()
-    if s:mftag_debug == 1
-        call s:MFdebug()
-    endif
+    call s:MFdebug(1, "")
     let l:search_dir = expand('%:p:h')
 
     while 1
         let l:base_file = l:search_dir . s:sep . g:mftag_ank
-        if s:mftag_debug == 1
-            echo l:base_file
-        endif
+        call s:MFdebug(3, l:base_file)
         if filereadable(l:base_file)
             return l:search_dir
         endif
         let l:last_sep = strridx(l:search_dir, s:sep)
         if l:last_sep <= 0
-            if s:mftag_debug == 1
-                echo "last_sep : " . l:last_sep
-            endif
+            call s:MFdebug(3, "last_sep : " . l:last_sep)
             return -1
         endif
         let l:search_dir = l:search_dir[:l:last_sep-1]
@@ -86,30 +91,22 @@ endfunction
 
 
 function! s:MFset_dir_auto()
-    if s:mftag_debug == 1
-        call s:MFdebug()
-    endif
+    call s:MFdebug(1, "")
     let l:base_name = [".svn",".git"]
 
     let l:search_dir = expand('%:p:h')
     while 1
         for bn in l:base_name
             let l:base_dir = l:search_dir . s:sep . bn
-            if s:mftag_debug == 1
-                echo l:base_dir
-            endif
+            call s:MFdebug(3, l:base_dir)
             if isdirectory(l:base_dir)
-                if s:mftag_debug == 1
-                    echo "break"
-                endif
+                call s:MFdebug(2, "break @ " . l:search_dir)
                 return l:search_dir
             endif
         endfor
         let l:last_sep = strridx(l:search_dir,s:sep)
         if l:last_sep <= 0
-            if s:mftag_debug == 1
-                echo "last_sep : " . l:last_sep
-            endif
+            call s:MFdebug(3, "last_sep : " . l:last_sep)
             return -1
         endif
         let l:search_dir = l:search_dir[:l:last_sep-1]
@@ -118,18 +115,14 @@ function! s:MFset_dir_auto()
 endfunction
 
 function! s:MFset_dir_list(dir)
-    if s:mftag_debug == 1
-        call s:MFdebug()
-    endif
+    call s:MFdebug(1, "")
     let l:curdir = expand('%:p:h') . "/"
 
     for d in a:dir
         let d = '\<' . d . '\>'
         let l:n = matchend(l:curdir,d)
         if l:n != -1
-            if s:mftag_debug == 1
-                echo l:curdir[:l:n]
-            endif
+            call s:MFdebug(2, l:curdir[:l:n])
             return l:curdir[:l:n]
         endif
     endfor
@@ -142,9 +135,7 @@ endfunction
 
 
 function! MFsearch_dir(dir)
-    if s:mftag_debug == 1
-        call s:MFdebug()
-    endif
+    call s:MFdebug(1, "")
     let ret = s:MFset_dir_ank()
     if ret != -1
         return ret
@@ -163,24 +154,16 @@ function! MFsearch_dir(dir)
 endfunction
 
 function! s:set_mftag_save_dir()
-    if s:mftag_debug == 1
-        call s:MFdebug()
-    endif
+    call s:MFdebug(1, "")
     if g:mftag_save_dir != ''
         let b:mftag_save_dir = g:mftag_save_dir
-        if s:mftag_debug == 1
-            echo "s:set_mftag_save_dir 1"
-        endif
+        call s:MFdebug(2, "s:set_mftag_save_dir 1")
     elseif (g:mftag_dir_auto_set==1 || g:mftag_dir!=[])
         let b:mftag_save_dir = MFsearch_dir(g:mftag_dir)
-        if s:mftag_debug == 1
-            echo "s:set_mftag_save_dir 2"
-        endif
+        call s:MFdebug(2, "s:set_mftag_save_dir 2")
     else
         let b:mftag_save_dir = getcwd()
-        if s:mftag_debug == 1
-            echo "s:set_mftag_save_dir 3"
-        endif
+        call s:MFdebug(2, "s:set_mftag_save_dir 3")
     endif
 
     if b:mftag_save_dir[strlen(b:mftag_save_dir)-1] != s:sep
@@ -194,9 +177,7 @@ unlet s:mftag_start_up
 
 "########## tags syntax setting
 if !exists('g:mftag_no_need_MFsyntax')
-    if s:mftag_debug == 1
-        call s:MFdebug()
-    endif
+    call s:MFdebug(1, "")
     function! s:check_and_read_file(ft)
         call s:set_mftag_save_dir()
         let l:filename = b:mftag_save_dir . a:ft . "_tag_syntax.vim"
@@ -226,9 +207,7 @@ if !exists('g:mftag_no_need_MFctag')
     "   I'm opening file @ /home/to/work/dir/work/dir/src
     "   => make tags file @ /from/to/work/dir/work
     function! MFexe_ctags(dir)
-        if s:mftag_debug == 1
-            call s:MFdebug()
-        endif
+        call s:MFdebug(1, "")
     
         let l:pwd = getcwd()
         let l:exe_dir = MFsearch_dir(a:dir)
@@ -259,9 +238,7 @@ endif
 if !exists('g:mftag_no_need_MFfunclist')
 
     function! MFshow_func_list(kind_char)
-        if s:mftag_debug == 1
-            call s:MFdebug()
-        endif
+        call s:MFdebug(1, "")
         let l:file_type = &filetype
         let l:file_path = expand('%:p')
         execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
@@ -270,9 +247,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! s:set_func_list_win()
-        if s:mftag_debug == 1
-            call s:MFdebug()
-        endif
+        call s:MFdebug(1, "")
         " set up function list window
         setlocal modifiable
         setlocal noreadonly
@@ -332,22 +307,14 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! <SID>MF_tag_jump(type)
-        if s:mftag_debug == 1
-            call s:MFdebug()
-        endif
+        call s:MFdebug(1, "")
         let l:cword = getline('.')
         if len(l:cword) < 2
-            if s:mftag_debug == 1
-                echo "[" . l:cword . "]"
-                echo "tag jump word is too short!"
-            endif
+            call s:MFdebug(2, "[" . l:cword . "]  " . "tag jump word is too short!")
             return
         endif
         if l:cword[1] != '	'
-            if s:mftag_debug == 1
-                echo "[" . l:cword . "]"
-                echo "not tag jump word!"
-            endif
+            call s:MFdebug(2, "[" . l:cword . "]  " . "not tag jump word!" )
             return
         endif
         "let l:cword = expand('<cword>')
@@ -365,9 +332,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! s:MFtag_list_usage(...)
-        if s:mftag_debug == 1
-            call s:MFdebug()
-        endif
+        call s:MFdebug(1, "")
         " close if  FuncList is already open.
         let l:winnr = bufwinnr(g:mftag_func_list_name)
         if l:winnr != -1
@@ -433,10 +398,8 @@ if !exists('g:mftag_no_need_MFfunclist')
 
         if a:0 == 0
             if exists("g:mftag_" . &filetype . "_default")
-                if s:mftag_debug == 1
-                    execute 'echo "read default:: " . g:mftag_' . &filetype . '_default'
-                endif
                 execute "let l:args = g:mftag_" . &filetype . "_default"
+                call s:MFdebug(2, "read default::" . l:args)
             elseif &filetype == 'python'
                 let l:args = 'cfmvi'
             elseif &filetype == 'c'
@@ -479,9 +442,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     command! -nargs=? MFfunclist :call s:MFtag_list_usage(<f-args>)
 
     function! s:funclist_auto_close()
-        if s:mftag_debug == 1
-            call s:MFdebug()
-        endif
+        call s:MFdebug(1, "")
         " check other windows
         if winbufnr(2) == -1
             " check other tab page

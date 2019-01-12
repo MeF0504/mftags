@@ -1,10 +1,21 @@
 
 let s:mftag_debug = 0
+" 0 ... no debug print.
+" 1 ... low level debug print (mainly print function name).
+" 2 ... normal level debug print.
+" 3 ... high level debug print.
+
 let s:file = expand("<sfile>")
-function! s:MFdebug()
-    echo "###debug###"
-    "echo "@ " . s:file . " " . expand("<sfile>") . " line " . expand("<slnum>")
-    echo "@ " . s:file . " " . expand("<sfile>")
+function! s:MFdebug( level, str )
+    if a:level > s:mftag_debug
+        return
+    endif
+    if str == ""
+        let db_print = "###debug### " . "@ " . s:file . " " . expand("<sfile>")
+    else
+        let l:db_print =  "###debug### " . str
+    endif
+    echo l:db_print
 endfunction
 
 
@@ -45,9 +56,7 @@ function! mftags#make_tag_syntax_file()
 
     execute "let l:mftag_enable_kinds = g:mftag_syntax_".&filetype."_enable_kinds"
     "call python function
-    if s:mftag_debug == 1
-        call s:MFdebug()
-    endif
+    call s:MFdebug(1, "")
     python make_tag_syntax_files(vim.eval('s:src_dir'), vim.eval("&filetype"), vim.eval("b:mftag_save_dir"), vim.eval("g:mftag_syntax_overwrite"), vim.eval("l:mftag_enable_kinds"))
     execute "source " . b:mftag_save_dir . "/" . &filetype . "_tag_syntax.vim"
     "clean tag parh list
