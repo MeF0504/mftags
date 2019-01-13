@@ -4,7 +4,7 @@ import os.path as op
 import glob
 
 g_tag_path = []
-debug = False
+debug = 0
 dic_ext_filetype = {'c':'c', 'h':'c', 'cpp':'cpp', 'py':'python', 'vim':'vim'}
 g_func_list_dict = {}
 
@@ -32,19 +32,19 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
                 continue
             if line.startswith('lang:'):
                 lang = line[5:]
-                if debug:
+                if debug >= 3:
                     print lang
                 lang_list[lang] = [{},{}]
             else:
                 line = line[2:].split(' ')
-                if debug:
+                if debug >= 3:
                     print line
                 kc, K, sl = line
                 if sl == 'blank':
                     sl = ''
                 lang_list[lang][0][kc] = []
                 lang_list[lang][1][kc] = [K,sl]
-    if debug:
+    if debug >= 3:
         for k in lang_list:
             print k
             print lang_list[k][0]
@@ -78,7 +78,7 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
             try:
                 tag_list[kind].append(name)
             except KeyError:
-                if debug:
+                if debug >= 1:
                     print "\nThis is not a correct kind."
                     print "language : ",filetype, "kind : ",kind
                 continue
@@ -128,9 +128,10 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
         file type: current opening file type. ex) c, c++, python ...
         return_kind: a character of the kind which this function returns.
     """
+    global g_func_list_dict
     if g_func_list_dict.has_key(filetype):
         if g_func_list_dict[filetype].has_key(return_kind):
-            if debug:
+            if debug >= 1:
                 print "already exists buffer. %s %s", filetype, return_kind
             return g_func_list_dict[filetype][return_kind]
 
@@ -142,17 +143,17 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                 continue
             if line.startswith('lang:'):
                 lang = line[5:]
-                if debug:
+                if debug >= 3:
                     print lang
                 lang_list[lang] = [{},{}]
             else:
                 line = line[2:].split(' ')
-                if debug:
+                if debug >= 3:
                     print line
                 kc, K, sl = line
                 lang_list[lang][0][kc] = []
                 lang_list[lang][1][kc] = K
-    if debug:
+    if debug >= 3:
         for k in lang_list:
             print k
             print lang_list[k][0]
@@ -188,14 +189,14 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                     try:
                         tag_list.append("\t\t"+name)
                     except KeyError:
-                        if debug:
+                        if debug >= 1:
                             print "\nThis is not a correct kind."
                             print "language : ",filetype, "kind : ",kind
                         continue
     tag_list = list(set(tag_list))
     tag_list.sort()
     tag_list.insert(0, "\t"+tag_name)
-    if debug:
+    if debug >= 2:
         print tag_list
     
     if not g_func_list_dict.has_key(filetype):
@@ -229,7 +230,7 @@ def show_list_on_buf(src_dir_path, filetype, return_kinds):
 def clean_tag():
     global g_tag_path
     g_tag_path = []
-    if debug:
+    if debug >= 1:
         print "clean tag path file"
         print g_tag_path
 
@@ -241,6 +242,9 @@ def clean_buf():
     cur_buf[:] = None
 
 def delete_buffer():
+    global g_func_list_dict
+    if debug >= 1:
+        print "clean buffer\n", g_func_list_dict
     g_func_list_dict = {}
 
 # search function {{{

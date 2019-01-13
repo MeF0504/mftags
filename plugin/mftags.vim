@@ -430,6 +430,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                 endif
             elseif a:1 == 'del'
                 call mftags#delete_buffer()
+                return
             else
                 let l:args = a:1
             endif
