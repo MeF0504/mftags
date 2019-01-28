@@ -435,6 +435,10 @@ if !exists('g:mftag_no_need_MFfunclist')
                 let l:args = a:1
             endif
         endif
+        if tagfiles() == []
+            echo "Tag file is not found."
+            return
+        endif
         call MFshow_func_list(l:args)
 
         " return values

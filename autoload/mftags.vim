@@ -45,7 +45,12 @@ function! mftags#make_tag_syntax_file()
 
     ""make tag path list
     "python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
+
     " just set tagfiles
+    if tagfiles() == []
+        echo "Tag file is not found."
+        return
+    endif
     python search_tag(vim.eval("tagfiles()"))
 
     "check file type
