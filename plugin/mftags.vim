@@ -322,6 +322,9 @@ if !exists('g:mftag_no_need_MFfunclist')
         if a:type == "tab"
             tabnew
             execute "tjump " . l:cword
+            if expand("%:t") == ""
+                quit
+            endif
         elseif a:type == "win"
             wincmd p
             execute "tjump " . l:cword
