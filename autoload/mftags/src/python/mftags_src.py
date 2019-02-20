@@ -227,6 +227,28 @@ def show_list_on_buf(src_dir_path, filetype, return_kinds):
 
         cur_buf.append("")
 
+def get_tag_info(tag_str):
+
+    st_idx = 0
+    en_idx = -1
+    result = {}
+    res_list = []
+    i = 0
+    while True:
+        if tag_str[i] == "\t":
+            st_idx = en_idx+1
+            if tag_str[st_idx:].startswith("/^"):
+                en_idx = tag_str.rfind('$/;"')+3+1
+            else:
+                en_idx = i
+            res_list.append(tag_str[st_idx:en_idx])
+            i = en_idx
+        i += 1
+        if i == len(tag_str):
+            res_list.append(tag_str[en_idx+1:len(tag_str)])
+            break
+
+
 def clean_tag():
     global g_tag_path
     g_tag_path = []
