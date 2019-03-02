@@ -1,5 +1,5 @@
 
-let s:mftag_debug = 0
+let s:mftag_debug = g:mftag_debug_manage[1]
 " 0 ... no debug print.
 " 1 ... low level debug print (mainly print function name).
 " 2 ... normal level debug print.
@@ -40,6 +40,8 @@ pyfile <sfile>:h/mftags/src/python/mftags_src.py
 let s:src_dir = expand('<sfile>:h') . "/mftags"
 
 python import vim
+
+python set_debug_level(vim.eval("g:mftag_debug_manage[2]"))
 
 function! mftags#make_tag_syntax_file()
 

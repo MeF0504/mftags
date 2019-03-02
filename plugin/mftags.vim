@@ -3,8 +3,10 @@ if exists('g:loaded_mftags')
     finish
 endif
 let g:loaded_mftags = 1
+let g:mftag_debug_manage = [0,0,0]
+" [plugin_debug_level, autoload_debug_level, python_debug_level]
 let s:mftag_start_up = 1
-let s:mftag_debug = 0
+let s:mftag_debug = g:mftag_debug_manage[0]
 " 0 ... no debug print.
 " 1 ... low level debug print (mainly print function name).
 " 2 ... normal level debug print.

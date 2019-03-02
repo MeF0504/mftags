@@ -269,6 +269,10 @@ def delete_buffer():
         print "clean buffer\n", g_func_list_dict
     g_func_list_dict = {}
 
+def set_debug_level(debug_level):
+    global debug
+    debug = int(debug_level)
+
 # search function {{{
 """ 
 def search_tag(tags, file_path):
