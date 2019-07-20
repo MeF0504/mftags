@@ -228,6 +228,8 @@ def show_list_on_buf(src_dir_path, filetype, return_kinds):
         cur_buf.append("")
 
 def get_tag_info(tag_str):
+    """this function gets tag information from tag line.
+       return value is list of tag information like taglist() function  in vim."""
 
     st_idx = 0
     en_idx = -1
@@ -248,6 +250,11 @@ def get_tag_info(tag_str):
             res_list.append(tag_str[en_idx+1:len(tag_str)])
             break
 
+    num_key = {0:"name", 1:"filename", 2:"cmd", 3:"kind"}
+    for i in range(len(res_list)):
+        if num_key.has_key(i):
+            result[num_key[i]] = res_list[i]
+    return result
 
 def clean_tag():
     global g_tag_path
@@ -332,4 +339,9 @@ def search_tag(tags, file_path):
         print 'read tag file at ',g_tag
     return
 """ # }}}
+
+if __name__ == "__main__":
+    test_str = 'MFdebug	autoload/mftags.vim	/^\t\tfunction! s:MFdebug( level, str )$/;"	f'
+
+    print get_tag_info(test_str)
 
