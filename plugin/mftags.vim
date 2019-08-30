@@ -127,7 +127,7 @@ function! s:MFset_dir_list(dir)
             return l:curdir[:l:n]
         endif
     endfor
-    if (!exists("s:mftag_start_up")) && s:echo_no_dir==1)
+    if (!exists("s:mftag_start_up")) && (s:echo_no_dir==1)
         echo "no match directory"
         let s:echo_no_dir = 0
     endif
