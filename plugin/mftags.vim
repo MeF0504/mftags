@@ -114,6 +114,7 @@ function! s:MFset_dir_auto()
 
 endfunction
 
+let s:echo_no_dir = 1
 function! s:MFset_dir_list(dir)
     call s:MFdebug(1, "")
     let l:curdir = expand('%:p:h') . "/"
@@ -126,8 +127,9 @@ function! s:MFset_dir_list(dir)
             return l:curdir[:l:n]
         endif
     endfor
-    if !exists("s:mftag_start_up")
+    if (!exists("s:mftag_start_up")) && s:echo_no_dir==1)
         echo "no match directory"
+        let s:echo_no_dir = 0
     endif
     return expand('%:p:h')
 
