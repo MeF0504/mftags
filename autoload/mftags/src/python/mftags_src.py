@@ -1,4 +1,7 @@
 
+# for support of python2
+from __future__ import print_function
+
 import os
 import os.path as op
 import glob
@@ -33,12 +36,12 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
             if line.startswith('lang:'):
                 lang = line[5:]
                 if debug >= 3:
-                    print lang
+                    print(lang)
                 lang_list[lang] = [{},{}]
             else:
                 line = line[2:].split(' ')
                 if debug >= 3:
-                    print line
+                    print(line)
                 kc, K, sl = line
                 if sl == 'blank':
                     sl = ''
@@ -46,13 +49,13 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
                 lang_list[lang][1][kc] = [K,sl]
     if debug >= 3:
         for k in lang_list:
-            print k
-            print lang_list[k][0]
-            print lang_list[k][1]
-    if lang_list.has_key(filetype):
+            print(k)
+            print(lang_list[k][0])
+            print(lang_list[k][1])
+    if filetype in lang_list:
         tag_list,tag_name = lang_list[filetype]
     else:
-        print "not supported file type"
+        print("not supported file type")
         return
 
     tag_file_path = tag_file_path.replace('/',os.sep)   #adjust os path problem.
@@ -67,7 +70,7 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
             fname = line[1]
             ftype = fname[fname.rfind(".")+1:]
             # exclude incorrect filetype
-            if ftype in dic_ext_filetype.keys():
+            if ftype in list(dic_ext_filetype.keys()):
                 if dic_ext_filetype[ftype] != filetype:
                     continue
             else:
@@ -79,8 +82,8 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
                 tag_list[kind].append(name)
             except KeyError:
                 if debug >= 1:
-                    print "\nThis is not a correct kind."
-                    print "language : ",filetype, "kind : ",kind
+                    print("\nThis is not a correct kind.")
+                    print("language : ",filetype, "kind : ",kind)
                 continue
     
     """
@@ -129,10 +132,10 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
         return_kind: a character of the kind which this function returns.
     """
     global g_func_list_dict
-    if g_func_list_dict.has_key(filetype):
-        if g_func_list_dict[filetype].has_key(return_kind):
+    if filetype in g_func_list_dict:
+        if return_kind in g_func_list_dict[filetype]:
             if debug >= 1:
-                print "already exists buffer. %s %s", filetype, return_kind
+                print("already exists buffer. %s %s", filetype, return_kind)
             return g_func_list_dict[filetype][return_kind]
 
     lang_list = {}
@@ -144,29 +147,29 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
             if line.startswith('lang:'):
                 lang = line[5:]
                 if debug >= 3:
-                    print lang
+                    print(lang)
                 lang_list[lang] = [{},{}]
             else:
                 line = line[2:].split(' ')
                 if debug >= 3:
-                    print line
+                    print(line)
                 kc, K, sl = line
                 lang_list[lang][0][kc] = []
                 lang_list[lang][1][kc] = K
     if debug >= 3:
         for k in lang_list:
-            print k
-            print lang_list[k][0]
-            print lang_list[k][1]
-    if lang_list.has_key(filetype):
-        if lang_list[filetype][0].has_key(return_kind):
+            print(k)
+            print(lang_list[k][0])
+            print(lang_list[k][1])
+    if filetype in lang_list:
+        if return_kind in lang_list[filetype][0]:
             tag_list = lang_list[filetype][0][return_kind]
             tag_name = lang_list[filetype][1][return_kind]
         else:
-            print "not supported kind '%s' for file type '%s'"  % (return_kind, filetype)
+            print("not supported kind '%s' for file type '%s'"  % (return_kind, filetype))
             return
     else:
-        print "not supported file type '%s' " % filetype
+        print("not supported file type '%s' " % filetype)
         return
 
     for tag_path in g_tag_path:
@@ -182,7 +185,7 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                 fname = line[1]
                 ftype = fname[fname.rfind(".")+1:]
                 # excepting incorrect filetype
-                if ftype in dic_ext_filetype.keys():
+                if ftype in list(dic_ext_filetype.keys()):
                     if dic_ext_filetype[ftype] != filetype:
                         continue
                 if kind == return_kind:
@@ -190,16 +193,16 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                         tag_list.append("\t\t"+name)
                     except KeyError:
                         if debug >= 1:
-                            print "\nThis is not a correct kind."
-                            print "language : ",filetype, "kind : ",kind
+                            print("\nThis is not a correct kind.")
+                            print("language : ",filetype, "kind : ",kind)
                         continue
     tag_list = list(set(tag_list))
     tag_list.sort()
     tag_list.insert(0, "\t"+tag_name)
     if debug >= 2:
-        print tag_list
+        print(tag_list)
     
-    if not g_func_list_dict.has_key(filetype):
+    if filetype not in g_func_list_dict:
         g_func_list_dict[filetype] = {}
 
     g_func_list_dict[filetype][return_kind] = tag_list
@@ -231,8 +234,8 @@ def clean_tag():
     global g_tag_path
     g_tag_path = []
     if debug >= 1:
-        print "clean tag path file"
-        print g_tag_path
+        print("clean tag path file")
+        print(g_tag_path)
 
 def clean_buf():
     #import vim
@@ -244,7 +247,7 @@ def clean_buf():
 def delete_buffer():
     global g_func_list_dict
     if debug >= 1:
-        print "clean buffer\n", g_func_list_dict
+        print("clean buffer\n", g_func_list_dict)
     g_func_list_dict = {}
 
 # search function {{{
