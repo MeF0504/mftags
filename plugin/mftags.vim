@@ -16,6 +16,12 @@ augroup MFtags
 augroup END
 
 "########## variables initializing
+if has('win32')
+    let s:sep = '\'
+else
+    let s:sep = '/'
+endif
+
 if !exists('g:mftag_ank')
     let g:mftag_ank = ".mfank"
 endif
@@ -30,6 +36,11 @@ endif
 
 if !exists('g:mftag_save_dir')
     let g:mftag_save_dir = ''
+else
+    if g:mftag_save_dir[-1] != s:sep
+        let g:mftag_save_dir .= s:sep
+    endif
+    let g:mftag_save_dir = expand(g:mftag_save_dir)
 endif
 
 if !exists('g:mftag_exe_option')
@@ -51,12 +62,6 @@ endif
 "########## global settings
 
 let s:file = expand("<sfile>")
-
-if has('win32')
-    let s:sep = '\'
-else
-    let s:sep = '/'
-endif
 
 function! s:MFdebug( level, str )
     if a:level > s:mftag_debug
@@ -182,7 +187,7 @@ if !exists('g:mftag_no_need_MFsyntax')
     call s:MFdebug(1, "")
     function! s:check_and_read_file(ft)
         call s:set_mftag_save_dir()
-        let l:filename = b:mftag_save_dir . a:ft . "_tag_syntax.vim"
+        let l:filename = b:mftag_save_dir . "." . a:ft . "_tag_syntax.vim"
         if filereadable(l:filename)
             execute "source " . l:filename
         endif

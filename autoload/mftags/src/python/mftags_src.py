@@ -93,7 +93,7 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
     """
 
     vim_ignore_strs = ["[","]"]
-    syntax_file = op.join(out_dir, '%s_tag_syntax.vim' % filetype)
+    syntax_file = op.join(out_dir, '.%s_tag_syntax.vim' % filetype)
     with open(syntax_file, 'a') as f:
         f.write('" from '+tag_file_path+'\n')
         for kind in tag_list:
@@ -118,7 +118,7 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
 
 def make_tag_syntax_files(src_dir_path, filetype, out_dir, overwrite, enable_kinds):
     if overwrite == '1':
-        syntax_file = op.join(out_dir, '%s_tag_syntax.vim' % filetype)
+        syntax_file = op.join(out_dir, '.%s_tag_syntax.vim' % filetype)
         with open(syntax_file, 'w') as f:
             'remove tag syntax file'
 

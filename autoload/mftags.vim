@@ -71,7 +71,7 @@ function! mftags#make_tag_syntax_file()
     "call python function
     call s:MFdebug(1, "")
     Python make_tag_syntax_files(vim.eval('s:src_dir'), vim.eval("&filetype"), vim.eval("b:mftag_save_dir"), vim.eval("g:mftag_syntax_overwrite"), vim.eval("l:mftag_enable_kinds"))
-    execute "source " . b:mftag_save_dir . "/" . &filetype . "_tag_syntax.vim"
+    execute "source " . b:mftag_save_dir . "." . &filetype . "_tag_syntax.vim"
     "clean tag parh list
     Python clean_tag()
 endfunction
