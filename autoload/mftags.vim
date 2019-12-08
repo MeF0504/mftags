@@ -14,12 +14,12 @@ else
 endif
 
 let s:file = expand("<sfile>")
-function! s:MFdebug( level, str )
+function! s:MFdebug( level, str ) abort
     if a:level > s:mftag_debug
         return
     endif
-    if str == ""
-        let db_print = "###debug### " . "@ " . s:file . " " . expand("<sfile>")
+    if a:str == ""
+        let l:db_print = "###debug### " . "@ " . s:file . " " . expand("<sfile>")
     else
         let l:db_print =  "###debug### " . str
     endif
@@ -31,17 +31,51 @@ if !exists('g:mftag_syntax_overwrite')
     let g:mftag_syntax_overwrite = 1
 endif
 
-if !exists('g:mftag_syntax_python_enable_kinds')
-    let g:mftag_syntax_python_enable_kinds = "cfmvi"
+if exists('g:mftag_python_setting')
+    if has_key(g:mftag_python_setting, 'syntax')
+        let s:mftag_enable_syntax = g:mftag_python_setting['syntax']
+    elseif has_key(g:mftag_python_setting, 'tag')
+        let s:mftag_enable_syntax = g:mftag_python_setting['tag']
+    else
+        let s:mftag_enable_syntax = "cfmvi"
+    endif
 endif
-if !exists('g:mftag_syntax_c_enable_kinds')
-    let g:mftag_syntax_c_enable_kinds = "cdefglmnpstuvx"
+if exists('g:mftag_c_setting')
+    if has_key(g:mftag_c_setting, 'syntax')
+        let s:mftag_enable_syntax = g:mftag_c_setting['syntax']
+    elseif has_key(g:mftag_c_setting, 'tag')
+        let s:mftag_enable_syntax = g:mftag_c_setting['tag']
+    else
+        let s:mftag_enable_syntax = "cdefglmnpstuvx"
+    endif
 endif
-if !exists('g:mftag_syntax_cpp_enable_kinds')
-    let g:mftag_syntax_cpp_enable_kinds = "cdefglmnpstuvx"
+if exists('g:mftag_cpp_setting')
+    if has_key(g:mftag_cpp_setting, 'syntax')
+        let s:mftag_enable_syntax = g:mftag_cpp_setting['syntax']
+    elseif has_key(g:mftag_cpp_setting, 'tag')
+        let s:mftag_enable_syntax = g:mftag_cpp_setting['tag']
+    else
+        let s:mftag_enable_syntax = "cdefglmnpstuvx"
+    endif
 endif
-if !exists('g:mftag_syntax_vim_enable_kinds')
-    let g:mftag_syntax_vim_enable_kinds = "acfmv"
+if exists('g:mftag_vim_setting')
+    if has_key(g:mftag_vim_setting, 'syntax')
+        let s:mftag_enable_syntax = g:mftag_vim_setting['syntax']
+    elseif has_key(g:mftag_vim_setting, 'tag')
+        let s:mftag_enable_syntax = g:mftag_vim_setting['tag']
+    else
+        let s:mftag_enable_syntax = "acfmv"
+    endif
+endif
+
+if !exists('s:mftag_enable_syntax')
+    if &filetype == 'python'
+        let s:mftag_enable_syntax = "cfmvi"
+    elseif (&filetype == 'c') || (&filetype == 'cpp')
+        let s:mftag_enable_syntax = "cdefglmnpstuvx"
+    elseif &filetype == 'vim'
+        let s:mftag_enable_syntax = "acfmv"
+    endif
 endif
 
 Pyfile <sfile>:h/mftags/src/python/mftags_src.py
@@ -49,7 +83,7 @@ let s:src_dir = expand('<sfile>:h') . "/mftags"
 
 Python import vim
 
-function! mftags#make_tag_syntax_file()
+function! mftags#make_tag_syntax_file() abort
 
     ""make tag path list
     "Python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
@@ -67,16 +101,15 @@ function! mftags#make_tag_syntax_file()
         return
     endif
 
-    execute "let l:mftag_enable_kinds = g:mftag_syntax_".&filetype."_enable_kinds"
     "call python function
     call s:MFdebug(1, "")
-    Python make_tag_syntax_files(vim.eval('s:src_dir'), vim.eval("&filetype"), vim.eval("b:mftag_save_dir"), vim.eval("g:mftag_syntax_overwrite"), vim.eval("l:mftag_enable_kinds"))
+    Python make_tag_syntax_files(vim.eval('s:src_dir'), vim.eval("&filetype"), vim.eval("b:mftag_save_dir"), vim.eval("g:mftag_syntax_overwrite"), vim.eval("s:mftag_enable_syntax"))
     execute "source " . b:mftag_save_dir . "." . &filetype . "_tag_syntax.vim"
     "clean tag parh list
     Python clean_tag()
 endfunction
 
-function! mftags#show_kind_list(file_type, file_path, kind_char)
+function! mftags#show_kind_list(file_type, file_path, kind_char) abort
 
     ""make tag path list
     "Python search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
@@ -92,7 +125,7 @@ function! mftags#show_kind_list(file_type, file_path, kind_char)
     "return l:list_from_tag
 endfunction
 
-function! mftags#delete_buffer()
+function! mftags#delete_buffer() abort
     Python delete_buffer()
 endfunction
 

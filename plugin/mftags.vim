@@ -16,6 +16,7 @@ augroup MFtags
 augroup END
 
 "########## variables initializing
+" {{{
 if has('win32')
     let s:sep = '\'
 else
@@ -58,12 +59,16 @@ endif
 if !exists('g:mftag_auto_close')
     let g:mftag_auto_close = 0
 endif
+" }}}
 
 "########## global settings
+" {{{
+
+let s:support_ft = ['python', 'c', 'cpp', 'vim']
 
 let s:file = expand("<sfile>")
 
-function! s:MFdebug( level, str )
+function! s:MFdebug( level, str ) abort
     if a:level > s:mftag_debug
         return
     endif
@@ -75,7 +80,7 @@ function! s:MFdebug( level, str )
     echo l:db_print
 endfunction
 
-function! s:MFset_dir_ank()
+function! s:MFset_dir_ank() abort
     call s:MFdebug(1, "")
     let l:search_dir = expand('%:p:h')
 
@@ -95,7 +100,7 @@ function! s:MFset_dir_ank()
 endfunction
 
 
-function! s:MFset_dir_auto()
+function! s:MFset_dir_auto() abort
     call s:MFdebug(1, "")
     let l:base_name = [".svn",".git"]
 
@@ -120,7 +125,7 @@ function! s:MFset_dir_auto()
 endfunction
 
 let s:echo_no_dir = 1
-function! s:MFset_dir_list(dir)
+function! s:MFset_dir_list(dir) abort
     call s:MFdebug(1, "")
     let l:curdir = expand('%:p:h') . "/"
 
@@ -141,7 +146,7 @@ function! s:MFset_dir_list(dir)
 endfunction
 
 
-function! MFsearch_dir(dir)
+function! MFsearch_dir(dir) abort
     call s:MFdebug(1, "")
     let ret = s:MFset_dir_ank()
     if ret != -1
@@ -160,7 +165,7 @@ function! MFsearch_dir(dir)
 
 endfunction
 
-function! s:set_mftag_save_dir()
+function! s:set_mftag_save_dir() abort
     call s:MFdebug(1, "")
     if g:mftag_save_dir != ''
         let b:mftag_save_dir = g:mftag_save_dir
@@ -181,11 +186,15 @@ endfunction
 call s:set_mftag_save_dir()
 
 unlet s:mftag_start_up
+" }}}
 
 "########## tags syntax setting
+" {{{
 if !exists('g:mftag_no_need_MFsyntax')
+
     call s:MFdebug(1, "")
-    function! s:check_and_read_file(ft)
+
+    function! s:check_and_read_file(ft) abort
         call s:set_mftag_save_dir()
         let l:filename = b:mftag_save_dir . "." . a:ft . "_tag_syntax.vim"
         if filereadable(l:filename)
@@ -201,7 +210,10 @@ if !exists('g:mftag_no_need_MFsyntax')
     command! MFsyntax :call mftags#make_tag_syntax_file()
 
 endif
+" }}}
+
 "########## execute ctag setting
+" {{{
 if !exists('g:mftag_no_need_MFctag')
 
     "execute ctags command at specified directory
@@ -213,9 +225,20 @@ if !exists('g:mftag_no_need_MFctag')
     "   => make tags file @ /from/top/
     "   I'm opening file @ /home/to/work/dir/work/dir/src
     "   => make tags file @ /from/to/work/dir/work
-    function! MFexe_ctags(dir)
+    function! MFexe_ctags(dir) abort
         call s:MFdebug(1, "")
-    
+
+        let l:lang_option = ""
+        for l:sft in s:support_ft
+            if exists('g:mftag_' . l:sft . '_setting')
+                if has_key(g:mftag_{l:sft}_setting, 'tag')
+                    let l:lang_option .= " --" . (l:sft=='cpp' ? 'c++' : l:sft) . "-kinds=" . g:mftag_{l:sft}_setting['tag']
+                endif
+            endif
+        endfor
+
+        let l:cmd_str = "ctags " . g:mftag_exe_option . l:lang_option
+
         let l:pwd = getcwd()
         let l:exe_dir = MFsearch_dir(a:dir)
         if l:exe_dir == ''
@@ -223,16 +246,15 @@ if !exists('g:mftag_no_need_MFctag')
         endif
         execute "cd " . l:exe_dir
         if has("gui_running")
-            echo "execute ctags " . g:mftag_exe_option . " @ " . l:exe_dir
+            echo "execute " . l:cmd_str . " @ " . l:exe_dir
             sleep 2
-            execute "silent !ctags " . g:mftag_exe_option
+            execute "silent !" . l:cmd_str
         else
-            let l:echo_str = "'execute ctags " . g:mftag_exe_option . " @ " . l:exe_dir . "'"
-            let l:cmd_str = "ctags " . g:mftag_exe_option
+            let l:echo_str = "'execute " . l:cmd_str . " @ " . l:exe_dir . "'"
             execute "!echo " . l:echo_str . " && " . l:cmd_str
         endif
         " redraw
-        execute "normal! \<c-l>"
+        redraw!
     
         execute "cd " . l:pwd
     endfunction
@@ -240,11 +262,13 @@ if !exists('g:mftag_no_need_MFctag')
     command! MFctag :call MFexe_ctags(g:mftag_dir)
 
 endif
+" }}}
 
 "########## show all functions, variables, etc.. settings
+" {{{
 if !exists('g:mftag_no_need_MFfunclist')
 
-    function! MFshow_func_list(kind_char)
+    function! MFshow_func_list(kind_char) abort
         call s:MFdebug(1, "")
         let l:file_type = &filetype
         let l:file_path = expand('%:p')
@@ -253,7 +277,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         call mftags#show_kind_list(l:file_type, l:file_path, a:kind_char)
     endfunction
 
-    function! s:set_func_list_win()
+    function! s:set_func_list_win() abort
         call s:MFdebug(1, "")
         " set up function list window
         setlocal modifiable
@@ -289,7 +313,7 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     endfunction
 
-    function! <SID>MF_tag_map(args)
+    function! <SID>MF_tag_map(args) abort
         if a:args == "+"
             normal! zR
         elseif a:args == "-"
@@ -313,7 +337,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
     endfunction
 
-    function! <SID>MF_tag_jump(type)
+    function! <SID>MF_tag_jump(type) abort
         call s:MFdebug(1, "")
         let l:cword = getline('.')
         if len(l:cword) < 2
@@ -341,7 +365,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
     endfunction
 
-    function! s:MFtag_list_usage(...)
+    function! s:MFtag_list_usage(...) abort
         call s:MFdebug(1, "")
         " close if  FuncList is already open.
         let l:winnr = bufwinnr(g:mftag_func_list_name)
@@ -408,8 +432,12 @@ if !exists('g:mftag_no_need_MFfunclist')
         let l:echo_list .= "characters except 'help', 'list', 'all' and 'del' are able to use at once"
 
         if a:0 == 0
-            if exists("g:mftag_" . &filetype . "_default")
-                execute "let l:args = g:mftag_" . &filetype . "_default"
+            if exists("g:mftag_" . &filetype . "_setting")
+                if has_key(g:mftag_{&filetype}_setting, 'func')
+                    let l:args = g:mftag_{&filetype}_setting['func']
+                elseif has_key(g:mftag_{&filetype}_setting, 'tag')
+                    let l:args = g:mftag_{&filetype}_setting['tag']
+                endif
                 call s:MFdebug(2, "read default::" . l:args)
             elseif &filetype == 'python'
                 let l:args = 'cfmvi'
@@ -459,7 +487,7 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     command! -nargs=? MFfunclist :call s:MFtag_list_usage(<f-args>)
 
-    function! s:funclist_auto_close()
+    function! s:funclist_auto_close() abort
         call s:MFdebug(1, "")
         " check other windows
         if winbufnr(2) == -1
@@ -479,4 +507,5 @@ if !exists('g:mftag_no_need_MFfunclist')
     endif
 
 endif
+" }}}
 
