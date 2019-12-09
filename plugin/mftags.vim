@@ -64,8 +64,6 @@ endif
 "########## global settings
 " {{{
 
-let s:support_ft = ['python', 'c', 'cpp', 'vim']
-
 let s:file = expand("<sfile>")
 
 function! s:MFdebug( level, str ) abort
@@ -229,10 +227,16 @@ if !exists('g:mftag_no_need_MFctag')
         call s:MFdebug(1, "")
 
         let l:lang_option = ""
-        for l:sft in s:support_ft
-            if exists('g:mftag_' . l:sft . '_setting')
-                if has_key(g:mftag_{l:sft}_setting, 'tag')
-                    let l:lang_option .= " --" . (l:sft=='cpp' ? 'c++' : l:sft) . "-kinds=" . g:mftag_{l:sft}_setting['tag']
+        for vs in keys(g:)
+            if len(vs) >= 15
+                if (vs[:5] == "mftag_") && (vs[-8:]=="_setting")
+                    if has_key(g:{vs}, 'tag')
+                        let l:ft = vs[6:-9]
+                        if l:ft == "cpp"
+                            let l:ft = "c++"
+                        endif
+                        let l:lang_option .= " --" . l:ft . "-kinds=" . g:{vs}['tag']
+                    endif
                 endif
             endif
         endfor
