@@ -16,6 +16,9 @@ def search_tag(tag_files):
     tmp_tag_files = tag_files
     for tf in tag_files:
         g_tag_path.append(op.join(os.getcwd(), tf))
+    if debug >= 2:
+        print("get tag files: ", end="")
+        print(g_tag_path)
 
     return
 
@@ -173,6 +176,8 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
         return
 
     for tag_path in g_tag_path:
+        if debug >= 2:
+            print("tag file:: %s" % tag_path)
         tag_path = tag_path.replace('/',os.sep)   #adjust os path problem.
         with open(tag_path, 'r') as f:
             for line in f:

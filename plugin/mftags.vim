@@ -274,11 +274,12 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     function! MFshow_func_list(kind_char) abort
         call s:MFdebug(1, "")
+        let l:tag_files = tagfiles()
         let l:file_type = &filetype
         let l:file_path = expand('%:p')
         execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
         call s:set_func_list_win()
-        call mftags#show_kind_list(l:file_type, l:file_path, a:kind_char)
+        call mftags#show_kind_list(l:file_type, l:file_path, a:kind_char, l:tag_files)
     endfunction
 
     function! s:set_func_list_win() abort

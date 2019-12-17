@@ -109,12 +109,12 @@ function! mftags#make_tag_syntax_file() abort
     Python clean_tag()
 endfunction
 
-function! mftags#show_kind_list(file_type, file_path, kind_char) abort
+function! mftags#show_kind_list(file_type, file_path, kind_char, tag_files) abort
 
     ""make tag path list
     "Python search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
     " just set tagfiles
-    Python search_tag(vim.eval("tagfiles()"))
+    Python search_tag(vim.eval("a:tag_files"))
 
     " put list on current buffer
     Python show_list_on_buf(vim.eval('s:src_dir'), vim.eval('a:file_type'), vim.eval('a:kind_char'))
