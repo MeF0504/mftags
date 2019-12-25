@@ -251,11 +251,12 @@ if !exists('g:mftag_no_need_MFctag')
         execute "cd " . l:exe_dir
         if has("gui_running")
             echo "execute " . l:cmd_str . " @ " . l:exe_dir
-            sleep 2
+            sleep 3
             execute "silent !" . l:cmd_str
         else
             let l:echo_str = "'execute " . l:cmd_str . " @ " . l:exe_dir . "'"
             execute "!echo " . l:echo_str . " && " . l:cmd_str
+            sleep 3
         endif
         " redraw
         redraw!
