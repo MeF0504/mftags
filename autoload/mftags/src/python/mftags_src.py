@@ -5,11 +5,14 @@ from __future__ import print_function
 import os
 import os.path as op
 import glob
+import sys
+import copy
 
 g_tag_path = []
 debug = 0
 dic_ext_filetype = {'c':'c', 'h':'c', 'cpp':'cpp', 'py':'python', 'vim':'vim'}
 g_func_list_dict = {}
+str_split = '@-@-'
 
 #just return 
 def search_tag(tag_files):
@@ -128,6 +131,14 @@ def make_tag_syntax_files(src_dir_path, filetype, out_dir, overwrite, enable_kin
     for tagfile in g_tag_path:
         make_tag_syntax_file(tagfile, src_dir_path, filetype, out_dir, enable_kinds)
 
+def make_tag_list(tag_dict):
+    """ make list from tag dictionary """
+    tag_list = tag_dict.keys()
+    # needless because keys doesn't overlap.
+    # tag_list = list(set(tag_list))
+    tag_list.sort()
+    return tag_list
+
 def return_list_from_tag(src_dir_path, filetype, return_kind):
     """ This function makes a list of functions, variables, etc..
         src_dir_path: directory where the vim plugins exists.
@@ -139,7 +150,9 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
         if return_kind in g_func_list_dict[filetype]:
             if debug >= 1:
                 print("already exists buffer. %s %s", filetype, return_kind)
-            return g_func_list_dict[filetype][return_kind]
+            tag_list = make_tag_list(g_func_list_dict[filetype][return_kind])
+            tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
+            return tag_list
 
     lang_list = {}
     with open(op.join(src_dir_path,'src/txt/mftags_lang_list'),'r') as f:
@@ -157,7 +170,7 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                 if debug >= 3:
                     print(line)
                 kc, K, sl = line
-                lang_list[lang][0][kc] = []
+                lang_list[lang][0][kc] = {}
                 lang_list[lang][1][kc] = K
     if debug >= 3:
         for k in lang_list:
@@ -166,7 +179,7 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
             print(lang_list[k][1])
     if filetype in lang_list:
         if return_kind in lang_list[filetype][0]:
-            tag_list = lang_list[filetype][0][return_kind]
+            tag_dict = lang_list[filetype][0][return_kind]
             tag_name = lang_list[filetype][1][return_kind]
         else:
             print("not supported kind '%s' for file type '%s'"  % (return_kind, filetype))
@@ -185,9 +198,11 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                     continue
                 line = line.replace("\n","")
                 kind = line[line.rfind('"')+2]
+                def_str = line[line.find('/^')+2:line.rfind('$/;"')]
+                def_str = def_str.replace('\\', '')
                 line = line.split("\t")
                 name = line[0]
-                fname = line[1]
+                fname = op.join(op.dirname(tag_path),line[1])
                 ftype = fname[fname.rfind(".")+1:]
                 # excepting incorrect filetype
                 if ftype in list(dic_ext_filetype.keys()):
@@ -195,22 +210,27 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                         continue
                 if kind == return_kind:
                     try:
-                        tag_list.append("\t\t"+name)
+                        tag_key = "\t\t"+name+" @ "+kind
+                        if tag_key in tag_dict:
+                            tag_dict[tag_key].append(fname+str_split+def_str)
+                        else:
+                            tag_dict[tag_key] = [fname+str_split+def_str]
                     except KeyError:
                         if debug >= 1:
                             print("\nThis is not a correct kind.")
                             print("language : ",filetype, "kind : ",kind)
                         continue
-    tag_list = list(set(tag_list))
-    tag_list.sort()
-    tag_list.insert(0, "\t"+tag_name)
     if debug >= 2:
-        print(tag_list)
+        print("tag_dict: ", end="")
+        print(tag_dict)
     
     if filetype not in g_func_list_dict:
         g_func_list_dict[filetype] = {}
 
-    g_func_list_dict[filetype][return_kind] = tag_list
+    g_func_list_dict[filetype][return_kind] = copy.deepcopy(tag_dict)
+    g_func_list_dict[filetype][return_kind+'_0'] = "\t"+tag_name
+    tag_list = make_tag_list(tag_dict)
+    tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
     return tag_list
 
 def show_list_on_buf(src_dir_path, filetype, return_kinds):
@@ -227,13 +247,83 @@ def show_list_on_buf(src_dir_path, filetype, return_kinds):
     #print text in buffer
     for k in return_kinds:
         kind_list = return_list_from_tag(src_dir_path, filetype, k)
+        if debug >= 2:
+            print('kind list: ', end='')
+            print(kind_list)
         if kind_list == None:
             return
-        cur_buf.append(kind_list[0])
-        for index, kl in enumerate(kind_list[1:]):
+        for kl in kind_list:
             cur_buf.append(kl)
 
         cur_buf.append("")
+
+def jump_func(filetype, tag_name):
+    """ this function searches the function or something like that
+        and returnes the file and line
+        filetype: current opening file type. ex) c, c++, python ...
+        tag_name: string of a line MFfunclist window.
+    """
+
+    kind = tag_name[-1]
+    def_list = g_func_list_dict[filetype][kind][tag_name]
+    if len(def_list) == 1:
+        fy, ly = def_list[0].split(str_split)
+        if debug >= 2:
+            print('searching:: %s in %s' % (ly, fy))
+        with open(fy) as f:
+            for lnum,line in enumerate(f):
+                if ly in line:
+                    ret = 'silent e +%d %s' % (lnum+1, fy)
+                    if debug >= 1:
+                        print('1; '+ret)
+                    vim.command(ret)
+                    return
+    else:
+        file_list = []
+        line_list = []
+        for ls in def_list:
+            fy, ly = ls.split(str_split)
+            if debug >= 2:
+                print('searching:: %s in %s' % (ly, fy))
+            with open(fy) as f:
+                for lnum,line in enumerate(f):
+                    if ly in line:
+                        file_list.append(fy)
+                        line_list.append(lnum+1)
+
+        file_num = len(file_list)
+        if file_num == 0:
+            print("can't find matching line.")
+            return
+
+        for num in range(file_num):
+            print('  %d  %s :  %dlines' % (num, file_list[num], line_list[num]))
+
+        """ python in vim doesn't support input. {{{
+        if sys.version_info[0] == 2:
+            in_num = raw_input('Type number and <Enter> (empty cancels) ')
+        else:
+            in_num = input('Type number and <Enter> (empty cancels) ')
+
+        try:
+            in_num = int(in_num)
+        except ValueError:
+            return
+
+        ret = 'e +%d %s' % (line_list[in_num], file_list[in_num])
+        if debug >= 2:
+            print('2; '+ret)
+        vim.command(ret)
+        return
+        }}} """
+        vim.command("let g:tmp_index = input('Type number and <Enter> (empty cancels) ')")
+        vim.command('let g:tmp_dic = {}')
+        for i in range(file_num):
+            vim.command('let g:tmp_dic[%d] = ["%s", "%d"]' % (i, file_list[i], line_list[i]))
+        if debug >= 1:
+            print()
+            print('2; set vim variables')
+        return
 
 def clean_tag():
     global g_tag_path

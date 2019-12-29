@@ -125,6 +125,24 @@ function! mftags#show_kind_list(file_type, file_path, kind_char, tag_files) abor
     "return l:list_from_tag
 endfunction
 
+function! mftags#tag_jump(ft, tag_name) abort
+    Python jump_func(vim.eval('a:ft'), vim.eval('a:tag_name'))
+    " python in vim doesn't support input.
+    if exists('g:tmp_dic')
+        if (g:tmp_index !~ "[0-9]") || (g:tmp_index >= len(g:tmp_dic))
+            call s:MFdebug(1, "incorrect input")
+            unlet g:tmp_dic
+            unlet g:tmp_index
+            return
+        endif
+        let l:ind = str2nr(g:tmp_index)
+        call s:MFdebug(2, "open " . g:tmp_dic[l:ind][0] . "::" . g:tmp_dic[l:ind][1])
+        execute "silent e +" . g:tmp_dic[l:ind][1] . " " . g:tmp_dic[l:ind][0]
+        unlet g:tmp_dic
+        unlet g:tmp_index
+    endif
+endfunction
+
 function! mftags#delete_buffer() abort
     Python delete_buffer()
 endfunction

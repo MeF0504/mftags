@@ -256,7 +256,9 @@ if !exists('g:mftag_no_need_MFctag')
         else
             let l:echo_str = "'execute " . l:cmd_str . " @ " . l:exe_dir . "'"
             execute "!echo " . l:echo_str . " && " . l:cmd_str
-            sleep 3
+            if has('nvim')
+                sleep 3
+            endif
         endif
         " redraw
         redraw!
@@ -355,39 +357,36 @@ if !exists('g:mftag_no_need_MFfunclist')
             return
         endif
         "let l:cword = expand('<cword>')
-        echo l:cword
         if a:type == "tab"
+            let l:win_info = win_id2tabwin(win_getid())
+            wincmd p
+            let l:ft = &filetype
             tabnew
-            execute "tjump " . l:cword
+            call mftags#tag_jump(l:ft, l:cword)
             if expand("%:t") == ""
                 quit
+                execute l:win_info[0] . "tabnext"
+                execute l:win_info[1] . 'wincmd w'
             endif
         elseif a:type == "win"
             wincmd p
-            execute "tjump " . l:cword
+            call mftags#tag_jump(&filetype, l:cword)
         elseif a:type == "preview"
+            let l:win_info = win_id2tabwin(win_getid())
             wincmd p
-            execute "ptjump " . l:cword
+            let l:ft = &filetype
+            execute "silent " . &previewheight . "new"
+            call mftags#tag_jump(l:ft, l:cword)
+            setlocal previewwindow
+            if expand("%:t") == ""
+                quit
+                execute l:win_info[0] . "tabnext"
+                execute l:win_info[1] . 'wincmd w'
+            endif
         endif
     endfunction
 
-    function! s:MFtag_list_usage(...) abort
-        call s:MFdebug(1, "")
-        " close if  FuncList is already open.
-        let l:winnr = bufwinnr(g:mftag_func_list_name)
-        if l:winnr != -1
-            execute l:winnr . "wincmd w"
-            close
-        endif
-
-        "save old value
-        let l:old_report = &report
-        "check file type
-        if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'python') && (&filetype != 'vim')
-            echo "not suppourted file type!"
-            return
-        endif
-
+    function! s:echo_mftag_usage() abort
         let l:echo_list = ''
         let l:echo_list .= "help or list \t: show enable characters and close.\n"
         let l:echo_list .= "all\t\t: open MF func list w/ all kinds.\n"
@@ -437,6 +436,26 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
         let l:echo_list .= "characters except 'help', 'list', 'all' and 'del' are able to use at once"
 
+        return l:echo_list
+    endfunction
+
+    function! s:MFtag_list_usage(...) abort
+        call s:MFdebug(1, "")
+        " close if  FuncList is already open.
+        let l:winnr = bufwinnr(g:mftag_func_list_name)
+        if l:winnr != -1
+            execute l:winnr . "wincmd w"
+            close
+        endif
+
+        "save old value
+        let l:old_report = &report
+        "check file type
+        if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'python') && (&filetype != 'vim')
+            echo "not suppourted file type!"
+            return
+        endif
+
         if a:0 == 0
             if exists("g:mftag_" . &filetype . "_setting")
                 if has_key(g:mftag_{&filetype}_setting, 'func')
@@ -458,7 +477,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             endif
         else
             if (a:1 == 'list') || (a:1 == 'help')
-                echo l:echo_list
+                echo s:echo_mftag_usage()
                 return
             elseif a:1 == 'all'
                 if &filetype == 'python'
