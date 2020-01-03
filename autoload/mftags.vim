@@ -21,7 +21,7 @@ function! s:MFdebug( level, str ) abort
     if a:str == ""
         let l:db_print = "###debug### " . "@ " . s:file . " " . expand("<sfile>")
     else
-        let l:db_print =  "###debug### " . str
+        let l:db_print =  "###debug### " . a:str
     endif
     echo l:db_print
 endfunction
@@ -129,17 +129,16 @@ function! mftags#tag_jump(ft, tag_name) abort
     Python jump_func(vim.eval('a:ft'), vim.eval('a:tag_name'))
     " python in vim doesn't support input.
     if exists('g:tmp_dic')
-        if (g:tmp_index !~ "[0-9]") || (g:tmp_index >= len(g:tmp_dic))
+        let l:tmp_index = input('Type number and <Enter> (empty cancels) ')
+        if (l:tmp_index !~ "[0-9]") || (l:tmp_index >= len(g:tmp_dic))
             call s:MFdebug(1, "incorrect input")
             unlet g:tmp_dic
-            unlet g:tmp_index
             return
         endif
-        let l:ind = str2nr(g:tmp_index)
+        let l:ind = str2nr(l:tmp_index)
         call s:MFdebug(2, "open " . g:tmp_dic[l:ind][0] . "::" . g:tmp_dic[l:ind][1])
         execute "silent e +" . g:tmp_dic[l:ind][1] . " " . g:tmp_dic[l:ind][0]
         unlet g:tmp_dic
-        unlet g:tmp_index
     endif
 endfunction
 

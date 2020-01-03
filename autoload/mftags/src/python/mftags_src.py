@@ -297,7 +297,7 @@ def jump_func(filetype, tag_name):
             return
 
         for num in range(file_num):
-            print('  %d  %s :  %dlines' % (num, file_list[num], line_list[num]))
+            print('  %d  %s :  %d lines' % (num, file_list[num], line_list[num]))
 
         """ python in vim doesn't support input. {{{
         if sys.version_info[0] == 2:
@@ -316,7 +316,6 @@ def jump_func(filetype, tag_name):
         vim.command(ret)
         return
         }}} """
-        vim.command("let g:tmp_index = input('Type number and <Enter> (empty cancels) ')")
         vim.command('let g:tmp_dic = {}')
         for i in range(file_num):
             vim.command('let g:tmp_dic[%d] = ["%s", "%d"]' % (i, file_list[i], line_list[i]))
