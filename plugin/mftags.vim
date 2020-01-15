@@ -17,11 +17,8 @@ augroup END
 
 "########## variables initializing
 " {{{
-if has('win32')
-    let s:sep = '\'
-else
-    let s:sep = '/'
-endif
+let s:sep = fnamemodify('.', ':p')[-1:]
+" also check &shellslash ?
 
 if !exists('g:mftag_ank')
     let g:mftag_ank = ".mfank"
