@@ -136,6 +136,8 @@ def make_tag_list(tag_dict):
     tag_list = tag_dict.keys()
     # needless because keys doesn't overlap.
     # tag_list = list(set(tag_list))
+    # but, in python3, type of tag_list is not list, it is dict_key.
+    tag_list = list(tag_list)
     tag_list.sort()
     return tag_list
 
