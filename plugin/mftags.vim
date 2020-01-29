@@ -247,18 +247,14 @@ if !exists('g:mftag_no_need_MFctag')
         endif
         execute "cd " . l:exe_dir
         if has("gui_running")
-            echo "execute " . l:cmd_str . " @ " . l:exe_dir
-            sleep 3
             execute "silent !" . l:cmd_str
         else
             let l:echo_str = "'execute " . l:cmd_str . " @ " . l:exe_dir . "'"
             execute "!echo " . l:echo_str . " && " . l:cmd_str
-            if has('nvim')
-                sleep 3
-            endif
         endif
         " redraw
         redraw!
+        echo "execute '" . l:cmd_str . "' @ " . l:exe_dir
     
         execute "cd " . l:pwd
     endfunction
