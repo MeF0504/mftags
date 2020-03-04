@@ -6,17 +6,43 @@ let s:mftag_debug = 0
 " 3 ... high level debug print.
 
 if has('python3')
-    command! -nargs=1 MFLocalPython python3 <args>
     python3 import vim
-    function! s:load_pyfile(pyfy)
-        execute "pyfile " . a:pyfy
+
+    function! s:call_python(...) abort
+        if a:0 == 0
+            call MFdebug(1, 'please input function!')
+            return 0
+        endif
+        let py_exe_cmd = ""
+        for i in range(a:0-1)
+            let py_exe_cmd .= "vim.eval('a:" . (i+2) . "'), "
+        endfor
+        execute "python3 " . a:1 . '(' .  py_exe_cmd . ')'
     endfunction
+
+    function! s:load_pyfile(pyfy) abort
+        execute "py3file " . a:pyfy
+    endfunction
+
 elseif has('python')
-    command! -nargs=1 MFLocalPython python <args>
     python import vim
-    function! s:load_pyfile(pyfy)
+
+    function! s:call_python(...) abort
+        if a:0 == 0
+            call MFdebug(1, 'please input function!')
+            return 0
+        endif
+        let py_exe_cmd = ""
+        for i in range(a:0-1)
+            let py_exe_cmd .= "vim.eval('a:" . (i+2) . "'), "
+        endfor
+        execute "python " . a:1 . '(' .  py_exe_cmd . ')'
+    endfunction
+
+    function! s:load_pyfile(pyfy) abort
         execute "pyfile " . a:pyfy
     endfunction
+
 else
     echo 'this function requires python or python3'
     exit
@@ -93,14 +119,14 @@ let s:src_dir = expand('<sfile>:h') . "/mftags"
 function! mftags#make_tag_syntax_file() abort
 
     ""make tag path list
-    "MFLocalPython search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
+    "python search_tag(vim.eval("&tags"), vim.eval("expand('%:p')"))
 
     " just set tagfiles
     if tagfiles() == []
         echo "Tag file is not found."
         return
     endif
-    MFLocalPython search_tag(vim.eval("tagfiles()"))
+    call s:call_python('search_tag', tagfiles())
 
     "check file type
     if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'python') && (&filetype != 'vim')
@@ -110,31 +136,31 @@ function! mftags#make_tag_syntax_file() abort
 
     "call python function
     call s:MFdebug(1, "")
-    MFLocalPython make_tag_syntax_files(vim.eval('s:src_dir'), vim.eval("&filetype"), vim.eval("b:mftag_save_dir"), vim.eval("g:mftag_syntax_overwrite"), vim.eval("s:mftag_enable_syntax"))
+    call s:call_python('make_tag_syntax_files', s:src_dir, &filetype, b:mftag_save_dir, g:mftag_syntax_overwrite, s:mftag_enable_syntax)
     execute "source " . b:mftag_save_dir . "." . &filetype . "_tag_syntax.vim"
     "clean tag parh list
-    MFLocalPython clean_tag()
+    call s:call_python('clean_tag')
 endfunction
 
 function! mftags#show_kind_list(file_type, file_path, kind_char, tag_files) abort
 
     ""make tag path list
-    "MFLocalPython search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
+    "python search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
     " just set tagfiles
-    MFLocalPython search_tag(vim.eval("a:tag_files"))
+    call s:call_python('search_tag', a:tag_files)
 
     " put list on current buffer
-    MFLocalPython show_list_on_buf(vim.eval('s:src_dir'), vim.eval('a:file_type'), vim.eval('a:kind_char'))
+    call s:call_python('show_list_on_buf', s:src_dir, a:file_type, a:kind_char)
 
     "clean tag path list and buffer
-    MFLocalPython clean_tag()
+    call s:call_python('clean_tag')
 
     "return l:list_from_tag
 endfunction
 
 function! mftags#tag_jump(ft, tag_name) abort
 
-    MFLocalPython jump_func(vim.eval('a:ft'), vim.eval('a:tag_name'))
+    call s:call_python('jump_func', a:ft, a:tag_name)
     " python in vim doesn't support input.
     if exists('g:tmp_dic')
         let l:tmp_index = input('Type number and <Enter> (empty cancels) ')
@@ -151,6 +177,6 @@ function! mftags#tag_jump(ft, tag_name) abort
 endfunction
 
 function! mftags#delete_buffer() abort
-    MFLocalPython delete_buffer()
+    call s:call_python('delete_buffer')
 endfunction
 
