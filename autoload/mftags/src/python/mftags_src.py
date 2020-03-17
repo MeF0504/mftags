@@ -25,18 +25,11 @@ def search_tag(tag_files):
 
     return
 
-def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_kinds):
-    """ This function makes syntax setting file at the same directory of tag file.
-        tag_file_path: path to tag file.
-        src_dir_path: directory where the vim plugins exists.
-        file type: current opening file type. ex) c, c++, python ...
-        out_dir: directory where syntax file put.
-        enable_kinds: ctags kinds which this func. make syntax of.
-    """
+def make_lang_list(fpath):
     lang_list = {}
-    with open(op.join(src_dir_path,'src/txt/mftags_lang_list'),'r') as f:
+    with open(fpath, 'r') as f:
         for line in f:
-            line = line.replace('\n','')
+            line = line.replace('\n', '')
             if line.startswith('#') or (len(line) <= 2):
                 continue
             if line.startswith('lang:'):
@@ -48,11 +41,25 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
                 line = line[2:].split(' ')
                 if debug >= 3:
                     print(line)
+                # kind_char, kind, syntax_link
                 kc, K, sl = line
                 if sl == 'blank':
                     sl = ''
                 lang_list[lang][0][kc] = []
                 lang_list[lang][1][kc] = [K,sl]
+
+    return lang_list
+
+def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_kinds):
+    """ This function makes syntax setting file at the same directory of tag file.
+        tag_file_path: path to tag file.
+        src_dir_path: directory where the vim plugins exists.
+        file type: current opening file type. ex) c, c++, python ...
+        out_dir: directory where syntax file put.
+        enable_kinds: ctags kinds which this func. make syntax of.
+    """
+
+    lang_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))
     if debug >= 3:
         for k in lang_list:
             print(k)
@@ -156,24 +163,7 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
             tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
             return tag_list
 
-    lang_list = {}
-    with open(op.join(src_dir_path,'src/txt/mftags_lang_list'),'r') as f:
-        for line in f:
-            line = line.replace('\n','')
-            if line.startswith('#') or (len(line) <= 2):
-                continue
-            if line.startswith('lang:'):
-                lang = line[5:]
-                if debug >= 3:
-                    print(lang)
-                lang_list[lang] = [{},{}]
-            else:
-                line = line[2:].split(' ')
-                if debug >= 3:
-                    print(line)
-                kc, K, sl = line
-                lang_list[lang][0][kc] = {}
-                lang_list[lang][1][kc] = K
+    lang_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))
     if debug >= 3:
         for k in lang_list:
             print(k)
@@ -181,8 +171,8 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
             print(lang_list[k][1])
     if filetype in lang_list:
         if return_kind in lang_list[filetype][0]:
-            tag_dict = lang_list[filetype][0][return_kind]
-            tag_name = lang_list[filetype][1][return_kind]
+            tag_dict = lang_list[filetype][0][return_kind] = {}
+            tag_name = lang_list[filetype][1][return_kind][0]
         else:
             print("not supported kind '%s' for file type '%s'"  % (return_kind, filetype))
             return
