@@ -36,7 +36,7 @@ def make_lang_list(fpath):
                 lang = line[5:]
                 if debug >= 3:
                     print(lang)
-                lang_list[lang] = [{},{}]
+                lang_list[lang] = {}
             else:
                 line = line[2:].split(' ')
                 if debug >= 3:
@@ -45,8 +45,7 @@ def make_lang_list(fpath):
                 kc, K, sl = line
                 if sl == 'blank':
                     sl = ''
-                lang_list[lang][0][kc] = []
-                lang_list[lang][1][kc] = [K,sl]
+                lang_list[lang][kc] = [K,sl]
 
     return lang_list
 
@@ -63,10 +62,12 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
     if debug >= 3:
         for k in lang_list:
             print(k)
-            print(lang_list[k][0])
-            print(lang_list[k][1])
+            print(lang_list[k])
     if filetype in lang_list:
-        tag_list,tag_name = lang_list[filetype]
+        tag_name = lang_list[filetype]
+        tag_list = {}
+        for kc in tag_name:
+            tag_list[kc] = []
     else:
         print("not supported file type")
         return
@@ -167,12 +168,11 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
     if debug >= 3:
         for k in lang_list:
             print(k)
-            print(lang_list[k][0])
-            print(lang_list[k][1])
+            print(lang_list[k])
     if filetype in lang_list:
-        if return_kind in lang_list[filetype][0]:
-            tag_dict = lang_list[filetype][0][return_kind] = {}
-            tag_name = lang_list[filetype][1][return_kind][0]
+        if return_kind in lang_list[filetype]:
+            tag_name = lang_list[filetype][return_kind][0]
+            tag_dict = {}
         else:
             print("not supported kind '%s' for file type '%s'"  % (return_kind, filetype))
             return
