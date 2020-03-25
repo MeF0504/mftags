@@ -341,6 +341,15 @@ if !exists('g:mftag_no_need_MFfunclist')
     function! <SID>MF_tag_jump(type) abort
         call s:MFdebug(1, "")
         let l:cword = getline('.')
+        for l:ln in getline(1, '.')
+            if l:ln !~ "\t\t"
+                let l:kind = substitute(l:ln, '\t', '', '')
+            endif
+        endfor
+        if l:kind == ''
+            MFdebug(1, 'no kind found.')
+            return
+        endif
         if len(l:cword) < 2
             call s:MFdebug(2, "[" . l:cword . "]  " . "tag jump word is too short!")
             return
@@ -355,7 +364,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             wincmd p
             let l:ft = &filetype
             tabnew
-            call mftags#tag_jump(l:ft, l:cword)
+            call mftags#tag_jump(l:ft, l:kind, l:cword)
             if expand("%:t") == ""
                 quit
                 execute l:win_info[0] . "tabnext"
@@ -363,13 +372,13 @@ if !exists('g:mftag_no_need_MFfunclist')
             endif
         elseif a:type == "win"
             wincmd p
-            call mftags#tag_jump(&filetype, l:cword)
+            call mftags#tag_jump(&filetype, l:kind, l:cword)
         elseif a:type == "preview"
             let l:win_info = win_id2tabwin(win_getid())
             wincmd p
             let l:ft = &filetype
             execute "silent " . &previewheight . "new"
-            call mftags#tag_jump(l:ft, l:cword)
+            call mftags#tag_jump(l:ft, l:kind, l:cword)
             setlocal previewwindow
             if expand("%:t") == ""
                 quit

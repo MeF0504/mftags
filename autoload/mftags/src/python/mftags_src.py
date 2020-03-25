@@ -13,6 +13,7 @@ debug = 0
 dic_ext_filetype = {'c':'c', 'h':'c', 'cpp':'cpp', 'py':'python', 'vim':'vim'}
 g_func_list_dict = {}
 str_split = '@-@-'
+src_dir_path = ''
 
 #just return 
 def search_tag(tag_files):
@@ -24,6 +25,10 @@ def search_tag(tag_files):
         print(g_tag_path)
 
     return
+
+def set_src_path(path):
+    global src_dir_path
+    src_dir_path = path
 
 def make_lang_list(fpath):
     lang_list = {}
@@ -49,10 +54,9 @@ def make_lang_list(fpath):
 
     return lang_list
 
-def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_kinds):
+def make_tag_syntax_file(tag_file_path, filetype, out_dir, enable_kinds):
     """ This function makes syntax setting file at the same directory of tag file.
         tag_file_path: path to tag file.
-        src_dir_path: directory where the vim plugins exists.
         file type: current opening file type. ex) c, c++, python ...
         out_dir: directory where syntax file put.
         enable_kinds: ctags kinds which this func. make syntax of.
@@ -130,14 +134,14 @@ def make_tag_syntax_file(tag_file_path, src_dir_path, filetype, out_dir, enable_
 
     return
 
-def make_tag_syntax_files(src_dir_path, filetype, out_dir, overwrite, enable_kinds):
+def make_tag_syntax_files(filetype, out_dir, overwrite, enable_kinds):
     if overwrite == '1':
         syntax_file = op.join(out_dir, '.%s_tag_syntax.vim' % filetype)
         with open(syntax_file, 'w') as f:
             'remove tag syntax file'
 
     for tagfile in g_tag_path:
-        make_tag_syntax_file(tagfile, src_dir_path, filetype, out_dir, enable_kinds)
+        make_tag_syntax_file(tagfile, filetype, out_dir, enable_kinds)
 
 def make_tag_list(tag_dict):
     """ make list from tag dictionary """
@@ -149,9 +153,8 @@ def make_tag_list(tag_dict):
     tag_list.sort()
     return tag_list
 
-def return_list_from_tag(src_dir_path, filetype, return_kind):
+def return_list_from_tag(filetype, return_kind):
     """ This function makes a list of functions, variables, etc..
-        src_dir_path: directory where the vim plugins exists.
         file type: current opening file type. ex) c, c++, python ...
         return_kind: a character of the kind which this function returns.
     """
@@ -202,7 +205,7 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
                         continue
                 if kind == return_kind:
                     try:
-                        tag_key = "\t\t"+name+" @ "+kind
+                        tag_key = "\t\t"+name
                         if tag_key in tag_dict:
                             tag_dict[tag_key].append(fname+str_split+def_str)
                         else:
@@ -225,9 +228,8 @@ def return_list_from_tag(src_dir_path, filetype, return_kind):
     tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
     return tag_list
 
-def show_list_on_buf(src_dir_path, filetype, return_kinds):
+def show_list_on_buf(filetype, return_kinds):
     """ this function add lines about kind to current buffer
-        src_dir_path: directory where the vim plugins exists.
         file type: current opening file type. ex) c, c++, python ...
         return_kinds: character(s) of the kind which this function returns.
     """
@@ -238,7 +240,7 @@ def show_list_on_buf(src_dir_path, filetype, return_kinds):
 
     #print text in buffer
     for k in return_kinds:
-        kind_list = return_list_from_tag(src_dir_path, filetype, k)
+        kind_list = return_list_from_tag(filetype, k)
         if debug >= 2:
             print('kind list: ', end='')
             print(kind_list)
@@ -249,14 +251,21 @@ def show_list_on_buf(src_dir_path, filetype, return_kinds):
 
         cur_buf.append("")
 
-def jump_func(filetype, tag_name):
+def jump_func(filetype, kind, tag_name):
     """ this function searches the function or something like that
         and returnes the file and line
         filetype: current opening file type. ex) c, c++, python ...
         tag_name: string of a line MFfunclist window.
     """
 
-    kind = tag_name[-1]
+    kind_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))[filetype]
+    for kc in kind_list:
+        if kind_list[kc][0] == kind:
+            kind = kc
+    if len(kc) != 1:
+        if debug >= 1:
+            print('cannot find kind character for %s. return.' % kind)
+        return
     def_list = g_func_list_dict[filetype][kind][tag_name]
     if len(def_list) == 1:
         fy, ly = def_list[0].split(str_split)
@@ -277,7 +286,7 @@ def jump_func(filetype, tag_name):
             fy, ly = ls.split(str_split)
             if debug >= 2:
                 print('searching:: %s in %s' % (ly, fy))
-            with open(fy) as f:
+            with open(fy, 'r') as f:
                 for lnum,line in enumerate(f):
                     if ly in line:
                         file_list.append(fy)

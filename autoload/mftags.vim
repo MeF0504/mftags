@@ -116,6 +116,8 @@ endif
 call s:load_pyfile(expand("<sfile>:h") . "/mftags/src/python/mftags_src.py")
 let s:src_dir = expand('<sfile>:h') . "/mftags"
 
+call s:call_python('set_src_path', s:src_dir)
+
 function! mftags#make_tag_syntax_file() abort
 
     ""make tag path list
@@ -136,7 +138,7 @@ function! mftags#make_tag_syntax_file() abort
 
     "call python function
     call s:MFdebug(1, "")
-    call s:call_python('make_tag_syntax_files', s:src_dir, &filetype, b:mftag_save_dir, g:mftag_syntax_overwrite, s:mftag_enable_syntax)
+    call s:call_python('make_tag_syntax_files', &filetype, b:mftag_save_dir, g:mftag_syntax_overwrite, s:mftag_enable_syntax)
     execute "source " . b:mftag_save_dir . "." . &filetype . "_tag_syntax.vim"
     "clean tag parh list
     call s:call_python('clean_tag')
@@ -150,7 +152,7 @@ function! mftags#show_kind_list(file_type, file_path, kind_char, tag_files) abor
     call s:call_python('search_tag', a:tag_files)
 
     " put list on current buffer
-    call s:call_python('show_list_on_buf', s:src_dir, a:file_type, a:kind_char)
+    call s:call_python('show_list_on_buf', a:file_type, a:kind_char)
 
     "clean tag path list and buffer
     call s:call_python('clean_tag')
@@ -158,9 +160,9 @@ function! mftags#show_kind_list(file_type, file_path, kind_char, tag_files) abor
     "return l:list_from_tag
 endfunction
 
-function! mftags#tag_jump(ft, tag_name) abort
+function! mftags#tag_jump(ft, kind, tag_name) abort
 
-    call s:call_python('jump_func', a:ft, a:tag_name)
+    call s:call_python('jump_func', a:ft, a:kind, a:tag_name)
     " python in vim doesn't support input.
     if exists('g:tmp_dic')
         let l:tmp_index = input('Type number and <Enter> (empty cancels) ')
