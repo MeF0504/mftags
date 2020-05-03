@@ -194,7 +194,9 @@ def return_list_from_tag(filetype, return_kind):
                 line = line.replace("\n","")
                 kind = line[line.rfind('"')+2]
                 def_str = line[line.find('/^')+2:line.rfind('$/;"')]
+                def_str = def_str.replace('\\\\', str_split)
                 def_str = def_str.replace('\\', '')
+                def_str = def_str.replace(str_split, '\\')
                 line = line.split("\t")
                 name = line[0]
                 fname = op.join(op.dirname(tag_path),line[1])
@@ -262,7 +264,7 @@ def jump_func(filetype, kind, tag_name):
     for kc in kind_list:
         if kind_list[kc][0] == kind:
             kind = kc
-    if len(kc) != 1:
+    if len(kind) != 1:
         if debug >= 1:
             print('cannot find kind character for %s. return.' % kind)
         return

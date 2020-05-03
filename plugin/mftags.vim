@@ -278,6 +278,17 @@ if !exists('g:mftag_no_need_MFfunclist')
         call mftags#show_kind_list(l:file_type, l:file_path, a:kind_char, l:tag_files)
     endfunction
 
+    function! MFfold_lev(lnum)
+        let l:line = getline(a:lnum)
+        let l:cnt = 0
+        for i in range(len(l:line))
+            if l:line[i] == "\t"
+                let l:cnt += 1
+            endif
+        endfor
+        return l:cnt
+    endfunction
+
     function! s:set_func_list_win() abort
         call s:MFdebug(1, "")
         " set up function list window
@@ -293,10 +304,12 @@ if !exists('g:mftag_no_need_MFfunclist')
         setlocal nowrap
         setlocal report=9999
         setlocal winfixwidth
+        setlocal nolist
 
         setlocal foldminlines=0
         "setlocal foldlevel=9999
-        setlocal foldmethod=indent
+        setlocal foldmethod=expr
+        setlocal foldexpr=MFfold_lev(v:lnum)
         setlocal foldcolumn=3
 
         """ mapping
@@ -347,7 +360,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             endif
         endfor
         if l:kind == ''
-            MFdebug(1, 'no kind found.')
+            call s:MFdebug(1, 'no kind found.')
             return
         endif
         if len(l:cword) < 2
