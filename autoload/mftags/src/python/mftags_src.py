@@ -326,6 +326,18 @@ def jump_func(filetype, kind, tag_name):
             print('2; set vim variables')
         return
 
+def show_def(filetype, kind, tag_name):
+    kind_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))[filetype]
+    for kc in kind_list:
+        if kind_list[kc][0] == kind:
+            kind = kc
+    if len(kind) != 1:
+        if debug >= 1:
+            print('cannot find kind character for %s. return.' % kind)
+        return
+    for ly in g_func_list_dict[filetype][kind][tag_name]:
+        print(ly.split(str_split)[1])
+
 def clean_tag():
     global g_tag_path
     g_tag_path = []

@@ -178,6 +178,16 @@ function! mftags#tag_jump(ft, kind, tag_name) abort
     endif
 endfunction
 
+function! mftags#show_def(filetype, kind, tag_name)
+    if len(a:tag_name) < 2
+        return
+    elseif a:tag_name[1] != "\t"
+        echo substitute(a:tag_name, '\t', '', 'g')
+    else
+        call s:call_python('show_def', a:filetype, a:kind, a:tag_name)
+    endif
+endfunction
+
 function! mftags#delete_buffer() abort
     call s:call_python('delete_buffer')
 endfunction

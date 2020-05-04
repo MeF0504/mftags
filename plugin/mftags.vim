@@ -325,6 +325,15 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     endfunction
 
+    function! <SID>get_kind() abort
+        for l:ln in getline(1, '.')
+            if l:ln !~ "\t\t"
+                let l:kind = substitute(l:ln, '\t', '', '')
+            endif
+        endfor
+        return l:kind
+    endfunction
+
     function! <SID>MF_tag_map(args) abort
         if a:args == "+"
             normal! zR
@@ -342,7 +351,11 @@ if !exists('g:mftag_no_need_MFfunclist')
             endif
         elseif a:args == "space2"
             if foldclosed(line('.')) == -1
-                echo expand('<cword>')
+                wincmd p
+                let l:ft = &filetype
+                wincmd p
+                let l:kind = <SID>get_kind()
+                call mftags#show_def(l:ft, l:kind, getline('.'))
             endif
         elseif a:args == "q"
             quit
@@ -352,15 +365,12 @@ if !exists('g:mftag_no_need_MFfunclist')
     function! <SID>MF_tag_jump(type) abort
         call s:MFdebug(1, "")
         let l:cword = getline('.')
-        for l:ln in getline(1, '.')
-            if l:ln !~ "\t\t"
-                let l:kind = substitute(l:ln, '\t', '', '')
-            endif
-        endfor
+        let l:kind = <SID>get_kind()
         if l:kind == ''
             call s:MFdebug(1, 'no kind found.')
             return
         endif
+
         if len(l:cword) < 2
             call s:MFdebug(2, "[" . l:cword . "]  " . "tag jump word is too short!")
             return
