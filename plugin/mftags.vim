@@ -316,9 +316,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         nnoremap <silent> <buffer> +              :call <SID>MF_tag_map("+")<CR>
         nnoremap <silent> <buffer> -              :call <SID>MF_tag_map("-")<CR>
         nnoremap <silent> <buffer> =              :call <SID>MF_tag_map("=")<CR>
-        nnoremap <silent> <buffer> t              :call <SID>MF_tag_jump('tab')<CR>
         nnoremap <silent> <buffer> <c-t>          :call <SID>MF_tag_jump('tab')<CR>
-        nnoremap <silent> <buffer> w              :call <SID>MF_tag_jump('win')<CR>
         nnoremap <silent> <buffer> <c-p>          :call <SID>MF_tag_jump('preview')<CR>
         nnoremap <silent> <buffer> <CR>           :call <SID>MF_tag_map("enter")<CR>
         nnoremap <silent> <buffer> <space><space> :call <SID>MF_tag_map("space2")<CR>

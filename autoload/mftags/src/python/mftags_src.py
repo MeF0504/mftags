@@ -15,7 +15,7 @@ g_func_list_dict = {}
 str_split = '@-@-'
 src_dir_path = ''
 
-#just return 
+#just return
 def search_tag(tag_files):
     tmp_tag_files = tag_files
     for tf in tag_files:
@@ -159,13 +159,12 @@ def return_list_from_tag(filetype, return_kind):
         return_kind: a character of the kind which this function returns.
     """
     global g_func_list_dict
-    if filetype in g_func_list_dict:
-        if return_kind in g_func_list_dict[filetype]:
-            if debug >= 1:
-                print("already exists buffer. %s %s", filetype, return_kind)
-            tag_list = make_tag_list(g_func_list_dict[filetype][return_kind])
-            tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
-            return tag_list
+    if (filetype in g_func_list_dict) and (return_kind in g_func_list_dict[filetype]):
+        if debug >= 1:
+            print("already exists buffer. %s %s", filetype, return_kind)
+        tag_list = make_tag_list(g_func_list_dict[filetype][return_kind])
+        tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
+        return tag_list
 
     lang_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))
     if debug >= 3:
