@@ -161,7 +161,7 @@ def return_list_from_tag(filetype, return_kind):
     global g_func_list_dict
     if (filetype in g_func_list_dict) and (return_kind in g_func_list_dict[filetype]):
         if debug >= 1:
-            print("already exists buffer. %s %s", filetype, return_kind)
+            print("already exists buffer. {} {}".format(filetype, return_kind))
         tag_list = make_tag_list(g_func_list_dict[filetype][return_kind])
         tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
         return tag_list
@@ -229,10 +229,10 @@ def return_list_from_tag(filetype, return_kind):
     tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
     return tag_list
 
-def show_list_on_buf(filetype, return_kinds):
+def show_list_on_buf(filetypes, return_kinds):
     """ this function add lines about kind to current buffer
-        file type: current opening file type. ex) c, c++, python ...
-        return_kinds: character(s) of the kind which this function returns.
+        file type: list of file types. ex) c, c++, python ...
+        return_kinds: list of character(s) of the kind which this function returns.
     """
 
     #import vim
@@ -240,17 +240,22 @@ def show_list_on_buf(filetype, return_kinds):
     clean_buf()
 
     #print text in buffer
-    for k in return_kinds:
-        kind_list = return_list_from_tag(filetype, k)
-        if debug >= 2:
-            print('kind list: ', end='')
-            print(kind_list)
-        if kind_list == None:
-            return
-        for kl in kind_list:
-            cur_buf.append(kl)
+    if debug >= 1:
+        print('filetypes:{}'.format(filetypes))
 
-        cur_buf.append("")
+    for i,fy in enumerate(filetypes):
+        cur_buf.append('---{}---'.format(fy))
+        for k in return_kinds[i]:
+            kind_list = return_list_from_tag(fy, k)
+            if debug >= 2:
+                print('kind list: ', end='')
+                print(kind_list)
+            if kind_list == None:
+                return
+            for kl in kind_list:
+                cur_buf.append(kl)
+
+            cur_buf.append("")
 
 def jump_func(filetype, kind, tag_name):
     """ this function searches the function or something like that
@@ -327,6 +332,9 @@ def jump_func(filetype, kind, tag_name):
         return
 
 def show_def(filetype, kind, tag_name):
+    """ search and display the definition of the function/variable/class/ etc...
+        this function is for mapping of <space><space>
+    """
     kind_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))[filetype]
     for kc in kind_list:
         if kind_list[kc][0] == kind:

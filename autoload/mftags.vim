@@ -5,6 +5,7 @@ let s:mftag_debug = 0
 " 2 ... normal level debug print.
 " 3 ... high level debug print.
 
+" {{{ python setting.
 if has('python3')
     python3 import vim
 
@@ -47,6 +48,7 @@ else
     echo 'this function requires python or python3'
     exit
 endif
+" }}}
 
 let s:file = expand("<sfile>")
 function! s:MFdebug( level, str ) abort
@@ -61,11 +63,7 @@ function! s:MFdebug( level, str ) abort
     echo l:db_print
 endfunction
 
-
-if !exists('g:mftag_syntax_overwrite')
-    let g:mftag_syntax_overwrite = 1
-endif
-
+" {{{ basic settings.
 if exists('g:mftag_python_setting')
     if has_key(g:mftag_python_setting, 'syntax')
         let s:mftag_enable_syntax = g:mftag_python_setting['syntax']
@@ -112,6 +110,7 @@ if !exists('s:mftag_enable_syntax')
         let s:mftag_enable_syntax = "acfmv"
     endif
 endif
+" }}}
 
 call s:load_pyfile(expand("<sfile>:h") . "/mftags/src/python/mftags_src.py")
 let s:src_dir = expand('<sfile>:h') . "/mftags"
@@ -144,7 +143,7 @@ function! mftags#make_tag_syntax_file() abort
     call s:call_python('clean_tag')
 endfunction
 
-function! mftags#show_kind_list(file_type, file_path, kind_char, tag_files) abort
+function! mftags#show_kind_list(file_types, file_path, kinds, tag_files) abort
 
     ""make tag path list
     "python search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
@@ -152,7 +151,7 @@ function! mftags#show_kind_list(file_type, file_path, kind_char, tag_files) abor
     call s:call_python('search_tag', a:tag_files)
 
     " put list on current buffer
-    call s:call_python('show_list_on_buf', a:file_type, a:kind_char)
+    call s:call_python('show_list_on_buf', a:file_types, a:kinds)
 
     "clean tag path list and buffer
     call s:call_python('clean_tag')

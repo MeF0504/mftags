@@ -56,6 +56,11 @@ endif
 if !exists('g:mftag_auto_close')
     let g:mftag_auto_close = 0
 endif
+
+if !exists('g:mftag_syntax_overwrite')
+    let g:mftag_syntax_overwrite = 1
+endif
+
 " }}}
 
 "########## global settings
@@ -268,18 +273,62 @@ endif
 " {{{
 if !exists('g:mftag_no_need_MFfunclist')
 
-    function! MFshow_func_list(kind_char) abort
+    function! MFshow_func_list(file_types) abort
         call s:MFdebug(1, "")
         let l:tag_files = tagfiles()
-        let l:file_type = &filetype
         let l:file_path = expand('%:p')
+
+        " set kinds
+        let l:file_types = split(a:file_types, ',')
+        let l:kinds = []
+        for l:ft in l:file_types
+            "check file type
+            if (l:ft != 'c') && (l:ft != 'cpp') && (l:ft != 'python') && (l:ft != 'vim')
+                echo l:ft . " is not a suppourted file type!"
+                continue
+            endif
+            if exists("g:mftag_" . l:ft . "_setting")
+                if has_key(g:mftag_{l:ft}_setting, 'func')
+                    let l:kinds += [g:mftag_{l:ft}_setting['func']]
+                elseif has_key(g:mftag_{l:ft}_setting, 'tag')
+                    let l:kinds += [g:mftag_{l:ft}_setting['tag']]
+                endif
+                call s:MFdebug(2, l:ft . " read kinds from setting::" . l:kinds[-1])
+            elseif l:ft == 'python'
+                let l:kinds += ['cfmvi']
+            elseif l:ft == 'c'
+                let l:kinds += ['cdefglmnpstuvx']
+            elseif l:ft == 'cpp'
+                let l:kinds += ['cdefglmnpstuvx']
+            elseif l:ft == 'vim'
+                let l:kinds += ['acfmv']
+            else
+                let l:kinds += ['']
+            endif
+            call s:MFdebug(2, l:ft . " set kinds::" . l:kinds[-1])
+        endfor
+        if len(l:kinds) == 0
+            call s:MFdebug(1, 'len(kinds) == 0;')
+            return
+        endif
+
         execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
         call s:set_func_list_win()
-        call mftags#show_kind_list(l:file_type, l:file_path, a:kind_char, l:tag_files)
+        call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
+        setlocal nomodifiable
     endfunction
 
     function! MFfold_lev(lnum)
         let l:line = getline(a:lnum)
+        " if l:line == ''
+        "     return 0
+        " endif
+
+        " if l:line[:2] == '---'
+        "     echo l:line[:2]
+        "     return 1
+        " endif
+
         let l:cnt = 0
         for i in range(len(l:line))
             if l:line[i] == "\t"
@@ -325,13 +374,16 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     endfunction
 
-    function! <SID>get_kind() abort
+    function! <SID>get_ft_kind() abort
         for l:ln in getline(1, '.')
             if l:ln !~ "\t\t"
                 let l:kind = substitute(l:ln, '\t', '', '')
             endif
+            if l:ln[:2] == '---'
+                let l:ft = l:ln[3:-4]
+            endif
         endfor
-        return l:kind
+        return [l:ft, l:kind]
     endfunction
 
     function! <SID>MF_tag_map(args) abort
@@ -351,10 +403,10 @@ if !exists('g:mftag_no_need_MFfunclist')
             endif
         elseif a:args == "space2"
             if foldclosed(line('.')) == -1
-                wincmd p
-                let l:ft = &filetype
-                wincmd p
-                let l:kind = <SID>get_kind()
+                let l:tmp_res = <SID>get_ft_kind()
+                let l:ft = l:tmp_res[0]
+                let l:kind = l:tmp_res[1]
+                unlet l:tmp_res
                 call mftags#show_def(l:ft, l:kind, getline('.'))
             endif
         elseif a:args == "q"
@@ -365,7 +417,10 @@ if !exists('g:mftag_no_need_MFfunclist')
     function! <SID>MF_tag_jump(type) abort
         call s:MFdebug(1, "")
         let l:cword = getline('.')
-        let l:kind = <SID>get_kind()
+        let l:tmp_res = <SID>get_ft_kind()
+        let l:ft = l:tmp_res[0]
+        let l:kind = l:tmp_res[1]
+        unlet l:tmp_res
         if l:kind == ''
             call s:MFdebug(1, 'no kind found.')
             return
@@ -382,8 +437,6 @@ if !exists('g:mftag_no_need_MFfunclist')
         "let l:cword = expand('<cword>')
         if a:type == "tab"
             let l:win_info = win_id2tabwin(win_getid())
-            wincmd p
-            let l:ft = &filetype
             tabnew
             call mftags#tag_jump(l:ft, l:kind, l:cword)
             if expand("%:t") == ""
@@ -393,11 +446,9 @@ if !exists('g:mftag_no_need_MFfunclist')
             endif
         elseif a:type == "win"
             wincmd p
-            call mftags#tag_jump(&filetype, l:kind, l:cword)
+            call mftags#tag_jump(l:ft, l:kind, l:cword)
         elseif a:type == "preview"
             let l:win_info = win_id2tabwin(win_getid())
-            wincmd p
-            let l:ft = &filetype
             execute "silent " . &previewheight . "new"
             call mftags#tag_jump(l:ft, l:kind, l:cword)
             setlocal previewwindow
@@ -409,59 +460,75 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
     endfunction
 
-    function! s:echo_mftag_usage() abort
+    function! s:echo_mftag_usage(file_types) abort
         let l:echo_list = ''
-        let l:echo_list .= "help or list \t: show enable characters and close.\n"
-        let l:echo_list .= "all\t\t: open MF func list w/ all kinds.\n"
+        let l:echo_list .= "help \t: show enable characters and close.\n"
         let l:echo_list .= "del\t\t: delete buffer.\n"
-        if &filetype == 'python'
-            let l:echo_list .= "c \t\t: classes\n"
-            let l:echo_list .= "f \t\t: functions\n"
-            let l:echo_list .= "m \t\t: class members\n"
-            let l:echo_list .= "v \t\t: variables\n"
-            let l:echo_list .= "i \t\t: imports\n"
-        elseif &filetype == 'c'
-            let l:echo_list .= "c \t\t: classes\n"
-            let l:echo_list .= "d \t\t: macro definitions\n"
-            let l:echo_list .= "e \t\t: enumerators (values inside an enumeration)\n"
-            let l:echo_list .= "f \t\t: function definitions\n"
-            let l:echo_list .= "g \t\t: enumeration names\n"
-            let l:echo_list .= "l \t\t: local variables\n"
-            let l:echo_list .= "m \t\t: class, struct, and union members\n"
-            let l:echo_list .= "n \t\t: namespaces\n"
-            let l:echo_list .= "p \t\t: function prototypes\n"
-            let l:echo_list .= "s \t\t: structure names\n"
-            let l:echo_list .= "t \t\t: typedefs\n"
-            let l:echo_list .= "u \t\t: union names\n"
-            let l:echo_list .= "v \t\t: variable definitions\n"
-            let l:echo_list .= "x \t\t: external and forward variable declarations\n"
-        elseif &filetype == 'cpp'
-            let l:echo_list .= "c \t\t: classes\n"
-            let l:echo_list .= "d \t\t: macro definitions\n"
-            let l:echo_list .= "e \t\t: enumerators (values inside an enumeration)\n"
-            let l:echo_list .= "f \t\t: function definitions\n"
-            let l:echo_list .= "g \t\t: enumeration names\n"
-            let l:echo_list .= "l \t\t: local variables\n"
-            let l:echo_list .= "m \t\t: class, struct, and union members\n"
-            let l:echo_list .= "n \t\t: namespaces\n"
-            let l:echo_list .= "p \t\t: function prototypes\n"
-            let l:echo_list .= "s \t\t: structure names\n"
-            let l:echo_list .= "t \t\t: typedefs\n"
-            let l:echo_list .= "u \t\t: union names\n"
-            let l:echo_list .= "v \t\t: variable definitions\n"
-            let l:echo_list .= "x \t\t: external and forward variable declarations\n"
-        elseif &filetype == 'vim'
-            let l:echo_list .= "a \t\t: autocommand groups\n"
-            let l:echo_list .= "c \t\t: user-defined commands\n"
-            let l:echo_list .= "f \t\t: function definitions\n"
-            let l:echo_list .= "m \t\t: maps\n"
-            let l:echo_list .= "v \t\t: variable definitions\n"
-        endif
-        let l:echo_list .= "characters except 'help', 'list', 'all' and 'del' are able to use at once"
+        for ft in split(a:file_types, ',')
+            if ft == 'python'
+                let l:echo_list .= "---" . ft . "---\n"
+                let l:echo_list .= "c \t\t: classes\n"
+                let l:echo_list .= "f \t\t: functions\n"
+                let l:echo_list .= "m \t\t: class members\n"
+                let l:echo_list .= "v \t\t: variables\n"
+                let l:echo_list .= "i \t\t: imports\n"
+            elseif ft == 'c'
+                let l:echo_list .= "---" . ft . "---\n"
+                let l:echo_list .= "c \t\t: classes\n"
+                let l:echo_list .= "d \t\t: macro definitions\n"
+                let l:echo_list .= "e \t\t: enumerators (values inside an enumeration)\n"
+                let l:echo_list .= "f \t\t: function definitions\n"
+                let l:echo_list .= "g \t\t: enumeration names\n"
+                let l:echo_list .= "l \t\t: local variables\n"
+                let l:echo_list .= "m \t\t: class, struct, and union members\n"
+                let l:echo_list .= "n \t\t: namespaces\n"
+                let l:echo_list .= "p \t\t: function prototypes\n"
+                let l:echo_list .= "s \t\t: structure names\n"
+                let l:echo_list .= "t \t\t: typedefs\n"
+                let l:echo_list .= "u \t\t: union names\n"
+                let l:echo_list .= "v \t\t: variable definitions\n"
+                let l:echo_list .= "x \t\t: external and forward variable declarations\n"
+            elseif ft == 'cpp'
+                let l:echo_list .= "---" . ft . "---\n"
+                let l:echo_list .= "c \t\t: classes\n"
+                let l:echo_list .= "d \t\t: macro definitions\n"
+                let l:echo_list .= "e \t\t: enumerators (values inside an enumeration)\n"
+                let l:echo_list .= "f \t\t: function definitions\n"
+                let l:echo_list .= "g \t\t: enumeration names\n"
+                let l:echo_list .= "l \t\t: local variables\n"
+                let l:echo_list .= "m \t\t: class, struct, and union members\n"
+                let l:echo_list .= "n \t\t: namespaces\n"
+                let l:echo_list .= "p \t\t: function prototypes\n"
+                let l:echo_list .= "s \t\t: structure names\n"
+                let l:echo_list .= "t \t\t: typedefs\n"
+                let l:echo_list .= "u \t\t: union names\n"
+                let l:echo_list .= "v \t\t: variable definitions\n"
+                let l:echo_list .= "x \t\t: external and forward variable declarations\n"
+            elseif ft == 'vim'
+                let l:echo_list .= "---" . ft . "---\n"
+                let l:echo_list .= "a \t\t: autocommand groups\n"
+                let l:echo_list .= "c \t\t: user-defined commands\n"
+                let l:echo_list .= "f \t\t: function definitions\n"
+                let l:echo_list .= "m \t\t: maps\n"
+                let l:echo_list .= "v \t\t: variable definitions\n"
+            endif
+        endfor
 
         return l:echo_list
     endfunction
 
+    function! s:MFtag_chk_open() abort
+        for i in range(1, tabpagenr('$'))
+            let bufnrs = tabpagebuflist(i)
+            for j in bufnrs
+                if bufname(j) == g:mftag_func_list_name
+                    echo 'Function list is already opened. -> tab=' . i . ', win=' . j
+                    return 1
+                endif
+            endfor
+        endfor
+        return 0
+    endfunction
     function! s:MFtag_list_usage(...) abort
         call s:MFdebug(1, "")
         " close if  FuncList is already open.
@@ -471,64 +538,35 @@ if !exists('g:mftag_no_need_MFfunclist')
             close
         endif
 
-        "save old value
-        let l:old_report = &report
-        "check file type
-        if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'python') && (&filetype != 'vim')
-            echo "not suppourted file type!"
+        if s:MFtag_chk_open() == 1
             return
         endif
 
+        "save old value
+        let l:old_report = &report
+
         if a:0 == 0
-            if exists("g:mftag_" . &filetype . "_setting")
-                if has_key(g:mftag_{&filetype}_setting, 'func')
-                    let l:args = g:mftag_{&filetype}_setting['func']
-                elseif has_key(g:mftag_{&filetype}_setting, 'tag')
-                    let l:args = g:mftag_{&filetype}_setting['tag']
-                endif
-                call s:MFdebug(2, "read default::" . l:args)
-            elseif &filetype == 'python'
-                let l:args = 'cfmvi'
-            elseif &filetype == 'c'
-                let l:args = 'cdefglmnpstuvx'
-            elseif &filetype == 'cpp'
-                let l:args = 'cdefglmnpstuvx'
-            elseif &filetype == 'vim'
-                let l:args = 'acfmv'
-            else
-                let l:args = ''
-            endif
+            let l:ft = &filetype
         else
-            if (a:1 == 'list') || (a:1 == 'help')
-                echo s:echo_mftag_usage()
+            let l:tmp_list = split(a:1)
+            if (len(l:tmp_list) > 1) && (l:tmp_list[1] == 'help')
+                echo s:echo_mftag_usage(l:tmp_list[0])
                 return
-            elseif a:1 == 'all'
-                if &filetype == 'python'
-                    let l:args = 'cfmvi'
-                elseif &filetype == 'c'
-                    let l:args = 'cdefglmnpstuvx'
-                elseif &filetype == 'cpp'
-                    let l:args = 'cdefglmnpstuvx'
-                elseif &filetype == 'vim'
-                    let l:args = 'acfmv'
-                else
-                    let l:args = ''
-                endif
             elseif a:1 == 'del'
                 call mftags#delete_buffer()
                 return
             else
-                let l:args = a:1
+                let l:ft = a:1
             endif
         endif
         if tagfiles() == []
             echo "Tag file is not found."
             return
         endif
-        call MFshow_func_list(l:args)
+
+        call MFshow_func_list(l:ft)
 
         " return values
-        setlocal nomodifiable
         execute "set report=" . l:old_report
 
     endfunction
