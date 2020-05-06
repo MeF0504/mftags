@@ -462,8 +462,15 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     function! s:echo_mftag_usage(file_types) abort
         let l:echo_list = ''
-        let l:echo_list .= "help \t: show enable characters and close.\n"
-        let l:echo_list .= "del\t\t: delete buffer.\n"
+        if a:file_types == ''
+            let l:echo_list .= "usage; :MFfunclist [<filetype>] [help]\n"
+            let l:echo_list .= "       :MFfunclist del\n"
+            let l:echo_list .= "help\t\t: show this usage and close.\n"
+            let l:echo_list .= "<ft> help\t: show enable kinds for the filetype and close.\n"
+            let l:echo_list .= "del\t\t: delete buffer.\n"
+            let l:echo_list .= "suppourted languages: python, c, cpp, vim"
+            return l:echo_list
+        endif
         for ft in split(a:file_types, ',')
             if ft == 'python'
                 let l:echo_list .= "---" . ft . "---\n"
@@ -551,6 +558,9 @@ if !exists('g:mftag_no_need_MFfunclist')
             let l:tmp_list = split(a:1)
             if (len(l:tmp_list) > 1) && (l:tmp_list[1] == 'help')
                 echo s:echo_mftag_usage(l:tmp_list[0])
+                return
+            elseif a:1 == 'help'
+                echo s:echo_mftag_usage('')
                 return
             elseif a:1 == 'del'
                 call mftags#delete_buffer()
