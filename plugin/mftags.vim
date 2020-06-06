@@ -183,6 +183,10 @@ function! s:set_mftag_save_dir() abort
     endif
 endfunction
 
+function! s:SID_PREFIX()
+  return matchstr(expand('<sfile>'), '<SNR>\d\+_\zeSID_PREFIX$')
+endfunction
+
 call s:set_mftag_save_dir()
 
 unlet s:mftag_start_up
@@ -312,10 +316,20 @@ if !exists('g:mftag_no_need_MFfunclist')
             return
         endif
 
-        execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
-        call s:set_func_list_win()
-        call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
-        setlocal nomodifiable
+        if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
+            call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
+            call popup_menu(g:tmp_list, #{
+                        \ callback : s:SID_PREFIX().'select_func_pop',
+                        \ line : 1,
+                        \ col : 1,
+                        \ maxheight : &lines-7,
+                        \})
+        else
+            execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
+            call s:set_func_list_win()
+            call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
+            setlocal nomodifiable
+        endif
     endfunction
 
     function! MFfold_lev(lnum)
@@ -458,6 +472,74 @@ if !exists('g:mftag_no_need_MFfunclist')
                 execute l:win_info[1] . 'wincmd w'
             endif
         endif
+    endfunction
+
+    function! <SID>select_func_pop(id, res)
+        call s:MFdebug(2, 'res' . a:res . '---')
+        if !exists('g:tmp_list')
+            call s:MFdebug(1, 'list not found.')
+        endif
+
+        if len(g:tmp_list[a:res-1]) < 2
+            unlet g:tmp_list
+            return
+        endif
+        if g:tmp_list[a:res-1][1] != '	'
+            unlet g:tmp_list
+            return
+        endif
+
+        for i in range(a:res)
+            let l:ln = g:tmp_list[i]
+            if l:ln !~ "\t\t"
+                let l:kind = substitute(l:ln, '\t', '', '')
+            endif
+            if l:ln[:2] == '---'
+                let l:ft = l:ln[3:-4]
+            endif
+        endfor
+
+        let l:win_info = win_id2tabwin(win_getid())
+        tabnew
+        call mftags#tag_jump(l:ft, l:kind, g:tmp_list[a:res-1])
+        if exists('g:tmp_dic')
+            call <SID>select_file_pop()
+        else
+            if expand("%:t") == ""
+                quit
+                execute l:win_info[0] . "tabnext"
+                execute l:win_info[1] . 'wincmd w'
+            endif
+        endif
+
+        unlet g:tmp_list
+    endfunction
+
+    function! <SID>select_file_pop()
+        call popup_clear()
+        let ret = []
+        for i in keys(g:tmp_dic)
+            let add_str = '  ' . i . ' ' . g:tmp_dic[i][0] . ' : ' . g:tmp_dic[i][1] . ' lines'
+            call add(ret, add_str)
+        endfor
+        call popup_menu(ret, #{
+                    \ callback : s:SID_PREFIX().'select_pop',
+                    \ maxheight : &lines-7,
+                    \ zindex : 250
+                    \ })
+    endfunction
+
+    function! <SID>select_pop(id, res)
+        let l:ind = a:res-1
+        call s:MFdebug(2, "open " . g:tmp_dic[l:ind][0] . "::" . g:tmp_dic[l:ind][1])
+        execute "silent e +" . g:tmp_dic[l:ind][1] . " " . g:tmp_dic[l:ind][0]
+
+        if expand("%:t") == ""
+            quit
+            execute l:win_info[0] . "tabnext"
+            execute l:win_info[1] . 'wincmd w'
+        endif
+        unlet g:tmp_dic
     endfunction
 
     function! s:echo_mftag_usage(file_types) abort

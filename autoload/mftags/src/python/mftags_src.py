@@ -251,11 +251,32 @@ def show_list_on_buf(filetypes, return_kinds):
                 print('kind list: ', end='')
                 print(kind_list)
             if kind_list == None:
-                return
+                continue
             for kl in kind_list:
                 cur_buf.append(kl)
 
             cur_buf.append("")
+
+def show_list_on_pop(filetypes, return_kinds):
+    """ this function shows the list of functions inspire of buffer.
+        file type: list of file types. ex) c, c++, python ...
+        return_kinds: list of character(s) of the kind which this function returns.
+    """
+    vim.command('let g:tmp_list = []')
+    for i,fy in enumerate(filetypes):
+        vim.command("call add(g:tmp_list, '---{}---')".format(fy))
+        for k in return_kinds[i]:
+            kind_list = return_list_from_tag(fy, k)
+            if debug >= 2:
+                print('kind list: ', end='')
+                print(kind_list)
+            if kind_list == None:
+                if debug >= 2:
+                    print('kind_list return None: fy:{}, k:{}'.format(fy,k))
+                continue
+            for kl in kind_list:
+                vim.command("call add(g:tmp_list, '{}')".format(kl))
+
 
 def jump_func(filetype, kind, tag_name):
     """ this function searches the function or something like that
@@ -299,30 +320,6 @@ def jump_func(filetype, kind, tag_name):
                         line_list.append(lnum+1)
 
         file_num = len(file_list)
-        if file_num == 0:
-            print("can't find matching line.")
-            return
-
-        for num in range(file_num):
-            print('  %d  %s :  %d lines' % (num, file_list[num], line_list[num]))
-
-        """ python in vim doesn't support input. {{{
-        if sys.version_info[0] == 2:
-            in_num = raw_input('Type number and <Enter> (empty cancels) ')
-        else:
-            in_num = input('Type number and <Enter> (empty cancels) ')
-
-        try:
-            in_num = int(in_num)
-        except ValueError:
-            return
-
-        ret = 'e +%d %s' % (line_list[in_num], file_list[in_num])
-        if debug >= 2:
-            print('2; '+ret)
-        vim.command(ret)
-        return
-        }}} """
         vim.command('let g:tmp_dic = {}')
         for i in range(file_num):
             vim.command('let g:tmp_dic[%d] = ["%s", "%d"]' % (i, file_list[i], line_list[i]))

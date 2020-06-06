@@ -150,8 +150,13 @@ function! mftags#show_kind_list(file_types, file_path, kinds, tag_files) abort
     " just set tagfiles
     call s:call_python('search_tag', a:tag_files)
 
-    " put list on current buffer
-    call s:call_python('show_list_on_buf', a:file_types, a:kinds)
+    if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
+        " get list of function list
+        call s:call_python('show_list_on_pop', a:file_types, a:kinds)
+    else
+        " put list on current buffer
+        call s:call_python('show_list_on_buf', a:file_types, a:kinds)
+    endif
 
     "clean tag path list and buffer
     call s:call_python('clean_tag')
@@ -164,6 +169,20 @@ function! mftags#tag_jump(ft, kind, tag_name) abort
     call s:call_python('jump_func', a:ft, a:kind, a:tag_name)
     " python in vim doesn't support input.
     if exists('g:tmp_dic')
+        if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
+            return
+        endif
+        let file_num = len(g:tmp_dic)
+        if file_num == 0
+            echo "can't find matching line."
+            return
+        endif
+
+        echo file_num
+        for i in range(file_num)
+            echo '  ' . i . ' ' . g:tmp_dic[i][0] . ' : ' . g:tmp_dic[i][1] . ' lines'
+        endfor
+
         let l:tmp_index = input('Type number and <Enter> (empty cancels) ')
         if (l:tmp_index !~ "[0-9]") || (l:tmp_index >= len(g:tmp_dic))
             call s:MFdebug(1, "incorrect input")
