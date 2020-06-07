@@ -262,20 +262,22 @@ def show_list_on_pop(filetypes, return_kinds):
         file type: list of file types. ex) c, c++, python ...
         return_kinds: list of character(s) of the kind which this function returns.
     """
-    vim.command('let g:tmp_list = []')
-    for i,fy in enumerate(filetypes):
-        vim.command("call add(g:tmp_list, '---{}---')".format(fy))
+    vim.command('let g:tmp_dic_pop = {}')
+    for i,ft in enumerate(filetypes):
+        vim.command("let g:tmp_dic_pop['{}'] = {{}}".format(ft))
         for k in return_kinds[i]:
-            kind_list = return_list_from_tag(fy, k)
+            kind_list = return_list_from_tag(ft, k)
             if debug >= 2:
                 print('kind list: ', end='')
                 print(kind_list)
             if kind_list == None:
                 if debug >= 2:
-                    print('kind_list return None: fy:{}, k:{}'.format(fy,k))
+                    print('kind_list return None: ft:{}, k:{}'.format(ft,k))
                 continue
-            for kl in kind_list:
-                vim.command("call add(g:tmp_list, '{}')".format(kl))
+            kname = kind_list[0].replace('\t', '')
+            vim.command("let g:tmp_dic_pop['{}']['{}'] = []".format(ft, kname))
+            for kl in kind_list[1:]:
+                vim.command("call add(g:tmp_dic_pop['{}']['{}'], '{}')".format(ft, kname, kl.replace('\t', '')))
 
 
 def jump_func(filetype, kind, tag_name):

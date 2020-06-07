@@ -318,8 +318,8 @@ if !exists('g:mftag_no_need_MFfunclist')
 
         if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
             call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
-            call popup_menu(g:tmp_list, #{
-                        \ callback : s:SID_PREFIX().'select_func_pop',
+            call popup_menu(sort(keys(g:tmp_dic_pop)), #{
+                        \ callback : s:SID_PREFIX().'select_ft_popCB',
                         \ line : 1,
                         \ col : 1,
                         \ maxheight : &lines-7,
@@ -474,35 +474,51 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
     endfunction
 
-    function! <SID>select_func_pop(id, res)
-        call s:MFdebug(2, 'res' . a:res . '---')
-        if !exists('g:tmp_list')
-            call s:MFdebug(1, 'list not found.')
-        endif
+    function! <SID>select_ft_popCB(id, res)
+        call s:MFdebug(2, 'ft:res' . a:res . '---')
+        let ft = sort(keys(g:tmp_dic_pop))[a:res-1]
+        call <SID>select_kind_pop(ft)
+    endfunction
 
-        if len(g:tmp_list[a:res-1]) < 2
-            unlet g:tmp_list
-            return
-        endif
-        if g:tmp_list[a:res-1][1] != '	'
-            unlet g:tmp_list
-            return
-        endif
+    function! <SID>select_kind_pop(ft)
+        call popup_clear()
+        let w:ft = a:ft
+        let w:kinds = sort(keys(g:tmp_dic_pop[a:ft]))
+        call popup_menu(w:kinds, #{
+                    \ callback : s:SID_PREFIX().'select_kind_popCB',
+                    \ maxheight : &lines-7,
+                    \})
+    endfunction
 
-        for i in range(a:res)
-            let l:ln = g:tmp_list[i]
-            if l:ln !~ "\t\t"
-                let l:kind = substitute(l:ln, '\t', '', '')
-            endif
-            if l:ln[:2] == '---'
-                let l:ft = l:ln[3:-4]
-            endif
-        endfor
+    function! <SID>select_kind_popCB(id, res)
+        call s:MFdebug(2, 'kind:res' . a:res . '---')
+        let kind = sort(keys(g:tmp_dic_pop[w:ft]))[a:res-1]
+        call <SID>select_func_pop(w:ft, kind)
+    endfunction
+
+    function! <SID>select_func_pop(ft, kind)
+        call popup_clear()
+        let w:funcs = g:tmp_dic_pop[a:ft][a:kind]
+        let w:ft = a:ft
+        let w:kind = a:kind
+        call popup_menu(w:funcs, #{
+                    \ callback : s:SID_PREFIX().'select_func_popCB',
+                    \ maxheight : &lines-7,
+                    \ })
+    endfunction
+
+    function! <SID>select_func_popCB(id, res)
+        call s:MFdebug(2, 'func:res' . a:res . '---')
+        " deleted below vars when win_getid?
+        let l:ft = w:ft
+        let l:kind = w:kind
+        let l:funcs = w:funcs
 
         let l:win_info = win_id2tabwin(win_getid())
         tabnew
-        call mftags#tag_jump(l:ft, l:kind, g:tmp_list[a:res-1])
+        call mftags#tag_jump(l:ft, l:kind, "\t\t".l:funcs[a:res-1])
         if exists('g:tmp_dic')
+            call s:MFdebug(1, 'g:tmp_dic exists')
             call <SID>select_file_pop()
         else
             if expand("%:t") == ""
@@ -512,7 +528,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             endif
         endif
 
-        unlet g:tmp_list
+        unlet g:tmp_dic_pop
     endfunction
 
     function! <SID>select_file_pop()
@@ -523,13 +539,13 @@ if !exists('g:mftag_no_need_MFfunclist')
             call add(ret, add_str)
         endfor
         call popup_menu(ret, #{
-                    \ callback : s:SID_PREFIX().'select_pop',
+                    \ callback : s:SID_PREFIX().'select_file_popCB',
                     \ maxheight : &lines-7,
                     \ zindex : 250
                     \ })
     endfunction
 
-    function! <SID>select_pop(id, res)
+    function! <SID>select_file_popCB(id, res)
         let l:ind = a:res-1
         call s:MFdebug(2, "open " . g:tmp_dic[l:ind][0] . "::" . g:tmp_dic[l:ind][1])
         execute "silent e +" . g:tmp_dic[l:ind][1] . " " . g:tmp_dic[l:ind][0]
