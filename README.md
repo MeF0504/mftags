@@ -66,7 +66,7 @@ tagファイルを探し出して情報を読み取り，関数などの一覧�
 * g:mftag_func_list_name : function listのwindowの名前を設定しています。デフォルトは"MF_func_list"。
 * g:mftag_func_list_width : function listのwindowの幅を設定します。デフォルトは40。
 * g:mftag_auto_close : この変数が1だと，function list以外のwindowが閉じた場合に自動でfunction listのwindowを閉じます。デフォルトはoff。
-* g:mftag_popup_on : この変数が0以外だと，function listをpopupで表示します。選択された関数は新しいtabで開かれます。defaultは0.
+* g:mftag_popup_on : この変数が0以外だと，function listをpopupで表示します。選択された関数は新しいtabで開かれます。defaultは0。このpopupはxで閉じます。
 * g:mftag_{filetype}\_setting['func']
   それぞれの言語で，MFfunclistを実行した際に表示されるkindを設定できます。設定がない場合はg:mftag_{filetype}\_setting['tag']の設定が，そちらもない場合はすべて表示されます。
 

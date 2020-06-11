@@ -320,9 +320,9 @@ if !exists('g:mftag_no_need_MFfunclist')
             call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
             call popup_menu(sort(keys(g:tmp_dic_pop)), #{
                         \ callback : s:SID_PREFIX().'select_ft_popCB',
-                        \ line : 1,
-                        \ col : 1,
                         \ maxheight : &lines-7,
+                        \ close : 'button',
+                        \ mapping : 1,
                         \})
         else
             execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
@@ -476,6 +476,12 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     function! <SID>select_ft_popCB(id, res)
         call s:MFdebug(2, 'ft:res' . a:res . '---')
+        " not selected
+        if a:res <= 0
+            unlet g:tmp_dic_pop
+            return
+        endif
+
         let ft = sort(keys(g:tmp_dic_pop))[a:res-1]
         call <SID>select_kind_pop(ft)
     endfunction
@@ -487,11 +493,19 @@ if !exists('g:mftag_no_need_MFfunclist')
         call popup_menu(w:kinds, #{
                     \ callback : s:SID_PREFIX().'select_kind_popCB',
                     \ maxheight : &lines-7,
+                    \ close : 'button',
+                    \ mapping : 1,
                     \})
     endfunction
 
     function! <SID>select_kind_popCB(id, res)
         call s:MFdebug(2, 'kind:res' . a:res . '---')
+        " not selected
+        if a:res <= 0
+            unlet g:tmp_dic_pop
+            return
+        endif
+
         let kind = sort(keys(g:tmp_dic_pop[w:ft]))[a:res-1]
         call <SID>select_func_pop(w:ft, kind)
     endfunction
@@ -504,11 +518,19 @@ if !exists('g:mftag_no_need_MFfunclist')
         call popup_menu(w:funcs, #{
                     \ callback : s:SID_PREFIX().'select_func_popCB',
                     \ maxheight : &lines-7,
+                    \ close : 'button',
+                    \ mapping : 1,
                     \ })
     endfunction
 
     function! <SID>select_func_popCB(id, res)
         call s:MFdebug(2, 'func:res' . a:res . '---')
+        " not selected
+        if a:res <= 0
+            unlet g:tmp_dic_pop
+            return
+        endif
+
         " deleted below vars when win_getid?
         let l:ft = w:ft
         let l:kind = w:kind
@@ -519,7 +541,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         call mftags#tag_jump(l:ft, l:kind, "\t\t".l:funcs[a:res-1])
         if exists('g:tmp_dic')
             call s:MFdebug(1, 'g:tmp_dic exists')
-            call <SID>select_file_pop()
+            call <SID>select_file_pop(l:win_info)
         else
             if expand("%:t") == ""
                 quit
@@ -531,8 +553,9 @@ if !exists('g:mftag_no_need_MFfunclist')
         unlet g:tmp_dic_pop
     endfunction
 
-    function! <SID>select_file_pop()
+    function! <SID>select_file_pop(win_info)
         call popup_clear()
+        let w:old_win_info = a:win_info
         let ret = []
         for i in keys(g:tmp_dic)
             let add_str = '  ' . i . ' ' . g:tmp_dic[i][0] . ' : ' . g:tmp_dic[i][1] . ' lines'
@@ -541,14 +564,20 @@ if !exists('g:mftag_no_need_MFfunclist')
         call popup_menu(ret, #{
                     \ callback : s:SID_PREFIX().'select_file_popCB',
                     \ maxheight : &lines-7,
-                    \ zindex : 250
+                    \ close : 'button',
+                    \ mapping : 1,
                     \ })
     endfunction
 
     function! <SID>select_file_popCB(id, res)
         let l:ind = a:res-1
-        call s:MFdebug(2, "open " . g:tmp_dic[l:ind][0] . "::" . g:tmp_dic[l:ind][1])
-        execute "silent e +" . g:tmp_dic[l:ind][1] . " " . g:tmp_dic[l:ind][0]
+        if l:ind >= 0
+            call s:MFdebug(2, "open " . g:tmp_dic[l:ind][0] . "::" . g:tmp_dic[l:ind][1])
+            execute "silent e +" . g:tmp_dic[l:ind][1] . " " . g:tmp_dic[l:ind][0]
+        else
+            call s:MFdebug(1, 'a:res:' . a:res . '-- less than 1. error.')
+        endif
+        let l:win_info = w:old_win_info
 
         if expand("%:t") == ""
             quit
