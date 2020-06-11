@@ -318,6 +318,11 @@ if !exists('g:mftag_no_need_MFfunclist')
 
         if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
             call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
+            if len(sort(keys(g:tmp_dic_pop))) == 0
+                echo 'no contents'
+                unlet g:tmp_dic_pop
+                return
+            endif
             call popup_menu(sort(keys(g:tmp_dic_pop)), #{
                         \ callback : s:SID_PREFIX().'select_ft_popCB',
                         \ maxheight : &lines-7,
@@ -490,6 +495,11 @@ if !exists('g:mftag_no_need_MFfunclist')
         call popup_clear()
         let w:ft = a:ft
         let w:kinds = sort(keys(g:tmp_dic_pop[a:ft]))
+        if len(w:kinds) == 0
+            echo 'no contents'
+            unlet g:tmp_dic_pop
+            return
+        endif
         call popup_menu(w:kinds, #{
                     \ callback : s:SID_PREFIX().'select_kind_popCB',
                     \ maxheight : &lines-7,
@@ -515,6 +525,11 @@ if !exists('g:mftag_no_need_MFfunclist')
         let w:funcs = g:tmp_dic_pop[a:ft][a:kind]
         let w:ft = a:ft
         let w:kind = a:kind
+        if len(w:funcs) == 0
+            echo 'no contents'
+            unlet g:tmp_dic_pop
+            return
+        endif
         call popup_menu(w:funcs, #{
                     \ callback : s:SID_PREFIX().'select_func_popCB',
                     \ maxheight : &lines-7,
@@ -561,6 +576,11 @@ if !exists('g:mftag_no_need_MFfunclist')
             let add_str = '  ' . i . ' ' . g:tmp_dic[i][0] . ' : ' . g:tmp_dic[i][1] . ' lines'
             call add(ret, add_str)
         endfor
+        if len(ret) == 0
+            echo 'no contents'
+            unlet g:tmp_dic_pop
+            return
+        endif
         call popup_menu(ret, #{
                     \ callback : s:SID_PREFIX().'select_file_popCB',
                     \ maxheight : &lines-7,
