@@ -5,6 +5,51 @@ let s:mftag_debug = 0
 " 2 ... normal level debug print.
 " 3 ... high level debug print.
 
+" {{{ python setting.
+if has('python3')
+    python3 import vim
+
+    function! s:call_python(...) abort
+        if a:0 == 0
+            call MFdebug(1, 'please input function!')
+            return 0
+        endif
+        let py_exe_cmd = ""
+        for i in range(a:0-1)
+            let py_exe_cmd .= "vim.eval('a:" . (i+2) . "'), "
+        endfor
+        execute "python3 " . a:1 . '(' .  py_exe_cmd . ')'
+    endfunction
+
+    function! s:load_pyfile(pyfy) abort
+        execute "py3file " . a:pyfy
+    endfunction
+
+elseif has('python')
+    python import vim
+
+    function! s:call_python(...) abort
+        if a:0 == 0
+            call MFdebug(1, 'please input function!')
+            return 0
+        endif
+        let py_exe_cmd = ""
+        for i in range(a:0-1)
+            let py_exe_cmd .= "vim.eval('a:" . (i+2) . "'), "
+        endfor
+        execute "python " . a:1 . '(' .  py_exe_cmd . ')'
+    endfunction
+
+    function! s:load_pyfile(pyfy) abort
+        execute "pyfile " . a:pyfy
+    endfunction
+
+else
+    echo 'this function requires python or python3'
+    exit
+endif
+" }}}
+
 let s:file = expand("<sfile>")
 function! s:MFdebug( level, str ) abort
     if a:level > s:mftag_debug
@@ -67,11 +112,10 @@ if !exists('s:mftag_enable_syntax')
 endif
 " }}}
 
-pythonx import vim
-pyxfile <sfile>:h/mftags/src/python/mftags_src.py
+call s:load_pyfile(expand("<sfile>:h") . "/mftags/src/python/mftags_src.py")
 let s:src_dir = expand('<sfile>:h') . "/mftags"
 
-pythonx set_src_path(vim.eval('s:src_dir'))
+call s:call_python('set_src_path', s:src_dir)
 
 function! mftags#make_tag_syntax_file() abort
 
@@ -83,7 +127,7 @@ function! mftags#make_tag_syntax_file() abort
         echo "Tag file is not found."
         return
     endif
-    pythonx search_tag(vim.eval('tagfiles()'))
+    call s:call_python('search_tag', tagfiles())
 
     "check file type
     if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'python') && (&filetype != 'vim')
@@ -93,12 +137,10 @@ function! mftags#make_tag_syntax_file() abort
 
     "call python function
     call s:MFdebug(1, "")
-    pythonx make_tag_syntax_files(
-                \ vim.eval('&filetype'), vim.eval('b:mftag_save_dir'),
-                \ vim.eval('g:mftag_syntax_overwrite'), vim.eval('s:mftag_enable_syntax'))
+    call s:call_python('make_tag_syntax_files', &filetype, b:mftag_save_dir, g:mftag_syntax_overwrite, s:mftag_enable_syntax)
     execute "source " . b:mftag_save_dir . "." . &filetype . "_tag_syntax.vim"
     "clean tag parh list
-    pythonx clean_tag()
+    call s:call_python('clean_tag')
 endfunction
 
 function! mftags#show_kind_list(file_types, file_path, kinds, tag_files) abort
@@ -106,25 +148,25 @@ function! mftags#show_kind_list(file_types, file_path, kinds, tag_files) abort
     ""make tag path list
     "python search_tag(vim.eval("&tags"), vim.eval("a:file_path"))
     " just set tagfiles
-    pythonx search_tag(vim.eval('a:tag_files'))
+    call s:call_python('search_tag', a:tag_files)
 
     if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
         " get list of function list
-        pythonx show_list_on_pop(vim.eval('a:file_types'), vim.eval('a:kinds'))
+        call s:call_python('show_list_on_pop', a:file_types, a:kinds)
     else
         " put list on current buffer
-        pythonx show_list_on_buf(vim.eval('a:file_types'), vim.eval('a:kinds'))
+        call s:call_python('show_list_on_buf', a:file_types, a:kinds)
     endif
 
     "clean tag path list and buffer
-    pythonx clean_tag()
+    call s:call_python('clean_tag')
 
     "return l:list_from_tag
 endfunction
 
 function! mftags#tag_jump(ft, kind, tag_name) abort
 
-    pythonx jump_func(vim.eval('a:ft'), vim.eval('a:kind'), vim.eval('a:tag_name'))
+    call s:call_python('jump_func', a:ft, a:kind, a:tag_name)
     " python in vim doesn't support input.
     if exists('g:tmp_dic')
         if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
@@ -160,11 +202,11 @@ function! mftags#show_def(filetype, kind, tag_name)
     elseif a:tag_name[1] != "\t"
         echo substitute(a:tag_name, '\t', '', 'g')
     else
-        pythonx show_def(vim.eval('a:filetype'), vim.eval('a:kind'), vim.eval('a:tag_name'))
+        call s:call_python('show_def', a:filetype, a:kind, a:tag_name)
     endif
 endfunction
 
 function! mftags#delete_buffer() abort
-    pythonx delete_buffer()
+    call s:call_python('delete_buffer')
 endfunction
 
