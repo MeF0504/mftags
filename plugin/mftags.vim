@@ -205,11 +205,12 @@ if !exists('g:mftag_no_need_MFsyntax')
             execute "source " . l:filename
         endif
     endfunction
-    
+
     autocmd MFtags FileType python call s:check_and_read_file(&filetype)
     autocmd MFtags FileType c call s:check_and_read_file(&filetype)
     autocmd MFtags FileType cpp call s:check_and_read_file(&filetype)
     autocmd MFtags FileType vim call s:check_and_read_file(&filetype)
+    autocmd MFtags FileType sh call s:check_and_read_file(&filetype)
 
     command! MFsyntax :call mftags#make_tag_syntax_file()
 
@@ -264,10 +265,10 @@ if !exists('g:mftag_no_need_MFctag')
         " redraw
         redraw!
         echo "execute '" . l:cmd_str . "' @ " . l:exe_dir
-    
+
         execute "cd " . l:pwd
     endfunction
-    
+
     command! MFctag :call MFexe_ctags(g:mftag_dir)
 
 endif
@@ -287,7 +288,9 @@ if !exists('g:mftag_no_need_MFfunclist')
         let l:kinds = []
         for l:ft in l:file_types
             "check file type
-            if (l:ft != 'c') && (l:ft != 'cpp') && (l:ft != 'python') && (l:ft != 'vim')
+            if (l:ft != 'c') && (l:ft != 'cpp') &&
+                \(l:ft != 'python') && (l:ft != 'vim') &&
+                \(l:ft != 'sh')
                 echo l:ft . " is not a suppourted file type!"
                 continue
             endif
@@ -306,6 +309,8 @@ if !exists('g:mftag_no_need_MFfunclist')
                 let l:kinds += ['cdefglmnpstuvx']
             elseif l:ft == 'vim'
                 let l:kinds += ['acfmv']
+            elseif l:ft == 'sh'
+                let l:kinds = ['f']
             else
                 let l:kinds += ['']
             endif
@@ -615,7 +620,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             let l:echo_list .= "help\t\t: show this usage and close.\n"
             let l:echo_list .= "<ft> help\t: show enable kinds for the filetype and close.\n"
             let l:echo_list .= "del\t\t: delete buffer.\n"
-            let l:echo_list .= "suppourted languages: python, c, cpp, vim"
+            let l:echo_list .= "suppourted languages: python, c, cpp, vim, sh"
             return l:echo_list
         endif
         for ft in split(a:file_types, ',')
@@ -665,6 +670,9 @@ if !exists('g:mftag_no_need_MFfunclist')
                 let l:echo_list .= "f \t\t: function definitions\n"
                 let l:echo_list .= "m \t\t: maps\n"
                 let l:echo_list .= "v \t\t: variable definitions\n"
+            elseif ft == 'sh'
+                let l:echo_list .= "---" . ft . "---\n"
+                let l:echo_list .= "f \t\t: functions"
             endif
         endfor
 

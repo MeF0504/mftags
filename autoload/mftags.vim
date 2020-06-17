@@ -24,52 +24,27 @@ function! s:MFdebug( level, str ) abort
 endfunction
 
 " {{{ basic settings.
-if exists('g:mftag_python_setting')
-    if has_key(g:mftag_python_setting, 'syntax')
-        let s:mftag_enable_syntax = g:mftag_python_setting['syntax']
-    elseif has_key(g:mftag_python_setting, 'tag')
-        let s:mftag_enable_syntax = g:mftag_python_setting['tag']
-    else
-        let s:mftag_enable_syntax = "cfmvi"
-    endif
-endif
-if exists('g:mftag_c_setting')
-    if has_key(g:mftag_c_setting, 'syntax')
-        let s:mftag_enable_syntax = g:mftag_c_setting['syntax']
-    elseif has_key(g:mftag_c_setting, 'tag')
-        let s:mftag_enable_syntax = g:mftag_c_setting['tag']
-    else
-        let s:mftag_enable_syntax = "cdefglmnpstuvx"
-    endif
-endif
-if exists('g:mftag_cpp_setting')
-    if has_key(g:mftag_cpp_setting, 'syntax')
-        let s:mftag_enable_syntax = g:mftag_cpp_setting['syntax']
-    elseif has_key(g:mftag_cpp_setting, 'tag')
-        let s:mftag_enable_syntax = g:mftag_cpp_setting['tag']
-    else
-        let s:mftag_enable_syntax = "cdefglmnpstuvx"
-    endif
-endif
-if exists('g:mftag_vim_setting')
-    if has_key(g:mftag_vim_setting, 'syntax')
-        let s:mftag_enable_syntax = g:mftag_vim_setting['syntax']
-    elseif has_key(g:mftag_vim_setting, 'tag')
-        let s:mftag_enable_syntax = g:mftag_vim_setting['tag']
-    else
-        let s:mftag_enable_syntax = "acfmv"
-    endif
-endif
 
-if !exists('s:mftag_enable_syntax')
-    if &filetype == 'python'
-        let s:mftag_enable_syntax = "cfmvi"
-    elseif (&filetype == 'c') || (&filetype == 'cpp')
-        let s:mftag_enable_syntax = "cdefglmnpstuvx"
-    elseif &filetype == 'vim'
-        let s:mftag_enable_syntax = "acfmv"
+function! s:syntax_setting(filetype, default)
+    if exists('g:mftag_'.a:filetype.'_setting')
+        if has_key(g:mftag_{a:filetype}_setting, 'syntax')
+            let s:mftag_enable_syntax = g:mftag_{a:filetype}_setting['syntax']
+        elseif has_key(g:mftag_{a:filetype}_setting, 'tag')
+            let s:mftag_enable_syntax = g:mftag_{a:filetype}_setting['tag']
+        else
+            let s:mftag_enable_syntax = a:default
+        endif
+    else
+        let s:mftag_enable_syntax = a:default
     endif
-endif
+endfunction
+
+call s:syntax_setting('python', 'cfmvi')
+call s:syntax_setting('c', 'cdefglmnpstuvx')
+call s:syntax_setting('cpp', 'cdefglmnpstuvx')
+call s:syntax_setting('vim', 'acfmv')
+call s:syntax_setting('sh', 'f')
+
 " }}}
 
 pythonx import vim
@@ -91,7 +66,9 @@ function! mftags#make_tag_syntax_file() abort
     pythonx search_tag(vim.eval('tagfiles()'))
 
     "check file type
-    if (&filetype != 'c') && (&filetype != 'cpp') && (&filetype != 'python') && (&filetype != 'vim')
+    if (&filetype != 'c') && (&filetype != 'cpp') &&
+        \ (&filetype != 'python') && (&filetype != 'vim') &&
+        \ (&filetype != 'sh')
         echo "not suppourted file type!"
         return
     endif

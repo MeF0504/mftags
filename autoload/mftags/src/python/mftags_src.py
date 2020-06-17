@@ -10,7 +10,7 @@ import copy
 
 g_tag_path = []
 debug = 0
-dic_ext_filetype = {'c':'c', 'h':'c', 'cpp':'cpp', 'py':'python', 'vim':'vim'}
+dic_ext_filetype = {'c':'c', 'h':'c', 'cpp':'cpp', 'py':'python', 'vim':'vim', 'sh':'sh'}
 g_func_list_dict = {}
 str_split = '@-@-'
 src_dir_path = ''

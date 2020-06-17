@@ -46,3 +46,5 @@ lang:vim
   m Maps blank
   v Variables blank
 
+lang:sh
+  f Functions Identifier
