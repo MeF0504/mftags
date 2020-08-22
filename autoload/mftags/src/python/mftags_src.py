@@ -15,14 +15,22 @@ g_func_list_dict = {}
 str_split = '@-@-'
 src_dir_path = ''
 
+if debug > 0:
+    # __file__ cannot use.
+    vim.command('source <sfile>:h/mftags/src/vim/debug.vim')
+def mftag_py_debug(level, string, **kwargs):
+    if level <= debug:
+        vim.command('call MF_move_buf()')
+        string = string.replace("'", "\\'")
+        string = string.replace('"', '\\"')
+        vim.command('call MFtagDebug("{}", "py", "")'.format(string))
+
 #just return
 def search_tag(tag_files):
     tmp_tag_files = tag_files
     for tf in tag_files:
         g_tag_path.append(op.join(os.getcwd(), tf))
-    if debug >= 2:
-        print("get tag files: ", end="")
-        print(g_tag_path)
+    mftag_py_debug(2, 'get tag files: {}'.format(g_tag_path))
 
     return
 
@@ -39,13 +47,11 @@ def make_lang_list(fpath):
                 continue
             if line.startswith('lang:'):
                 lang = line[5:]
-                if debug >= 3:
-                    print(lang)
+                mftag_py_debug(3, lang)
                 lang_list[lang] = {}
             else:
                 line = line[2:].split(' ')
-                if debug >= 3:
-                    print(line)
+                mftag_py_debug(3, '{}'.format(line))
                 # kind_char, kind, syntax_link
                 kc, K, sl = line
                 if sl == 'blank':
@@ -63,10 +69,7 @@ def make_tag_syntax_file(tag_file_path, filetype, out_dir, enable_kinds):
     """
 
     lang_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))
-    if debug >= 3:
-        for k in lang_list:
-            print(k)
-            print(lang_list[k])
+    mftag_py_debug(3, '{}'.format(['{}-{}\n'.format(k, lang_list[k]) for k in lang_list]))
     if filetype in lang_list:
         tag_name = lang_list[filetype]
         tag_list = {}
@@ -99,11 +102,10 @@ def make_tag_syntax_file(tag_file_path, filetype, out_dir, enable_kinds):
             try:
                 tag_list[kind].append(name)
             except KeyError:
-                if debug >= 1:
-                    print("\nThis is not a correct kind.")
-                    print("language : ",filetype, "kind : ",kind)
+                mftag_py_debug(1,\
+                        "\nThis is not a correct king.\nlanguage: {}, kind: {}".format(filetype, kind))
                 continue
-    
+
     """
     for k in tag_list:
         print k
@@ -160,17 +162,13 @@ def return_list_from_tag(filetype, return_kind):
     """
     global g_func_list_dict
     if (filetype in g_func_list_dict) and (return_kind in g_func_list_dict[filetype]):
-        if debug >= 1:
-            print("already exists buffer. {} {}".format(filetype, return_kind))
+        mftag_py_debug(1, "already exists buffer. {} {}".format(filetype, return_kind))
         tag_list = make_tag_list(g_func_list_dict[filetype][return_kind])
         tag_list.insert(0, g_func_list_dict[filetype][return_kind+'_0'])
         return tag_list
 
     lang_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))
-    if debug >= 3:
-        for k in lang_list:
-            print(k)
-            print(lang_list[k])
+    mftag_py_debug(3, '{}'.format(["{}-{}\n".format(k, lang_list[k]) for k in lang_list]))
     if filetype in lang_list:
         if return_kind in lang_list[filetype]:
             tag_name = lang_list[filetype][return_kind][0]
@@ -183,8 +181,7 @@ def return_list_from_tag(filetype, return_kind):
         return
 
     for tag_path in g_tag_path:
-        if debug >= 2:
-            print("tag file:: %s" % tag_path)
+        mftag_py_debug(2, "tag file:: {}".format(tag_path))
         tag_path = tag_path.replace('/',os.sep)   #adjust os path problem.
         with open(tag_path, 'r') as f:
             for line in f:
@@ -212,14 +209,11 @@ def return_list_from_tag(filetype, return_kind):
                         else:
                             tag_dict[tag_key] = [fname+str_split+def_str]
                     except KeyError:
-                        if debug >= 1:
-                            print("\nThis is not a correct kind.")
-                            print("language : ",filetype, "kind : ",kind)
+                        mftag_py_debug(1,\
+                                "\nThis is not a correct kind.\nlanguage: {}, kind: {}".format(filetype, kind))
                         continue
-    if debug >= 2:
-        print("tag_dict: ", end="")
-        print(tag_dict)
-    
+    mftag_py_debug(2, 'tag_dict: {}'.format(tag_dict))
+
     if filetype not in g_func_list_dict:
         g_func_list_dict[filetype] = {}
 
@@ -240,16 +234,13 @@ def show_list_on_buf(filetypes, return_kinds):
     clean_buf()
 
     #print text in buffer
-    if debug >= 1:
-        print('filetypes:{}'.format(filetypes))
+    mftag_py_debug(1, 'filetypes:{}'.format(filetypes))
 
     for i,fy in enumerate(filetypes):
         cur_buf.append('---{}---'.format(fy))
         for k in return_kinds[i]:
             kind_list = return_list_from_tag(fy, k)
-            if debug >= 2:
-                print('kind list: ', end='')
-                print(kind_list)
+            mftag_py_debug(2, 'kind_list: {}'.format(kind_list))
             if kind_list == None:
                 continue
             for kl in kind_list:
@@ -267,12 +258,9 @@ def show_list_on_pop(filetypes, return_kinds):
         vim.command("let g:tmp_dic_pop['{}'] = {{}}".format(ft))
         for k in return_kinds[i]:
             kind_list = return_list_from_tag(ft, k)
-            if debug >= 2:
-                print('kind list: ', end='')
-                print(kind_list)
+            mftag_py_debug(2, 'kind list: {}'.format(kind_list))
             if kind_list == None:
-                if debug >= 2:
-                    print('kind_list return None: ft:{}, k:{}'.format(ft,k))
+                mftag_py_debug(2, 'kind_list return None: ft:{}, k:{}'.format(ft,k))
                 continue
             kname = kind_list[0].replace('\t', '')
             vim.command("let g:tmp_dic_pop['{}']['{}'] = []".format(ft, kname))
@@ -292,20 +280,17 @@ def jump_func(filetype, kind, tag_name):
         if kind_list[kc][0] == kind:
             kind = kc
     if len(kind) != 1:
-        if debug >= 1:
-            print('cannot find kind character for %s. return.' % kind)
+        mftag_py_debug(1, 'cannot find kind character for {}. return.'.format(kind))
         return
     def_list = g_func_list_dict[filetype][kind][tag_name]
     if len(def_list) == 1:
         fy, ly = def_list[0].split(str_split)
-        if debug >= 2:
-            print('searching:: %s in %s' % (ly, fy))
+        mftag_py_debug(2, 'searching:: {} in {}'.format(ly, fy))
         with open(fy) as f:
             for lnum,line in enumerate(f):
                 if ly in line:
                     ret = 'silent e +%d %s' % (lnum+1, fy)
-                    if debug >= 1:
-                        print('1; '+ret)
+                    mftag_py_debug(1, '1; '+ret)
                     vim.command(ret)
                     return
     else:
@@ -313,8 +298,7 @@ def jump_func(filetype, kind, tag_name):
         line_list = []
         for ls in def_list:
             fy, ly = ls.split(str_split)
-            if debug >= 2:
-                print('searching:: %s in %s' % (ly, fy))
+            mftag_py_debug(2, 'searching:: {} in {}'.format(ly, fy))
             with open(fy, 'r') as f:
                 for lnum,line in enumerate(f):
                     if ly in line:
@@ -325,9 +309,7 @@ def jump_func(filetype, kind, tag_name):
         vim.command('let g:tmp_dic = {}')
         for i in range(file_num):
             vim.command('let g:tmp_dic[%d] = ["%s", "%d"]' % (i, file_list[i], line_list[i]))
-        if debug >= 1:
-            print()
-            print('2; set vim variables')
+        mftag_py_debug(1, "\n2; set vim variables")
         return
 
 def show_def(filetype, kind, tag_name):
@@ -339,8 +321,7 @@ def show_def(filetype, kind, tag_name):
         if kind_list[kc][0] == kind:
             kind = kc
     if len(kind) != 1:
-        if debug >= 1:
-            print('cannot find kind character for %s. return.' % kind)
+        mftag_py_debug(1, 'cannot find kind character for {}. return.'.format(kind))
         return
     for ly in g_func_list_dict[filetype][kind][tag_name]:
         print(ly.split(str_split)[1])
@@ -348,9 +329,7 @@ def show_def(filetype, kind, tag_name):
 def clean_tag():
     global g_tag_path
     g_tag_path = []
-    if debug >= 1:
-        print("clean tag path file")
-        print(g_tag_path)
+    mftag_py_debug(1, "clean tag path file.\n {}".format(g_tag_path))
 
 def clean_buf():
     #import vim
@@ -361,8 +340,7 @@ def clean_buf():
 
 def delete_buffer():
     global g_func_list_dict
-    if debug >= 1:
-        print("clean buffer\n", g_func_list_dict)
+    mftag_py_debug(1, "clean buffer\n{}".format(g_func_list_dict))
     g_func_list_dict = {}
 
 # search function {{{

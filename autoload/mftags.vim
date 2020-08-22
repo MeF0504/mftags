@@ -10,17 +10,15 @@ if !has('pythonx')
     exit
 endif
 
-let s:file = expand("<sfile>")
+if s:mftag_debug > 0
+    let s:file = expand("<sfile>")
+    source <sfile>:h/mftags/src/vim/debug.vim
+endif
+
 function! s:MFdebug( level, str ) abort
-    if a:level > s:mftag_debug
-        return
+    if a:level <= s:mftag_debug
+        call MFtagDebug(a:str, 'auto', s:file)
     endif
-    if a:str == ""
-        let l:db_print = "###debug### " . "@ " . s:file . " " . expand("<sfile>")
-    else
-        let l:db_print =  "###debug### " . a:str
-    endif
-    echo l:db_print
 endfunction
 
 " {{{ basic settings.
