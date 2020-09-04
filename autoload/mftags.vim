@@ -37,11 +37,19 @@ function! s:syntax_setting(filetype, default)
     endif
 endfunction
 
-call s:syntax_setting('python', 'cfmvi')
-call s:syntax_setting('c', 'cdefglmnpstuvx')
-call s:syntax_setting('cpp', 'cdefglmnpstuvx')
-call s:syntax_setting('vim', 'acfmv')
-call s:syntax_setting('sh', 'f')
+let s:def_en_syntax = #{
+            \ python: 'cfmvi',
+            \ c: 'cdefglmnpstuvx',
+            \ cpp: 'cdefglmnpstuvx',
+            \ vim: 'acfmv',
+            \ sh: 'f'
+            \ }
+if has_key(s:def_en_syntax, &filetype)
+    call s:syntax_setting(&filetype, s:def_en_syntax[&filetype])
+else
+    let s:mftag_enable_syntax = ''
+endif
+call s:MFdebug(1, 'syntax::'.s:mftag_enable_syntax)
 
 " }}}
 
