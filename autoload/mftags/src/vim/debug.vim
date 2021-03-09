@@ -1,3 +1,22 @@
+if !exists('g:mftag_log_file')
+    let g:mftag_log_file = getcwd() . '/mftag_log.txt'
+    " if log file already exists, delete it.
+    if filewritable(g:mftag_log_file)
+        call delete(g:mftag_log_file)
+    endif
+endif
+
+function! MFtagDebug(str, src, fname) abort
+    if a:str == ""
+        let db_print = ["###debug-".a:src."### " . "@ " . a:fname . " " . expand("<sfile>")]
+    else
+        let db_print =  ["###debug-".a:src."### "]
+        let db_print += split(a:str, '\n', 1)
+    endif
+    let db_print += ['']
+    call writefile(db_print, g:mftag_log_file, 'a')
+endfunction
+
 if !exists('g:mftag_log')
     let g:mftag_log = ''
 endif
@@ -23,7 +42,7 @@ function! MF_move_buf() abort
     endif
 endfunction
 
-function! MFtagDebug(str, src, fname) abort
+function! MFtagDebug_old(str, src, fname) abort
     if a:str == ""
         let l:db_print = "###debug-".a:src."### " . "@ " . a:fname . " " . expand("<sfile>")
     else

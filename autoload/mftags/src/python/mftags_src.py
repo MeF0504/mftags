@@ -15,10 +15,17 @@ g_func_list_dict = {}
 str_split = '@-@-'
 src_dir_path = ''
 
-if debug > 0:
-    # __file__ cannot use.
-    vim.command('source <sfile>:h/mftags/src/vim/debug.vim')
+# if debug > 0:
+#     # __file__ cannot use.
+#     vim.command('source <sfile>:h/mftags/src/vim/debug.vim')
+
 def mftag_py_debug(level, string, **kwargs):
+    if level <= debug:
+        debug_file = op.join(os.getcwd(), "mftag_log.txt")
+        db_header = "###debug-python### level{:d}".format(level)
+        print("{}\n{}\n".format(db_header, string), file=open(debug_file, 'a'), **kwargs)
+
+def mftag_py_debug_old(level, string, **kwargs):
     if level <= debug:
         vim.command('call MF_move_buf()')
         string = string.replace("'", "\\'")
