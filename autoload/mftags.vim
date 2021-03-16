@@ -24,11 +24,11 @@ endfunction
 " {{{ basic settings.
 
 function! s:syntax_setting(filetype, default)
-    if exists('g:mftag_'.a:filetype.'_setting')
-        if has_key(g:mftag_{a:filetype}_setting, 'syntax')
-            let s:mftag_enable_syntax = g:mftag_{a:filetype}_setting['syntax']
-        elseif has_key(g:mftag_{a:filetype}_setting, 'tag')
-            let s:mftag_enable_syntax = g:mftag_{a:filetype}_setting['tag']
+    if has_key(g:mftag_lang_setting, a:filetype)
+        if has_key(g:mftag_lang_setting[a:filetype], 'syntax')
+            let s:mftag_enable_syntax = g:mftag_lang_setting[a:filetype]['syntax']
+        elseif has_key(g:mftag_lang_setting[a:filetype], 'tag')
+            let s:mftag_enable_syntax = g:mftag_lang_setting[a:filetype]['tag']
         else
             let s:mftag_enable_syntax = a:default
         endif

@@ -41,7 +41,7 @@ ctagsをvimから実行します。
      こんな感じで，配列の最初から順に一致するディレクトリ名を探してヒットしたら実行します。
 * g:mftag_exe_option : ctagsのオプションです。型はstring 。
   デフォルトはg:mftag_exe_option = '-R'
-* g:mftag_{filttype}\_setting['tag'] : tagを作成する際のkindを指定します。指定しなければctagsコマンドの設定に従います。
+* g:mftag_lang_setting[filttype]['tag'] : tagを作成する際のkindを指定します。指定しなければctagsコマンドの設定に従います。
 
 ## MFsyntax
 tagsファイルを探し出して情報を読み取り，見つけた文字列に基づいたsyntaxを追加します。
@@ -53,8 +53,8 @@ tagsファイルを探し出して情報を読み取り，見つけた文字列�
   何も指定していない場合はカレントディレクトリです。
   実際に使われる値はb:mftag_save_dirを参照。
 * g:mftag_syntax_overwrite : 1ならばsyntax fileを作る際に新しく作り直します。0ならばsyntax fileがある場合には追記します。デフォルトは1。
-* g:mftag_{filetype}\_setting['syntax']
-  : それぞれ言語ごとにsyntaxを作るctagsのkindを示しています。例えば，let g:mftag_c_setting['syntax'] = "dst"とすれば，c言語ではmacro definitionsとstructure namesとtypedefsのみに色がつきます。設定しなければg:mftag_{filetype}\_setting['tag']の設定に従い，そちらも無ければ全指定になります。
+* g:mftag_lang_setting[filetype]['syntax']
+  : それぞれ言語ごとにsyntaxを作るctagsのkindを示しています。例えば，let g:mftag_lang_setting['c']['syntax'] = "dst"とすれば，c言語ではmacro definitionsとstructure namesとtypedefsのみに色がつきます。設定しなければg:mftag_lang_setting[filetype]['tag']の設定に従い，そちらも無ければ全指定になります。
 
   参考 : test/ctags_list_kinds.txt
 
@@ -67,8 +67,8 @@ tagファイルを探し出して情報を読み取り，関数などの一覧�
 * g:mftag_func_list_width : function listのwindowの幅を設定します。デフォルトは40。
 * g:mftag_auto_close : この変数が1だと，function list以外のwindowが閉じた場合に自動でfunction listのwindowを閉じます。デフォルトはoff。
 * g:mftag_popup_on : この変数が0以外だと，function listをpopupで表示します。選択された関数は新しいtabで開かれます。defaultは0。このpopupはxで閉じます。
-* g:mftag_{filetype}\_setting['func']
-  それぞれの言語で，MFfunclistを実行した際に表示されるkindを設定できます。設定がない場合はg:mftag_{filetype}\_setting['tag']の設定が，そちらもない場合はすべて表示されます。
+* g:mftag_lang_setting[filetype]['func']
+  それぞれの言語で，MFfunclistを実行した際に表示されるkindを設定できます。設定がない場合はg:mftag_lang_setting[filetype]['tag']の設定が，そちらもない場合はすべて表示されます。
 
 機能としては，:MFfunclist <filetype>で見つけたすべてのtagsファイルの関数一覧を表示します。filetypeはカンマ(,)区切りで複数設定可です。 ex) :MFfunclist python,c
 

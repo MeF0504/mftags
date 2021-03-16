@@ -20,17 +20,11 @@ augroup END
 let s:sep = fnamemodify('.', ':p')[-1:]
 " also check &shellslash ?
 
-if !exists('g:mftag_ank')
-    let g:mftag_ank = ".mfank"
-endif
+let g:mftag_ank = get(g:, 'mftag_ank', ".mfank")
 
-if !exists('g:mftag_dir_auto_set')
-    let g:mftag_dir_auto_set = 0
-endif
+let g:mftag_dir_auto_set = get(g:, 'mftag_dir_auto_set', 0)
 
-if !exists('g:mftag_dir')
-    let g:mftag_dir = []
-endif
+let g:mftag_dir = get(g:, 'mftag_dir', [])
 
 if !exists('g:mftag_save_dir')
     let g:mftag_save_dir = ''
@@ -41,25 +35,17 @@ else
     let g:mftag_save_dir = expand(g:mftag_save_dir)
 endif
 
-if !exists('g:mftag_exe_option')
-    let g:mftag_exe_option = '-R'
-endif
+let g:mftag_exe_option = get(g:, 'mftag_exe_option', '-R')
 
-if !exists('g:mftag_func_list_name')
-    let g:mftag_func_list_name = 'MF_func_list'
-endif
+let g:mftag_func_list_name = get(g:, 'mftag_func_list_name', 'MF_func_list')
 
-if !exists('g:mftag_func_list_width')
-    let g:mftag_func_list_width = 40
-endif
+let g:mftag_func_list_width = get(g:, 'mftag_func_list_width', 40)
 
-if !exists('g:mftag_auto_close')
-    let g:mftag_auto_close = 0
-endif
+let g:mftag_auto_close = get(g:, 'mftag_auto_close', 0)
 
-if !exists('g:mftag_syntax_overwrite')
-    let g:mftag_syntax_overwrite = 1
-endif
+let g:mftag_syntax_overwrite = get(g:, 'mftag_syntax_overwrite', 1)
+
+let g:mftag_lang_setting = get(g:, 'mftag_lang_setting', {})
 
 " }}}
 
@@ -231,17 +217,14 @@ if !exists('g:mftag_no_need_MFctag')
         call s:MFdebug(1, "")
 
         let l:lang_option = ""
-        for vs in keys(g:)
-            if len(vs) >= 15
-                if (vs[:5] == "mftag_") && (vs[-8:]=="_setting")
-                    if has_key(g:{vs}, 'tag')
-                        let l:ft = vs[6:-9]
-                        if l:ft == "cpp"
-                            let l:ft = "c++"
-                        endif
-                        let l:lang_option .= " --" . l:ft . "-kinds=" . g:{vs}['tag']
-                    endif
+        for ft in keys(g:mftag_lang_setting)
+            if has_key(g:mftag_lang_setting[ft], 'tag')
+                if ft == 'cpp'
+                    let ctag_ft = 'c++'
+                else
+                    let ctag_ft = ft
                 endif
+                let l:lang_option .= ' --' . ctag_ft . "-kinds=" . g:mftag_lang_setting[ft]['tag']
             endif
         endfor
 
@@ -291,11 +274,11 @@ if !exists('g:mftag_no_need_MFfunclist')
                 echo l:ft . " is not a suppourted file type!"
                 continue
             endif
-            if exists("g:mftag_" . l:ft . "_setting")
-                if has_key(g:mftag_{l:ft}_setting, 'func')
-                    let l:kinds += [g:mftag_{l:ft}_setting['func']]
-                elseif has_key(g:mftag_{l:ft}_setting, 'tag')
-                    let l:kinds += [g:mftag_{l:ft}_setting['tag']]
+            if has_key(g:mftag_lang_setting, l:ft)
+                if has_key(g:mftag_lang_setting[l:ft], 'func')
+                    let l:kinds += [g:mftag_lang_setting[l:ft]['func']]
+                elseif has_key(g:mftag_lang_setting[l:ft], 'tag')
+                    let l:kinds += [g:mftag_lang_setting[l:ft]['tag']]
                 endif
                 call s:MFdebug(2, l:ft . " read kinds from setting::" . l:kinds[-1])
             elseif l:ft == 'python'
