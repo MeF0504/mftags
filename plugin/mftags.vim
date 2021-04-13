@@ -394,7 +394,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         if a:args == "+"
             normal! zR
         elseif a:args == "-"
-            if expand("<cword>") != ""
+            if foldlevel('.') != 0
                 normal! zC
             endif
         elseif a:args == "="
@@ -452,8 +452,9 @@ if !exists('g:mftag_no_need_MFfunclist')
             wincmd p
             call mftags#tag_jump(l:ft, l:kind, l:cword)
         elseif a:type == "preview"
+            pclose
             let l:win_info = win_id2tabwin(win_getid())
-            execute "silent " . &previewheight . "new"
+            execute "topleft silent " . &previewheight . "new"
             call mftags#tag_jump(l:ft, l:kind, l:cword)
             setlocal previewwindow
             if expand("%:t") == ""
