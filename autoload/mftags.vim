@@ -124,7 +124,6 @@ function! mftags#tag_jump(ft, kind, tag_name) abort
             return
         endif
 
-        echo file_num
         for i in range(file_num)
             echo '  ' . i . ' ' . g:tmp_dic[i][0] . ' : ' . g:tmp_dic[i][1] . ' lines'
         endfor

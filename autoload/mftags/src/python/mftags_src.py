@@ -313,6 +313,12 @@ def jump_func(filetype, kind, tag_name):
                         line_list.append(lnum+1)
 
         file_num = len(file_list)
+        if file_num == 1:
+            ret = 'silent e +%d %s' % (line_list[0], file_list[0])
+            mftag_py_debug(1, '2; '+ret)
+            vim.command(ret)
+            return
+
         vim.command('let g:tmp_dic = {}')
         for i in range(file_num):
             vim.command('let g:tmp_dic[%d] = ["%s", "%d"]' % (i, file_list[i], line_list[i]))
