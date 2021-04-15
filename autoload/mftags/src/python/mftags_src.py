@@ -290,9 +290,14 @@ def jump_func(filetype, kind, tag_name):
         mftag_py_debug(1, 'cannot find kind character for {}. return.'.format(kind))
         return
     def_list = g_func_list_dict[filetype][kind][tag_name]
+    mftag_py_debug(1, 'search tag name: {}'.format(tag_name))
     if len(def_list) == 1:
         fy, ly = def_list[0].split(str_split)
         mftag_py_debug(2, 'searching:: {} in {}'.format(ly, fy))
+        if not os.path.exists(fy):
+            mftag_py_debug(1, 'File {} not found.'.format(fy))
+            print("{} can't be found.".format(tag_name.replace("\t","")))
+            return
         with open(fy) as f:
             for lnum,line in enumerate(f):
                 if ly in line:
@@ -300,12 +305,16 @@ def jump_func(filetype, kind, tag_name):
                     mftag_py_debug(1, '1; '+ret)
                     vim.command(ret)
                     return
+
     else:
         file_list = []
         line_list = []
         for ls in def_list:
             fy, ly = ls.split(str_split)
             mftag_py_debug(2, 'searching:: {} in {}'.format(ly, fy))
+            if not os.path.exists(fy):
+                mftag_py_debug(1, 'File {} not found.'.format(fy))
+                continue
             with open(fy, 'r') as f:
                 for lnum,line in enumerate(f):
                     if ly in line:
@@ -313,6 +322,9 @@ def jump_func(filetype, kind, tag_name):
                         line_list.append(lnum+1)
 
         file_num = len(file_list)
+        if file_num == 0:
+            print("{} can't be found.".format(tag_name.replace("\t", "")))
+            return
         if file_num == 1:
             ret = 'silent e +%d %s' % (line_list[0], file_list[0])
             mftag_py_debug(1, '2; '+ret)
