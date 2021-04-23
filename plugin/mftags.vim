@@ -308,11 +308,11 @@ if !exists('g:mftag_no_need_MFfunclist')
                 unlet g:tmp_dic_pop
                 return
             endif
-            call popup_menu(sort(keys(g:tmp_dic_pop)), #{
-                        \ callback : s:SID_PREFIX().'select_ft_popCB',
-                        \ maxheight : &lines-7,
-                        \ close : 'button',
-                        \ mapping : 1,
+            call popup_menu(sort(keys(g:tmp_dic_pop)), {
+                        \ 'callback' : s:SID_PREFIX().'select_ft_popCB',
+                        \ 'maxheight' : &lines-7,
+                        \ 'close' : 'button',
+                        \ 'mapping' : 1,
                         \})
         else
             execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
@@ -486,11 +486,11 @@ if !exists('g:mftag_no_need_MFfunclist')
             unlet g:tmp_dic_pop
             return
         endif
-        call popup_menu(w:kinds, #{
-                    \ callback : s:SID_PREFIX().'select_kind_popCB',
-                    \ maxheight : &lines-7,
-                    \ close : 'button',
-                    \ mapping : 1,
+        call popup_menu(w:kinds, {
+                    \ 'callback' : s:SID_PREFIX().'select_kind_popCB',
+                    \ 'maxheight' : &lines-7,
+                    \ 'close' : 'button',
+                    \ 'mapping' : 1,
                     \})
     endfunction
 
@@ -516,11 +516,11 @@ if !exists('g:mftag_no_need_MFfunclist')
             unlet g:tmp_dic_pop
             return
         endif
-        call popup_menu(w:funcs, #{
-                    \ callback : s:SID_PREFIX().'select_func_popCB',
-                    \ maxheight : &lines-7,
-                    \ close : 'button',
-                    \ mapping : 1,
+        call popup_menu(w:funcs, {
+                    \ 'callback' : s:SID_PREFIX().'select_func_popCB',
+                    \ 'maxheight' : &lines-7,
+                    \ 'close' : 'button',
+                    \ 'mapping' : 1,
                     \ })
     endfunction
 
@@ -567,11 +567,11 @@ if !exists('g:mftag_no_need_MFfunclist')
             unlet g:tmp_dic_pop
             return
         endif
-        call popup_menu(ret, #{
-                    \ callback : s:SID_PREFIX().'select_file_popCB',
-                    \ maxheight : &lines-7,
-                    \ close : 'button',
-                    \ mapping : 1,
+        call popup_menu(ret, {
+                    \ 'callback' : s:SID_PREFIX().'select_file_popCB',
+                    \ 'maxheight' : &lines-7,
+                    \ 'close' : 'button',
+                    \ 'mapping' : 1,
                     \ })
     endfunction
 

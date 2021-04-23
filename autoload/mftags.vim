@@ -22,34 +22,36 @@ function! s:MFdebug( level, str ) abort
 endfunction
 
 " {{{ basic settings.
+let s:def_en_syntax = {
+            \ 'python': 'cfmvi',
+            \ 'c': 'cdefglmnpstuvx',
+            \ 'cpp': 'cdefglmnpstuvx',
+            \ 'vim': 'acfmv',
+            \ 'sh': 'f'
+            \ }
 
-function! s:syntax_setting(filetype, default)
+function! s:set_syntax(filetype)
     if has_key(g:mftag_lang_setting, a:filetype)
         if has_key(g:mftag_lang_setting[a:filetype], 'syntax')
-            let s:mftag_enable_syntax = g:mftag_lang_setting[a:filetype]['syntax']
+            let syntax_setting = g:mftag_lang_setting[a:filetype]['syntax']
         elseif has_key(g:mftag_lang_setting[a:filetype], 'tag')
-            let s:mftag_enable_syntax = g:mftag_lang_setting[a:filetype]['tag']
+            let syntax_setting = g:mftag_lang_setting[a:filetype]['tag']
         else
-            let s:mftag_enable_syntax = a:default
+            if has_key(s:def_en_syntax, a:filetype)
+                let syntax_setting = s:def_en_syntax[a:filetype]
+            else
+                let syntax_setting = ''
+            endif
         endif
     else
-        let s:mftag_enable_syntax = a:default
+        if has_key(s:def_en_syntax, a:filetype)
+            let syntax_setting = s:def_en_syntax[a:filetype]
+        else
+            let syntax_setting = ''
+        endif
     endif
+    return syntax_setting
 endfunction
-
-let s:def_en_syntax = #{
-            \ python: 'cfmvi',
-            \ c: 'cdefglmnpstuvx',
-            \ cpp: 'cdefglmnpstuvx',
-            \ vim: 'acfmv',
-            \ sh: 'f'
-            \ }
-if has_key(s:def_en_syntax, &filetype)
-    call s:syntax_setting(&filetype, s:def_en_syntax[&filetype])
-else
-    let s:mftag_enable_syntax = ''
-endif
-call s:MFdebug(1, 'syntax::'.s:mftag_enable_syntax)
 
 " }}}
 
@@ -81,9 +83,11 @@ function! mftags#make_tag_syntax_file() abort
 
     "call python function
     call s:MFdebug(1, "")
+    let syntax_setting = s:set_syntax(&filetype)
+    call s:MFdebug(1, 'set syntax; filetype:'.&filetype.' syntax::'.syntax_setting)
     pythonx make_tag_syntax_files(
                 \ vim.eval('&filetype'), vim.eval('b:mftag_save_dir'),
-                \ vim.eval('g:mftag_syntax_overwrite'), vim.eval('s:mftag_enable_syntax'))
+                \ vim.eval('g:mftag_syntax_overwrite'), vim.eval('syntax_setting'))
     execute "source " . b:mftag_save_dir . "." . &filetype . "_tag_syntax.vim"
     "clean tag parh list
     pythonx clean_tag()

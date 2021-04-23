@@ -10,7 +10,7 @@ function! MFtagDebug(str, src, fname) abort
     if a:str == ""
         let db_print = ["###debug-".a:src."### " . "@ " . a:fname . " " . expand("<sfile>")]
     else
-        let db_print =  ["###debug-".a:src."### "]
+        let db_print =  ["###debug-".a:src."###"]
         let db_print += split(a:str, '\n', 1)
     endif
     let db_print += ['']
