@@ -208,6 +208,9 @@ def return_list_from_tag(filetype, return_kind):
                 if ftype in list(dic_ext_filetype.keys()):
                     if dic_ext_filetype[ftype] != filetype:
                         continue
+                # excepting not supported filetypes
+                elif ftype != '':
+                    continue
                 if kind == return_kind:
                     try:
                         tag_key = "\t\t"+name
