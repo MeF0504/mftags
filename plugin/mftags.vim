@@ -264,9 +264,9 @@ if !exists('g:mftag_no_need_MFfunclist')
         let l:file_path = expand('%:p')
 
         " set kinds
-        let l:file_types = split(a:file_types, ',')
+        let l:file_types = []
         let l:kinds = []
-        for l:ft in l:file_types
+        for l:ft in keys(a:file_types)
             "check file type
             if (l:ft != 'c') && (l:ft != 'cpp') &&
                 \(l:ft != 'python') && (l:ft != 'vim') &&
@@ -274,13 +274,25 @@ if !exists('g:mftag_no_need_MFfunclist')
                 echo l:ft . " is not a suppourted file type!"
                 continue
             endif
-            if has_key(g:mftag_lang_setting, l:ft)
+
+            let l:file_types += [l:ft]
+            if a:file_types[l:ft] != ''
+                " set kinds from input
+                let l:kinds += [a:file_types[l:ft]]
+                call s:MFdebug(2, l:ft . " set kinds from input::" . l:kinds[-1])
+            elseif has_key(g:mftag_lang_setting, l:ft) &&
+                        \ (has_key(g:mftag_lang_setting[l:ft], 'func') ||
+                        \ has_key(g:mftag_lang_setting[l:ft], 'tag'))
+                " set kinds from global settings
                 if has_key(g:mftag_lang_setting[l:ft], 'func')
                     let l:kinds += [g:mftag_lang_setting[l:ft]['func']]
                 elseif has_key(g:mftag_lang_setting[l:ft], 'tag')
                     let l:kinds += [g:mftag_lang_setting[l:ft]['tag']]
+                else
+                    let l:kinds += ['']
                 endif
                 call s:MFdebug(2, l:ft . " read kinds from setting::" . l:kinds[-1])
+            " set kinds from default values
             elseif l:ft == 'python'
                 let l:kinds += ['cfmvi']
             elseif l:ft == 'c'
@@ -596,11 +608,13 @@ if !exists('g:mftag_no_need_MFfunclist')
     function! s:echo_mftag_usage(file_types) abort
         let l:echo_list = ''
         if a:file_types == ''
-            let l:echo_list .= "usage; :MFfunclist [<filetype>] [help]\n"
+            let l:echo_list .= "usage; :MFfunclist [<filetype>[-<kinds>] [<ft>[-<kinds>]]...] [help]\n"
             let l:echo_list .= "       :MFfunclist del\n"
             let l:echo_list .= "help\t\t: show this usage and close.\n"
             let l:echo_list .= "<ft> help\t: show enable kinds for the filetype and close.\n"
             let l:echo_list .= "del\t\t: delete buffer.\n"
+            let l:echo_list .= "<ft>-<kinds>\t: open function list for specified filetype.\n"
+            let l:echo_list .= "\t\t\t e.g. :MFfunclist c-dfg vim\n"
             let l:echo_list .= "suppourted languages: python, c, cpp, vim, sh"
             return l:echo_list
         endif
@@ -672,6 +686,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         endfor
         return 0
     endfunction
+
     function! s:MFtag_list_usage(...) abort
         call s:MFdebug(1, "")
         " close if  FuncList is already open.
@@ -689,11 +704,19 @@ if !exists('g:mftag_no_need_MFfunclist')
         let l:old_report = &report
 
         if a:0 == 0
-            let l:ft = &filetype
+            " no arguments => use the filetype of current buffer
+            let l:ft = {&filetype:''}
         else
-            let l:tmp_list = split(a:1)
-            if (len(l:tmp_list) > 1) && (l:tmp_list[1] == 'help')
-                echo s:echo_mftag_usage(l:tmp_list[0])
+            if (a:0>1) && (a:[a:0.'']=='help')
+                for i in range(1,a:0-1)
+                    let idx = stridx(a:[i], '-')
+                    if idx==-1
+                        let tmp_ft = a:[i]
+                    else
+                        let tmp_ft = a:[i][:idx-1]
+                    endif
+                    echo s:echo_mftag_usage(tmp_ft)
+                endfor
                 return
             elseif a:1 == 'help'
                 echo s:echo_mftag_usage('')
@@ -702,7 +725,17 @@ if !exists('g:mftag_no_need_MFfunclist')
                 call mftags#delete_buffer()
                 return
             else
-                let l:ft = a:1
+                let l:ft = {}
+                for i in range(1, a:0)
+                    let idx = stridx(a:[i], '-')
+                    if idx == -1
+                        let l:ft[a:[i]] = ''
+                    else
+                        let tmp_ft = a:[i][:idx-1]
+                        let tmp_kinds = a:[i][idx+1:]
+                        let l:ft[tmp_ft] = tmp_kinds
+                    endif
+                endfor
             endif
         endif
         if tagfiles() == []
@@ -717,7 +750,7 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     endfunction
 
-    command! -nargs=? MFfunclist :call s:MFtag_list_usage(<f-args>)
+    command! -nargs=* MFfunclist :call s:MFtag_list_usage(<f-args>)
 
     function! s:funclist_auto_close() abort
         call s:MFdebug(1, "")
