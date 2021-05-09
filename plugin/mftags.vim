@@ -741,7 +741,41 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     endfunction
 
-    command! -nargs=* MFfunclist :call s:MFtag_list_usage(<f-args>)
+    function! s:funclist_comp(arglead, cmdline, cursorpos) abort
+        let arglead = tolower(a:arglead)
+        let cmdline = tolower(a:cmdline)
+        let def_en_kinds = mftags#get_def_en_kinds()
+        let idx = stridx(arglead, '-')
+        if match(keys(def_en_kinds), '^'.arglead.'$') != -1
+            " filetypeの入力完
+            return [arglead.'-']
+        elseif idx != -1
+            " -の後
+            let ft = arglead[:idx-1]
+            if match(keys(def_en_kinds), ft) == -1
+                return []
+            endif
+
+            let tmp_kind_list = split(def_en_kinds[ft], '\zs')
+            let kind_list = []
+            for k in tmp_kind_list
+                if match(arglead[idx+1:], k) == -1
+                    let kind_list += [k]
+                endif
+            endfor
+            " もう入力されているkindを除外
+            let res = filter(kind_list, 'stridx(tolower(v:val), arglead[-1:])')
+            " 入力されている値をlistの頭に追加
+            return split(arglead.join(res, ' '.arglead))
+        else
+            " filetype を入力中
+            let res = keys(def_en_kinds)
+            let res += ['help', 'del']
+            return filter(res, '!stridx(tolower(v:val), arglead)')
+        endif
+    endfunction
+
+    command! -nargs=* -complete=customlist,s:funclist_comp MFfunclist :call s:MFtag_list_usage(<f-args>)
 
     function! s:funclist_auto_close() abort
         call s:MFdebug(1, "")
