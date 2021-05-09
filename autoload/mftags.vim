@@ -22,7 +22,8 @@ function! s:MFdebug( level, str ) abort
 endfunction
 
 " {{{ basic settings.
-let s:def_en_syntax = {
+" default enable kinds
+let s:def_en_kinds = {
             \ 'python': 'cfmvi',
             \ 'c': 'cdefglmnpstuvx',
             \ 'cpp': 'cdefglmnpstuvx',
@@ -37,20 +38,24 @@ function! s:set_syntax(filetype)
         elseif has_key(g:mftag_lang_setting[a:filetype], 'tag')
             let syntax_setting = g:mftag_lang_setting[a:filetype]['tag']
         else
-            if has_key(s:def_en_syntax, a:filetype)
-                let syntax_setting = s:def_en_syntax[a:filetype]
+            if has_key(s:def_en_kinds, a:filetype)
+                let syntax_setting = s:def_en_kinds[a:filetype]
             else
                 let syntax_setting = ''
             endif
         endif
     else
-        if has_key(s:def_en_syntax, a:filetype)
-            let syntax_setting = s:def_en_syntax[a:filetype]
+        if has_key(s:def_en_kinds, a:filetype)
+            let syntax_setting = s:def_en_kinds[a:filetype]
         else
             let syntax_setting = ''
         endif
     endif
     return syntax_setting
+endfunction
+
+function! mftags#get_def_en_kinds() abort
+    return s:def_en_kinds
 endfunction
 
 " }}}

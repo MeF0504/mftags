@@ -266,11 +266,9 @@ if !exists('g:mftag_no_need_MFfunclist')
         " set kinds
         let l:file_types = []
         let l:kinds = []
+        let def_en_kinds = mftags#get_def_en_kinds()
         for l:ft in keys(a:file_types)
-            "check file type
-            if (l:ft != 'c') && (l:ft != 'cpp') &&
-                \(l:ft != 'python') && (l:ft != 'vim') &&
-                \(l:ft != 'sh')
+            if match(keys(def_en_kinds), '^'.l:ft.'$') == -1
                 echo l:ft . " is not a suppourted file type!"
                 continue
             endif
@@ -293,16 +291,8 @@ if !exists('g:mftag_no_need_MFfunclist')
                 endif
                 call s:MFdebug(2, l:ft . " read kinds from setting::" . l:kinds[-1])
             " set kinds from default values
-            elseif l:ft == 'python'
-                let l:kinds += ['cfmvi']
-            elseif l:ft == 'c'
-                let l:kinds += ['cdefglmnpstuvx']
-            elseif l:ft == 'cpp'
-                let l:kinds += ['cdefglmnpstuvx']
-            elseif l:ft == 'vim'
-                let l:kinds += ['acfmv']
-            elseif l:ft == 'sh'
-                let l:kinds = ['f']
+            elseif match(keys(def_en_kinds), '^'.l:ft.'$') != -1
+                let l:kinds += [def_en_kinds[l:ft]]
             else
                 let l:kinds += ['']
             endif
@@ -606,6 +596,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! s:echo_mftag_usage(file_types) abort
+        let def_en_kinds = mftags#get_def_en_kinds()
         let l:echo_list = ''
         if a:file_types == ''
             let l:echo_list .= "usage; :MFfunclist [<filetype>[-<kinds>] [<ft>[-<kinds>]]...] [help]\n"
@@ -615,7 +606,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             let l:echo_list .= "del\t\t: delete buffer.\n"
             let l:echo_list .= "<ft>-<kinds>\t: open function list for specified filetype.\n"
             let l:echo_list .= "\t\t\t e.g. :MFfunclist c-dfg vim\n"
-            let l:echo_list .= "suppourted languages: python, c, cpp, vim, sh"
+            let l:echo_list .= "suppourted languages: ".join(sort(keys(def_en_kinds)), ', ')
             return l:echo_list
         endif
         for ft in split(a:file_types, ',')
