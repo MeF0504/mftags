@@ -699,38 +699,51 @@ if !exists('g:mftag_no_need_MFfunclist')
         if a:0 == 0
             " no arguments => use the filetype of current buffer
             let l:ft = {&filetype:''}
+        elseif (a:0==1) && (a:1 == 'help')
+            echo s:echo_mftag_usage('')
+            return
+        elseif (a:0==1) && (a:1 == 'del')
+            call mftags#delete_buffer()
+            return
         else
-            if (a:0>1) && (a:[a:0.'']=='help')
-                for i in range(1,a:0-1)
-                    let idx = stridx(a:[i], '-')
-                    if idx==-1
-                        let tmp_ft = a:[i]
-                    else
-                        let tmp_ft = a:[i][:idx-1]
-                    endif
+            let l:ft = {}
+            let is_del = 0
+            let is_help = 0
+            for i in range(1, a:0)
+                let idx = stridx(a:[i], '-')
+                if idx == -1
+                    let tmp_ft = a:[i]
+                    let tmp_kinds = ''
+                else
+                    let tmp_ft = a:[i][:idx-1]
+                    let tmp_kinds = a:[i][idx+1:]
+                endif
+
+                if tmp_ft == 'help'
+                    let is_help = 1
+                    continue
+                endif
+                if tmp_ft == 'del'
+                    let is_del = 1
+                    continue
+                endif
+
+                let l:ft[tmp_ft] = tmp_kinds
+            endfor
+
+            if is_del == 1
+                echo 'del is not callable with filetypes!'
+                return
+            endif
+
+            if is_help == 1
+                for tmp_ft in keys(l:ft)
                     echo s:echo_mftag_usage(tmp_ft)
                 endfor
                 return
-            elseif a:1 == 'help'
-                echo s:echo_mftag_usage('')
-                return
-            elseif a:1 == 'del'
-                call mftags#delete_buffer()
-                return
-            else
-                let l:ft = {}
-                for i in range(1, a:0)
-                    let idx = stridx(a:[i], '-')
-                    if idx == -1
-                        let l:ft[a:[i]] = ''
-                    else
-                        let tmp_ft = a:[i][:idx-1]
-                        let tmp_kinds = a:[i][idx+1:]
-                        let l:ft[tmp_ft] = tmp_kinds
-                    endif
-                endfor
             endif
         endif
+
         if tagfiles() == []
             echo "Tag file is not found."
             return
