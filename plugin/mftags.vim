@@ -277,8 +277,8 @@ if !exists('g:mftag_no_need_MFfunclist')
             if a:file_types[l:ft] != ''
                 " set kinds from input
                 " 重複を削除
-                let tmp_kind_list = split(a:file_types[l:ft], '\zs')
-                let l:kinds += [join(uniq(tmp_kind_list, ''))]
+                let tmp_kind_list = split(tolower(a:file_types[l:ft]), '\zs')
+                let l:kinds += [join(uniq(sort(tmp_kind_list)), '')]
                 call s:MFdebug(2, l:ft . " set kinds from input::" . l:kinds[-1])
             elseif has_key(g:mftag_lang_setting, l:ft) &&
                         \ (has_key(g:mftag_lang_setting[l:ft], 'func') ||
