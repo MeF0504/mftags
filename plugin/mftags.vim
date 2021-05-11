@@ -316,7 +316,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                         \ 'callback' : s:SID_PREFIX().'select_ft_popCB',
                         \ 'maxheight' : &lines-7,
                         \ 'close' : 'button',
-                        \ 'mapping' : 1,
+                        \ 'mapping' : 0,
                         \ 'filter' : s:SID_PREFIX().'popup_my_filter',
                         \})
         else
@@ -507,7 +507,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ 'callback' : s:SID_PREFIX().'select_kind_popCB',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
-                    \ 'mapping' : 1,
+                    \ 'mapping' : 0,
                     \ 'filter' : s:SID_PREFIX().'popup_my_filter',
                     \})
     endfunction
@@ -538,7 +538,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ 'callback' : s:SID_PREFIX().'select_func_popCB',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
-                    \ 'mapping' : 1,
+                    \ 'mapping' : 0,
                     \ 'filter' : s:SID_PREFIX().'popup_my_filter',
                     \ })
     endfunction
@@ -590,7 +590,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ 'callback' : s:SID_PREFIX().'select_file_popCB',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
-                    \ 'mapping' : 1,
+                    \ 'mapping' : 0,
                     \ 'filter' : s:SID_PREFIX().'popup_my_filter',
                     \ })
     endfunction
