@@ -272,6 +272,8 @@ def show_list_on_pop(filetypes, return_kinds):
             if kind_list == None:
                 mftag_py_debug(2, 'kind_list return None: ft:{}, k:{}'.format(ft,k))
                 continue
+            if len(kind_list) == 1:
+                continue
             kname = kind_list[0].replace('\t', '')
             vim.command("let g:tmp_dic_pop['{}']['{}'] = []".format(ft, kname))
             for kl in kind_list[1:]:
