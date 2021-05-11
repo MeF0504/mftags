@@ -317,6 +317,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                         \ 'maxheight' : &lines-7,
                         \ 'close' : 'button',
                         \ 'mapping' : 1,
+                        \ 'filter' : s:SID_PREFIX().'popup_my_filter',
                         \})
         else
             execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
@@ -469,6 +470,18 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
     endfunction
 
+    function! <SID>popup_my_filter(id, key)
+        " :h popup_menu-shortcut-example
+        if a:key == 'q'
+            call popup_close(a:id, -1)
+            return 1
+        endif
+
+        " No shortcut, pass to generic filter
+        return popup_filter_menu(a:id, a:key)
+
+    endfunction
+
     function! <SID>select_ft_popCB(id, res)
         call s:MFdebug(2, 'ft:res' . a:res . '---')
         " not selected
@@ -495,6 +508,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 1,
+                    \ 'filter' : s:SID_PREFIX().'popup_my_filter',
                     \})
     endfunction
 
@@ -525,6 +539,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 1,
+                    \ 'filter' : s:SID_PREFIX().'popup_my_filter',
                     \ })
     endfunction
 
@@ -576,6 +591,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 1,
+                    \ 'filter' : s:SID_PREFIX().'popup_my_filter',
                     \ })
     endfunction
 
