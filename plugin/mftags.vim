@@ -472,9 +472,17 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     function! <SID>popup_my_filter(id, key)
         " :h popup_menu-shortcut-example
-        if a:key == 'q'
+        if a:key ==# 'q'
             call popup_close(a:id, -1)
             return 1
+        elseif a:key ==# "\<c-d>"
+            call win_execute(a:id, "normal! 5j")
+        elseif a:key ==# "\<c-u>"
+            call win_execute(a:id, "normal! 5k")
+        elseif a:key ==# 'g'
+            call win_execute(a:id, "normal! gg")
+        elseif a:key ==# 'G'
+            call win_execute(a:id, "normal! G")
         endif
 
         " No shortcut, pass to generic filter
