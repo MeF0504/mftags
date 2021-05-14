@@ -312,12 +312,13 @@ if !exists('g:mftag_no_need_MFfunclist')
                 unlet g:tmp_dic_pop
                 return
             endif
-            call popup_menu(sort(keys(g:tmp_dic_pop)), {
+            let contents = sort(keys(g:tmp_dic_pop))
+            call popup_menu(contents, {
                         \ 'callback' : s:SID_PREFIX().'select_ft_popCB',
                         \ 'maxheight' : &lines-7,
                         \ 'close' : 'button',
                         \ 'mapping' : 0,
-                        \ 'filter' : s:SID_PREFIX().'popup_my_filter',
+                        \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
                         \})
         else
             execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
@@ -443,6 +444,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             call s:MFdebug(2, "[" . l:cword . "]  " . "not tag jump word!" )
             return
         endif
+
         "let l:cword = expand('<cword>')
         if a:type == "tab"
             let l:win_info = win_id2tabwin(win_getid())
@@ -473,8 +475,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     function! <SID>popup_my_filter(id, key)
         " :h popup_menu-shortcut-example
         if a:key ==# 'q'
-            call popup_close(a:id, -1)
-            return 1
+            return popup_filter_menu(a:id, 'x')
         elseif a:key ==# "\<c-d>"
             call win_execute(a:id, "normal! 5j")
         elseif a:key ==# "\<c-u>"
@@ -488,6 +489,25 @@ if !exists('g:mftag_no_need_MFfunclist')
         " No shortcut, pass to generic filter
         return popup_filter_menu(a:id, a:key)
 
+    endfunction
+
+    function! <SID>popup_open_file_filter(id, key)
+        call win_execute(a:id, "let line = line('.')")
+        if a:key ==# "\<c-t>"
+            let w:type = 'tab'
+            call popup_close(a:id, line)
+            return v:true
+        elseif a:key ==# "\<c-p>"
+            let w:type = 'preview'
+            call popup_close(a:id, line)
+            return v:true
+        elseif a:key ==# "\<CR>"
+            let w:type = 'win'
+            call popup_close(a:id, line)
+            return v:true
+        endif
+
+        return <SID>popup_my_filter(a:id, a:key)
     endfunction
 
     function! <SID>select_ft_popCB(id, res)
@@ -511,12 +531,13 @@ if !exists('g:mftag_no_need_MFfunclist')
             unlet g:tmp_dic_pop
             return
         endif
+
         call popup_menu(w:kinds, {
                     \ 'callback' : s:SID_PREFIX().'select_kind_popCB',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 0,
-                    \ 'filter' : s:SID_PREFIX().'popup_my_filter',
+                    \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
                     \})
     endfunction
 
@@ -542,12 +563,13 @@ if !exists('g:mftag_no_need_MFfunclist')
             unlet g:tmp_dic_pop
             return
         endif
+
         call popup_menu(w:funcs, {
                     \ 'callback' : s:SID_PREFIX().'select_func_popCB',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 0,
-                    \ 'filter' : s:SID_PREFIX().'popup_my_filter',
+                    \ 'filter' : function(s:SID_PREFIX().'popup_open_file_filter'),
                     \ })
     endfunction
 
@@ -564,17 +586,43 @@ if !exists('g:mftag_no_need_MFfunclist')
         let l:kind = w:kind
         let l:funcs = w:funcs
 
-        let l:win_info = win_id2tabwin(win_getid())
-        tabnew
-        call mftags#tag_jump(l:ft, l:kind, "\t\t".l:funcs[a:res-1])
-        if exists('g:tmp_dic')
-            call s:MFdebug(1, 'g:tmp_dic exists')
-            call <SID>select_file_pop(l:win_info)
-        else
-            if expand("%:t") == ""
-                quit
-                execute l:win_info[0] . "tabnext"
-                execute l:win_info[1] . 'wincmd w'
+        call s:MFdebug(2, "open func: ".l:ft.", ".l:kind.", ".l:funcs[a:res-1].", ".w:type)
+
+        if w:type == 'tab'
+            let l:win_info = win_id2tabwin(win_getid())
+            tabnew
+            call mftags#tag_jump(l:ft, l:kind, "\t\t".l:funcs[a:res-1])
+            if exists('g:tmp_dic')
+                call s:MFdebug(1, 'g:tmp_dic exists')
+                call <SID>select_file_pop(l:win_info)
+            else
+                if expand("%:t") == ""
+                    quit
+                    execute l:win_info[0] . "tabnext"
+                    execute l:win_info[1] . 'wincmd w'
+                endif
+            endif
+        elseif w:type == 'win'
+            call mftags#tag_jump(l:ft, l:kind, "\t\t".l:funcs[a:res-1])
+            if exists('g:tmp_dic')
+                call s:MFdebug(1, 'g:tmp_dic exists')
+                call <SID>select_file_pop(l:win_info)
+            endif
+        elseif w:type == 'preview'
+            pclose
+            let l:win_info = win_id2tabwin(win_getid())
+            execute "topleft silent " . &previewheight . "new"
+            call mftags#tag_jump(l:ft, l:kind, "\t\t".l:funcs[a:res-1])
+            setlocal previewwindow
+            if exists('g:tmp_dic')
+                call s:MFdebug(1, 'g:tmp_dic exists')
+                call <SID>select_file_pop(l:win_info)
+            else
+                if expand("%:t") == ""
+                    quit
+                    execute l:win_info[0] . "tabnext"
+                    execute l:win_info[1] . 'wincmd w'
+                endif
             endif
         endif
 
@@ -594,12 +642,13 @@ if !exists('g:mftag_no_need_MFfunclist')
             unlet g:tmp_dic_pop
             return
         endif
+
         call popup_menu(ret, {
                     \ 'callback' : s:SID_PREFIX().'select_file_popCB',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 0,
-                    \ 'filter' : s:SID_PREFIX().'popup_my_filter',
+                    \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
                     \ })
     endfunction
 
