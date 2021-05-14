@@ -59,7 +59,7 @@ endif
 
 function! s:MFdebug( level, str ) abort
     if a:level <= s:mftag_debug
-        call MFtagDebug(a:str, 'plug', s:file)
+        call MFtagDebug(a:str, 'plug-'.a:level, s:file)
     endif
 endfunction
 

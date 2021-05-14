@@ -17,7 +17,7 @@ endif
 
 function! s:MFdebug( level, str ) abort
     if a:level <= s:mftag_debug
-        call MFtagDebug(a:str, 'auto', s:file)
+        call MFtagDebug(a:str, 'auto-'.a:level, s:file)
     endif
 endfunction
 
