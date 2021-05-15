@@ -6,8 +6,10 @@ let s:mftag_debug = 0
 " 3 ... high level debug print.
 
 if !has('pythonx')
+    echohl Error
     echo 'this function requires python or python3'
-    exit
+    echohl None
+    finish
 endif
 
 if s:mftag_debug > 0
