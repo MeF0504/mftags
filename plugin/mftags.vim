@@ -603,6 +603,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                 endif
             endif
         elseif w:type == 'win'
+            let l:win_info = win_id2tabwin(win_getid())
             call mftags#tag_jump(l:ft, l:kind, "\t\t".l:funcs[a:res-1])
             if exists('g:tmp_dic')
                 call s:MFdebug(1, 'g:tmp_dic exists')
