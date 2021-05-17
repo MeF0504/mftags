@@ -523,7 +523,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! <SID>select_kind_pop(ft)
-        call popup_clear()
+        " call popup_clear()
         let w:ft = a:ft
         let w:kinds = sort(keys(g:tmp_dic_pop[a:ft]))
         if len(w:kinds) == 0
@@ -554,7 +554,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! <SID>select_func_pop(ft, kind)
-        call popup_clear()
+        " call popup_clear()
         let w:funcs = g:tmp_dic_pop[a:ft][a:kind]
         let w:ft = a:ft
         let w:kind = a:kind
@@ -631,7 +631,7 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! <SID>select_file_pop(win_info)
-        call popup_clear()
+        " call popup_clear()
         let w:old_win_info = a:win_info
         let ret = []
         for i in keys(g:tmp_dic)
