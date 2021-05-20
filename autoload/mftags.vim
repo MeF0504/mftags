@@ -107,7 +107,7 @@ function! mftags#show_kind_list(file_types, file_path, kinds, tag_files) abort
     " just set tagfiles
     pythonx search_tag(vim.eval('a:tag_files'))
 
-    if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
+    if exists('g:mftag_popup_on') && g:mftag_popup_on != 0 && exists('*popup_menu')
         " get list of function list
         pythonx show_list_on_pop(vim.eval('a:file_types'), vim.eval('a:kinds'))
     else
@@ -126,7 +126,7 @@ function! mftags#tag_jump(ft, kind, tag_name) abort
     pythonx jump_func(vim.eval('a:ft'), vim.eval('a:kind'), vim.eval('a:tag_name'))
     " python in vim doesn't support input.
     if exists('g:tmp_dic')
-        if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
+        if exists('g:mftag_popup_on') && g:mftag_popup_on != 0 && exists('*popup_menu')
             return
         endif
         let file_num = len(g:tmp_dic)

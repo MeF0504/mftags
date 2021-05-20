@@ -305,7 +305,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             return
         endif
 
-        if exists('g:mftag_popup_on') && g:mftag_popup_on != 0
+        if exists('g:mftag_popup_on') && g:mftag_popup_on != 0 && exists('*popup_menu')
             call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
             if len(sort(keys(g:tmp_dic_pop))) == 0
                 echo 'no contents'
