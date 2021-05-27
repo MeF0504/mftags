@@ -244,7 +244,7 @@ if !exists('g:mftag_no_need_MFctag')
         endif
         " redraw
         redraw!
-        echo "execute '" . l:cmd_str . "' @ " . l:exe_dir
+        echomsg "execute '" . l:cmd_str . "' @ " . l:exe_dir
 
         execute "cd " . l:pwd
     endfunction
@@ -746,7 +746,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             let bufnrs = tabpagebuflist(i)
             for j in bufnrs
                 if bufname(j) == g:mftag_func_list_name
-                    echo 'Function list is already opened. -> tab=' . i . ', win=' . j
+                    echomsg 'Function list is already opened. -> tab=' . i . ', win=' . j
                     return 1
                 endif
             endfor
