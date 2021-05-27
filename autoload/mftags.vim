@@ -81,9 +81,7 @@ function! mftags#make_tag_syntax_file() abort
     pythonx search_tag(vim.eval('tagfiles()'))
 
     "check file type
-    if (&filetype != 'c') && (&filetype != 'cpp') &&
-        \ (&filetype != 'python') && (&filetype != 'vim') &&
-        \ (&filetype != 'sh')
+    if match(keys(s:def_en_kinds), '^'.&filetype.'$') == -1
         echo "not suppourted file type!"
         return
     endif
