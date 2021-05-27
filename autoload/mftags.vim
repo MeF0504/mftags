@@ -7,7 +7,7 @@ let s:mftag_debug = 0
 
 if !has('pythonx')
     echohl Error
-    echo 'this function requires python or python3'
+    echoerr 'this function requires python or python3'
     echohl None
     finish
 endif
@@ -75,7 +75,7 @@ function! mftags#make_tag_syntax_file() abort
 
     " just set tagfiles
     if tagfiles() == []
-        echo "Tag file is not found."
+        echoerr "Tag file is not found."
         return
     endif
     pythonx search_tag(vim.eval('tagfiles()'))

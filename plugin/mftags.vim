@@ -819,7 +819,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         endif
 
         if tagfiles() == []
-            echo "Tag file is not found."
+            echoerr "Tag file is not found."
             return
         endif
 
