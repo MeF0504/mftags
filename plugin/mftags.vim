@@ -881,8 +881,8 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     if g:mftag_auto_close == 1
-        autocmd MFtags BufEnter MF_func_list nested
-                    \ call s:funclist_auto_close()
+        execute "autocmd MFtags BufEnter ".g:mftag_func_list_name." nested"
+                    \ ." call s:funclist_auto_close()"
     endif
 
 endif
