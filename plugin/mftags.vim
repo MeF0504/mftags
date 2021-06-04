@@ -258,6 +258,8 @@ endif
 " {{{
 if !exists('g:mftag_no_need_MFfunclist')
 
+    let s:help_opened = 0
+
     function! MFshow_func_list(file_types) abort
         call s:MFdebug(1, "")
         let l:tag_files = tagfiles()
@@ -375,6 +377,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         nnoremap <silent> <buffer> +              :call <SID>MF_tag_map("+")<CR>
         nnoremap <silent> <buffer> -              :call <SID>MF_tag_map("-")<CR>
         nnoremap <silent> <buffer> =              :call <SID>MF_tag_map("=")<CR>
+        nnoremap <silent> <buffer> ?              :call <SID>MF_tag_map("?")<CR>
         nnoremap <silent> <buffer> <c-t>          :call <SID>MF_tag_jump('tab')<CR>
         nnoremap <silent> <buffer> <c-p>          :call <SID>MF_tag_jump('preview')<CR>
         nnoremap <silent> <buffer> <CR>           :call <SID>MF_tag_map("enter")<CR>
@@ -421,6 +424,8 @@ if !exists('g:mftag_no_need_MFfunclist')
             endif
         elseif a:args == "q"
             quit
+        elseif a:args == '?'
+            call <SID>MF_tag_show_help()
         endif
     endfunction
 
@@ -470,6 +475,35 @@ if !exists('g:mftag_no_need_MFfunclist')
                 execute l:win_info[1] . 'wincmd w'
             endif
         endif
+    endfunction
+
+    function! <SID>MF_tag_show_help()
+        call s:MFdebug(1, "")
+        let help_str =  ['<enter> : open fold under cursor / open the definition in current window']
+        let help_str += ['   +    : open all folds']
+        let help_str += ['   -    : close fold unser corsor']
+        let help_str += ['   =    : close all folds']
+        let help_str += [' <c-t>  : open the definition in new tab']
+        let help_str += [' <c-p>  : open the definition in preview window']
+        let help_str += ['<space><space> : display the definition detail']
+        let help_str += ['   ?    : open/close help window']
+        let help_str += ['   q    : close tag window']
+
+        "save old value
+        let l:old_report = &report
+        setlocal modifiable
+        setlocal report=9999
+        if s:help_opened == 1
+            execute "1,".len(help_str)." delete _"
+            let s:help_opened = 0
+        else
+            for i in range(len(help_str))
+                call append(i, help_str[i])
+            endfor
+            let s:help_opened = 1
+        endif
+        setlocal nomodifiable
+        execute "set report=" . l:old_report
     endfunction
 
     function! <SID>popup_my_filter(id, key)
