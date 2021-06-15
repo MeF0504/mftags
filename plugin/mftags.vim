@@ -259,7 +259,7 @@ endif
 if !exists('g:mftag_no_need_MFfunclist')
 
     let s:help_opened = 0
-    let s:help_def_str = ' ? : open help window'
+    let s:help_def_str = ' ? : open help '
 
     function! MFshow_func_list(file_types) abort
         call s:MFdebug(1, "")
@@ -313,15 +313,21 @@ if !exists('g:mftag_no_need_MFfunclist')
             if len(sort(keys(g:tmp_dic_pop))) == 0
                 echo 'no contents'
                 unlet g:tmp_dic_pop
+                call <SID>close_help_pop()
                 return
             endif
             let contents = sort(keys(g:tmp_dic_pop))
             call popup_menu(contents, {
                         \ 'callback' : s:SID_PREFIX().'select_ft_popCB',
+                        \ 'line' : 3,
+                        \ 'col' : 3,
+                        \ 'pos' : 'topleft',
                         \ 'maxheight' : &lines-7,
                         \ 'close' : 'button',
                         \ 'mapping' : 0,
                         \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
+                        \ 'title' : s:help_def_str,
+                        \ 'zindex' : 50,
                         \})
         else
             execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
@@ -426,6 +432,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                 call mftags#show_def(l:ft, l:kind, getline('.'))
             endif
         elseif a:args == "q"
+            let s:help_opened = 0
             quit
         elseif a:args == '?'
             call <SID>MF_tag_show_help()
@@ -496,7 +503,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         let l:old_report = &report
         setlocal modifiable
         setlocal report=9999
-        if s:help_opened == 1
+        if s:help_opened != 0
             execute "1,".len(help_str)." delete _"
             call append(0, s:help_def_str)
             let s:help_opened = 0
@@ -513,7 +520,8 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     function! <SID>popup_my_filter(id, key)
         " :h popup_menu-shortcut-example
-        if a:key ==# 'q'
+        if (a:key ==# 'q') || (a:key ==# 'x')
+            call <SID>close_help_pop()
             return popup_filter_menu(a:id, 'x')
         elseif a:key ==# "\<c-d>"
             call win_execute(a:id, "normal! 5j")
@@ -523,6 +531,8 @@ if !exists('g:mftag_no_need_MFfunclist')
             call win_execute(a:id, "normal! gg")
         elseif a:key ==# 'G'
             call win_execute(a:id, "normal! G")
+        elseif a:key ==# '?'
+            call <SID>open_help_pop(0)
         endif
 
         " No shortcut, pass to generic filter
@@ -544,6 +554,9 @@ if !exists('g:mftag_no_need_MFfunclist')
             let w:type = 'win'
             call popup_close(a:id, line)
             return v:true
+        elseif a:key ==# '?'
+            call <SID>open_help_pop(1)
+            return v:true
         endif
 
         return <SID>popup_my_filter(a:id, a:key)
@@ -551,6 +564,7 @@ if !exists('g:mftag_no_need_MFfunclist')
 
     function! <SID>select_ft_popCB(id, res)
         call s:MFdebug(2, 'ft:res' . a:res . '---')
+        call <SID>close_help_pop()
         " not selected
         if a:res <= 0
             unlet g:tmp_dic_pop
@@ -568,20 +582,27 @@ if !exists('g:mftag_no_need_MFfunclist')
         if len(w:kinds) == 0
             echo 'no contents'
             unlet g:tmp_dic_pop
+            call <SID>close_help_pop()
             return
         endif
 
         call popup_menu(w:kinds, {
                     \ 'callback' : s:SID_PREFIX().'select_kind_popCB',
+                    \ 'line' : 3,
+                    \ 'col' : 3,
+                    \ 'pos' : 'topleft',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 0,
                     \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
+                    \ 'title' : s:help_def_str,
+                    \ 'zindex' : 50,
                     \})
     endfunction
 
     function! <SID>select_kind_popCB(id, res)
         call s:MFdebug(2, 'kind:res' . a:res . '---')
+        call <SID>close_help_pop()
         " not selected
         if a:res <= 0
             unlet g:tmp_dic_pop
@@ -600,20 +621,27 @@ if !exists('g:mftag_no_need_MFfunclist')
         if len(w:funcs) == 0
             echo 'no contents'
             unlet g:tmp_dic_pop
+            call <SID>close_help_pop()
             return
         endif
 
         call popup_menu(w:funcs, {
                     \ 'callback' : s:SID_PREFIX().'select_func_popCB',
+                    \ 'line' : 3,
+                    \ 'col' : 3,
+                    \ 'pos' : 'topleft',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 0,
                     \ 'filter' : function(s:SID_PREFIX().'popup_open_file_filter'),
+                    \ 'title' : s:help_def_str,
+                    \ 'zindex' : 50,
                     \ })
     endfunction
 
     function! <SID>select_func_popCB(id, res)
         call s:MFdebug(2, 'func:res' . a:res . '---')
+        call <SID>close_help_pop()
         " not selected
         if a:res <= 0
             unlet g:tmp_dic_pop
@@ -680,19 +708,26 @@ if !exists('g:mftag_no_need_MFfunclist')
         if len(ret) == 0
             echo 'no contents'
             unlet g:tmp_dic_pop
+            call <SID>close_help_pop()
             return
         endif
 
         call popup_menu(ret, {
                     \ 'callback' : s:SID_PREFIX().'select_file_popCB',
+                    \ 'line' : 3,
+                    \ 'col' : 3,
+                    \ 'pos' : 'topleft',
                     \ 'maxheight' : &lines-7,
                     \ 'close' : 'button',
                     \ 'mapping' : 0,
                     \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
+                    \ 'title' : s:help_def_str,
+                    \ 'zindex' : 50,
                     \ })
     endfunction
 
     function! <SID>select_file_popCB(id, res)
+        call <SID>close_help_pop()
         let l:ind = a:res-1
         if l:ind >= 0
             call s:MFdebug(2, "open " . g:tmp_dic[l:ind][0] . "::" . g:tmp_dic[l:ind][1])
@@ -708,6 +743,44 @@ if !exists('g:mftag_no_need_MFfunclist')
             execute l:win_info[1] . 'wincmd w'
         endif
         unlet g:tmp_dic
+    endfunction
+
+    function! <SID>close_help_pop()
+        if s:help_opened != 0
+            call popup_close(s:help_opened)
+            let s:help_opened = 0
+        endif
+    endfunction
+
+    function! <SID>open_help_pop(is_file_select)
+        if s:help_opened != 0
+            call <SID>close_help_pop()
+            return
+        endif
+
+        let help_str = []
+        if a:is_file_select
+            let help_str += ['<enter> : open in current window']
+            let help_str += [' <c-t>  : open in new tab']
+            let help_str += [' <c-p>  : open in preview window']
+        else
+            let help_str += ['<enter> : select selection']
+        endif
+        let help_str += [' <c-d>  : five down']
+        let help_str += [' <c-u>  : five up']
+        let help_str += ['   g    : go to top']
+        let help_str += ['   G    : go to bottom']
+        let help_str += ['   ?    : close help window']
+        let help_str += ['  q/x   : close popup window']
+
+        let s:help_opened = popup_create(help_str, #{
+                    \ maxheight : len(help_str),
+                    \ line : 3,
+                    \ pos : 'topleft',
+                    \ title : ' <<< help window >>>',
+                    \ border : [],
+                    \ zindex : 60,
+                    \ })
     endfunction
 
     function! s:echo_mftag_usage(file_types) abort
