@@ -317,17 +317,16 @@ if !exists('g:mftag_no_need_MFfunclist')
                 return
             endif
             let contents = sort(keys(g:tmp_dic_pop))
-            call popup_menu(contents, {
-                        \ 'callback' : s:SID_PREFIX().'select_ft_popCB',
-                        \ 'line' : 3,
-                        \ 'col' : 3,
-                        \ 'pos' : 'topleft',
-                        \ 'maxheight' : &lines-7,
-                        \ 'close' : 'button',
-                        \ 'mapping' : 0,
-                        \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
-                        \ 'title' : s:help_def_str,
-                        \ 'zindex' : 50,
+            call popup_menu(contents, #{
+                        \ callback : s:SID_PREFIX().'select_ft_popCB',
+                        \ col : &columns/2,
+                        \ pos : 'topright',
+                        \ maxheight : &lines-7,
+                        \ close : 'button',
+                        \ mapping : 0,
+                        \ filter : function(s:SID_PREFIX().'popup_my_filter'),
+                        \ title : s:help_def_str,
+                        \ zindex : 50,
                         \})
         else
             execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
@@ -586,17 +585,16 @@ if !exists('g:mftag_no_need_MFfunclist')
             return
         endif
 
-        call popup_menu(w:kinds, {
-                    \ 'callback' : s:SID_PREFIX().'select_kind_popCB',
-                    \ 'line' : 3,
-                    \ 'col' : 3,
-                    \ 'pos' : 'topleft',
-                    \ 'maxheight' : &lines-7,
-                    \ 'close' : 'button',
-                    \ 'mapping' : 0,
-                    \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
-                    \ 'title' : s:help_def_str,
-                    \ 'zindex' : 50,
+        call popup_menu(w:kinds, #{
+                    \ callback : s:SID_PREFIX().'select_kind_popCB',
+                    \ col : &columns/2,
+                    \ pos : 'topright',
+                    \ maxheight : &lines-7,
+                    \ close : 'button',
+                    \ mapping : 0,
+                    \ filter : function(s:SID_PREFIX().'popup_my_filter'),
+                    \ title : s:help_def_str,
+                    \ zindex : 50,
                     \})
     endfunction
 
@@ -625,17 +623,16 @@ if !exists('g:mftag_no_need_MFfunclist')
             return
         endif
 
-        call popup_menu(w:funcs, {
-                    \ 'callback' : s:SID_PREFIX().'select_func_popCB',
-                    \ 'line' : 3,
-                    \ 'col' : 3,
-                    \ 'pos' : 'topleft',
-                    \ 'maxheight' : &lines-7,
-                    \ 'close' : 'button',
-                    \ 'mapping' : 0,
-                    \ 'filter' : function(s:SID_PREFIX().'popup_open_file_filter'),
-                    \ 'title' : s:help_def_str,
-                    \ 'zindex' : 50,
+        call popup_menu(w:funcs, #{
+                    \ callback : s:SID_PREFIX().'select_func_popCB',
+                    \ col : &columns/2,
+                    \ pos : 'topright',
+                    \ maxheight : &lines-7,
+                    \ close : 'button',
+                    \ mapping : 0,
+                    \ filter : function(s:SID_PREFIX().'popup_open_file_filter'),
+                    \ title : s:help_def_str,
+                    \ zindex : 50,
                     \ })
     endfunction
 
@@ -712,17 +709,16 @@ if !exists('g:mftag_no_need_MFfunclist')
             return
         endif
 
-        call popup_menu(ret, {
-                    \ 'callback' : s:SID_PREFIX().'select_file_popCB',
-                    \ 'line' : 3,
-                    \ 'col' : 3,
-                    \ 'pos' : 'topleft',
-                    \ 'maxheight' : &lines-7,
-                    \ 'close' : 'button',
-                    \ 'mapping' : 0,
-                    \ 'filter' : function(s:SID_PREFIX().'popup_my_filter'),
-                    \ 'title' : s:help_def_str,
-                    \ 'zindex' : 50,
+        call popup_menu(ret, #{
+                    \ callback : s:SID_PREFIX().'select_file_popCB',
+                    \ col : &columns/2,
+                    \ pos : 'topright',
+                    \ maxheight : &lines-7,
+                    \ close : 'button',
+                    \ mapping : 0,
+                    \ filter : function(s:SID_PREFIX().'popup_my_filter'),
+                    \ title : s:help_def_str,
+                    \ zindex : 50,
                     \ })
     endfunction
 
@@ -775,8 +771,9 @@ if !exists('g:mftag_no_need_MFfunclist')
 
         let s:help_opened = popup_create(help_str, #{
                     \ maxheight : len(help_str),
-                    \ line : 3,
-                    \ pos : 'topleft',
+                    \ line : &lines/2,
+                    \ col : &columns/2+1,
+                    \ pos : 'botleft',
                     \ title : ' <<< help window >>>',
                     \ border : [],
                     \ zindex : 60,
