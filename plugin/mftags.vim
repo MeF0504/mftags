@@ -259,6 +259,7 @@ endif
 if !exists('g:mftag_no_need_MFfunclist')
 
     let s:help_opened = 0
+    let s:help_def_str = ' ? : open help window'
 
     function! MFshow_func_list(file_types) abort
         call s:MFdebug(1, "")
@@ -326,6 +327,8 @@ if !exists('g:mftag_no_need_MFfunclist')
             execute "silent topleft vertical " . g:mftag_func_list_width . "split " . g:mftag_func_list_name
             call s:set_func_list_win()
             call mftags#show_kind_list(l:file_types, l:file_path, l:kinds, l:tag_files)
+            let s:help_opened = 0
+            call append(0, s:help_def_str)
             setlocal nomodifiable
         endif
     endfunction
@@ -486,7 +489,7 @@ if !exists('g:mftag_no_need_MFfunclist')
         let help_str += [' <c-t>  : open the definition in new tab']
         let help_str += [' <c-p>  : open the definition in preview window']
         let help_str += ['<space><space> : display the definition detail']
-        let help_str += ['   ?    : open/close help window']
+        let help_str += ['   ?    : close help window']
         let help_str += ['   q    : close tag window']
 
         "save old value
@@ -495,8 +498,10 @@ if !exists('g:mftag_no_need_MFfunclist')
         setlocal report=9999
         if s:help_opened == 1
             execute "1,".len(help_str)." delete _"
+            call append(0, s:help_def_str)
             let s:help_opened = 0
         else
+            0delete _
             for i in range(len(help_str))
                 call append(i, help_str[i])
             endfor
