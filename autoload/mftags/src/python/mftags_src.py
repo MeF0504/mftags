@@ -342,8 +342,8 @@ def jump_func(filetype, kind, tag_name):
         mftag_py_debug(1, "\n2; set vim variables")
         return
 
-def show_def(filetype, kind, tag_name):
-    """ search and display the definition of the function/variable/class/ etc...
+def get_def(filetype, kind, tag_name):
+    """ search the definition of the function/variable/class/ etc...
         this function is for mapping of <space><space>
     """
     kind_list = make_lang_list(op.join(src_dir_path,'src/txt/mftags_lang_list'))[filetype]
@@ -353,8 +353,26 @@ def show_def(filetype, kind, tag_name):
     if len(kind) != 1:
         mftag_py_debug(1, 'cannot find kind character for {}. return.'.format(kind))
         return
+
+    res = []
     for ly in g_func_list_dict[filetype][kind][tag_name]:
-        print(ly.split(str_split)[1])
+        res.append(ly.split(str_split)[1])
+    return res
+
+def show_def(filetype, kind, tag_name):
+    """ display the definition of the function/variable/class/ etc...
+    """
+    res = get_def(filetype, kind, tag_name)
+    for r in res:
+        print(r)
+
+def get_def_list(filetype, kind, tag_name):
+    " set the definition to a vim variable 'g:tmp_list'"
+    res = get_def(filetype, kind, tag_name)
+    vim.command('let g:tmp_list = []')
+    for r in res:
+        r = r.replace('"', '\\"')
+        vim.command('call add(g:tmp_list, "{}")'.format(r))
 
 def clean_tag():
     global g_tag_path

@@ -396,6 +396,8 @@ if !exists('g:mftag_no_need_MFfunclist')
     endfunction
 
     function! <SID>get_ft_kind() abort
+        let l:ft = ''
+        let l:kind = ''
         for l:ln in getline(1, '.')
             if l:ln !~ "\t\t"
                 let l:kind = substitute(l:ln, '\t', '', '')
@@ -549,12 +551,16 @@ if !exists('g:mftag_no_need_MFfunclist')
             let w:type = 'preview'
             call popup_close(a:id, line)
             return v:true
-        elseif (a:key ==# "\<CR>") || (a:key ==# "\<space>")
+        elseif a:key ==# "\<CR>"
             let w:type = 'win'
             call popup_close(a:id, line)
             return v:true
         elseif a:key ==# '?'
             call <SID>open_help_pop(1)
+            return v:true
+        elseif a:key ==# "\<space>"
+            call win_execute(a:id, "let line_num = line('.')")
+            call <SID>show_def_pop(line_num)
             return v:true
         endif
 
@@ -759,6 +765,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             let help_str += ['<enter> : open in current window']
             let help_str += [' <c-t>  : open in new tab']
             let help_str += [' <c-p>  : open in preview window']
+            let help_str += ['<space> : display definition line']
         else
             let help_str += ['<enter> : select selection']
         endif
@@ -778,6 +785,22 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ border : [],
                     \ zindex : 60,
                     \ })
+    endfunction
+
+    function! <SID>show_def_pop(line_num)
+        let l:ft = w:ft
+        let l:kind = w:kind
+        let l:func = "\t\t".w:funcs[a:line_num-1]
+        pythonx get_def_list(vim.eval('l:ft'), vim.eval('l:kind'), vim.eval('l:func'))
+
+        call popup_create(g:tmp_list, #{
+                    \ time : 1000,
+                    \ line : &lines/2+1,
+                    \ col : &columns/2+1,
+                    \ pos : 'topleft',
+                    \ zindex : 60,
+                    \ })
+        unlet g:tmp_list
     endfunction
 
     function! s:echo_mftag_usage(file_types) abort
