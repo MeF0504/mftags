@@ -325,7 +325,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                         \ close : 'button',
                         \ mapping : 0,
                         \ filter : function(s:SID_PREFIX().'popup_my_filter'),
-                        \ title : s:help_def_str,
+                        \ title : ' (filetype) ',
                         \ zindex : 50,
                         \})
         else
@@ -593,7 +593,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ close : 'button',
                     \ mapping : 0,
                     \ filter : function(s:SID_PREFIX().'popup_my_filter'),
-                    \ title : s:help_def_str,
+                    \ title : ' (kinds) '.s:help_def_str,
                     \ zindex : 50,
                     \})
     endfunction
@@ -631,7 +631,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ close : 'button',
                     \ mapping : 0,
                     \ filter : function(s:SID_PREFIX().'popup_open_file_filter'),
-                    \ title : s:help_def_str,
+                    \ title : ' (funcs) '.s:help_def_str,
                     \ zindex : 50,
                     \ })
     endfunction
@@ -717,7 +717,7 @@ if !exists('g:mftag_no_need_MFfunclist')
                     \ close : 'button',
                     \ mapping : 0,
                     \ filter : function(s:SID_PREFIX().'popup_my_filter'),
-                    \ title : s:help_def_str,
+                    \ title : ' (files) '.s:help_def_str,
                     \ zindex : 50,
                     \ })
     endfunction
