@@ -549,7 +549,7 @@ if !exists('g:mftag_no_need_MFfunclist')
             let w:type = 'preview'
             call popup_close(a:id, line)
             return v:true
-        elseif a:key ==# "\<CR>"
+        elseif (a:key ==# "\<CR>") || (a:key ==# "\<space>")
             let w:type = 'win'
             call popup_close(a:id, line)
             return v:true
